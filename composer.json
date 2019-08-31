@@ -1,0 +1,31 @@
+{
+    "name":"codeception/module-rest",
+    "description":"REST module for Codeception",
+    "keywords":["codeception", "rest"],
+    "homepage":"http://codeception.com/",
+    "type":"library",
+    "license":"MIT",
+    "authors":[
+        {
+            "name":"Gintautas Miselis"
+        }
+    ],
+    "minimum-stability": "RC",
+
+    "require": {
+        "php": ">=5.6.0 <8.0",
+        "flow/jsonpath": "^0.4.0",
+        "codeception/codeception": "4.0.x-dev"
+    },
+    "require-dev": {
+        "codeception/util-robohelpers": "dev-master",
+        "codeception/util-universalframework": "dev-master",
+        "codeception/lib-innerbrowser": "@dev"
+    },
+    "autoload":{
+        "classmap": ["src/"]
+    },
+    "config": {
+        "classmap-authoritative": true
+    }
+}

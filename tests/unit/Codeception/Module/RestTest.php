@@ -19,7 +19,8 @@ class RestTest extends Unit
         $connector = new \Codeception\Lib\Connector\Universal();
         $connector->setIndex(\Codeception\Configuration::dataDir() . '/rest/index.php');
 
-        $connectionModule = new \Codeception\Module\UniversalFramework(make_container());
+        $container = \Codeception\Util\Stub::make('Codeception\Lib\ModuleContainer');
+        $connectionModule = new \Codeception\Module\UniversalFramework($container);
         $connectionModule->client = $connector;
         $connectionModule->_initialize();
         $this->module = Stub::make('\Codeception\Module\REST');
@@ -512,3 +513,4 @@ class JsonSerializedItem implements JsonSerializable
         return array("hello" => "world");
     }
 }
+
