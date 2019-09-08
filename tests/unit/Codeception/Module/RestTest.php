@@ -1,5 +1,6 @@
 <?php
 
+use Codeception\Module\UniversalFramework;
 use Codeception\Test\Unit;
 use Codeception\Util\Stub;
 
@@ -16,12 +17,10 @@ class RestTest extends Unit
 
     public function _setUp()
     {
-        $connector = new \Codeception\Lib\Connector\Universal();
-        $connector->setIndex(\Codeception\Configuration::dataDir() . '/rest/index.php');
+        $index = \Codeception\Configuration::dataDir() . '/rest/index.php';
 
         $container = \Codeception\Util\Stub::make('Codeception\Lib\ModuleContainer');
-        $connectionModule = new \Codeception\Module\UniversalFramework($container);
-        $connectionModule->client = $connector;
+        $connectionModule = new UniversalFramework($container, ['index' => $index]);
         $connectionModule->_initialize();
         $this->module = Stub::make('\Codeception\Module\REST');
         $this->module->_inject($connectionModule);
@@ -453,7 +452,7 @@ class RestTest extends Unit
     public function testRestExecute($configUrl, $requestUrl, $expectedFullUrl)
     {
         $connectionModule = $this->createMock(
-            \Codeception\Module\UniversalFramework::class
+            UniversalFramework::class
         );
         $connectionModule
             ->expects($this->once())
