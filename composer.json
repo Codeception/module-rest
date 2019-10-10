@@ -15,12 +15,15 @@
     "require": {
         "php": ">=5.6.0 <8.0",
         "flow/jsonpath": "^0.4.0",
-        "codeception/codeception": "4.0.x-dev"
+        "codeception/codeception": "4.0.x-dev | ^4.0"
     },
     "require-dev": {
         "codeception/util-robohelpers": "dev-master",
         "codeception/util-universalframework": "dev-master",
-        "codeception/lib-innerbrowser": "@dev"
+        "codeception/lib-innerbrowser": "^1.0"
+    },
+    "suggest": {
+        "aws/aws-sdk-php": "For using AWS Auth"
     },
     "autoload":{
         "classmap": ["src/"]
