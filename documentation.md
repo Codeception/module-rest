@@ -673,6 +673,7 @@ Here is the list of possible filters:
 * `string:date` - checks that value is date in JavaScript format: https://weblog.west-wind.com/posts/2014/Jan/06/JavaScript-JSON-Date-Parsing-and-real-Dates
 * `string:email` - checks that value is a valid email according to http://emailregex.com/
 * `string:regex({val})` - checks that string matches a regex provided with {val}
+* `string:uuid` - checks that a string is a valid uuid.
 
 This is how filters can be used:
 

@@ -249,4 +249,10 @@ class JsonTypeTest extends \Codeception\Test\Unit
         $this->assertTrue($jsonType->matches(['test' => 'string:regex(<xyz>)']));
         $this->assertTrue($jsonType->matches(['test' => 'string:regex((xyz))']));
     }
+
+    public function testUuid()
+    {
+        $jsonType = new JsonType(['id' => 'a84a2242-f0eb-4278-9035-75b8d7dee9a1']);
+        $this->assertTrue($jsonType->matches(['id' => 'string:uuid']));
+    }
 }

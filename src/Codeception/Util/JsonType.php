@@ -2,6 +2,8 @@
 
 namespace Codeception\Util;
 
+use Ramsey\Uuid\Uuid;
+
 /**
  * JsonType matches JSON structures against templates.
  * You can specify the type of fields in JSON or add additional validation rules.
@@ -225,6 +227,15 @@ class JsonType
         if ($filter === 'empty') {
             return empty($value);
         }
+
+        if ($filter === 'uuid') {
+            if (!class_exists('Ramsey\Uuid\Uuid')) {
+                throw new \Exception('ramsey/uuid library not installed. Please add `ramsey/uuid` to composer.json');
+            }
+
+            return Uuid::isValid($value);
+        }
+
         if (preg_match('~^regex\((.*?)\)$~', $filter, $matches)) {
             return preg_match($matches[1], $value);
         }
