@@ -18,7 +18,7 @@ jobs:
       uses: shivammathur/setup-php@v1
       with:
         php-version: ${{ matrix.php }}
-        extensions: mbstring
+        extensions: mbstring, ext-dom
         coverage: none
 
     - name: Validate composer.json and composer.lock
