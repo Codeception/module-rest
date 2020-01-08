@@ -20,7 +20,8 @@
     "require-dev": {
         "codeception/util-robohelpers": "dev-master",
         "codeception/util-universalframework": "^1.0",
-        "codeception/lib-innerbrowser": "^1.0"
+        "codeception/lib-innerbrowser": "^1.0",
+        "codeception/module-phpbrowser": "^1.0"
     },
     "suggest": {
         "aws/aws-sdk-php": "For using AWS Auth"
