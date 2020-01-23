@@ -19,6 +19,8 @@ use Codeception\Util\JsonArray;
 use Codeception\Util\JsonType;
 use Codeception\Util\XmlStructure;
 use Codeception\Util\Soap as XmlUtils;
+use JsonSchema\Validator as JsonSchemaValidator;
+use JsonSchema\Constraints\Constraint as JsonContraint;
 
 /**
  * Module for testing REST WebService.
@@ -838,6 +840,57 @@ EOF;
         \PHPUnit\Framework\Assert::assertThat(
             $this->connectionModule->_getResponseContent(),
             new JsonContains($json)
+        );
+    }
+
+    /**
+     * Checks whether last response matches the supplied json schema
+     * Supply schema as json string
+     *
+     * @part json
+     */
+    public function seeResponseIsValidOnJsonSchema($schema)
+    {
+        $responseContent = $this->connectionModule->_getResponseContent();
+        \PHPUnit\Framework\Assert::assertNotEquals('', $responseContent, 'response is empty');
+        $responseObject = json_decode($responseContent);
+        $errorCode = json_last_error();
+        $errorMessage = json_last_error_msg();
+        \PHPUnit\Framework\Assert::assertEquals(
+            JSON_ERROR_NONE,
+            $errorCode,
+            sprintf(
+                "Invalid json: %s. System message: %s.",
+                $responseContent,
+                $errorMessage
+            )
+        );
+
+        \PHPUnit\Framework\Assert::assertNotEquals('', $schema, 'schema is empty');
+        $schemaObject = json_decode($schema, true);
+        $errorCode = json_last_error();
+        $errorMessage = json_last_error_msg();
+        \PHPUnit\Framework\Assert::assertEquals(
+            JSON_ERROR_NONE,
+            $errorCode,
+            sprintf(
+                "Invalid schema json: %s. System message: %s.",
+                $responseContent,
+                $errorMessage
+            )
+        );
+
+        $validator = new JsonSchemaValidator();
+        $validator->validate($responseObject, $schemaObject, JsonContraint::CHECK_MODE_VALIDATE_SCHEMA);
+        $outcome = $validator->isValid();
+        $error = "";
+        if (!$outcome) {
+            $errors = $validator->getErrors();
+            $error = array_shift($errors)["message"];
+        }
+        \PHPUnit\Framework\Assert::assertTrue(
+            $outcome,
+            $error
         );
     }
 

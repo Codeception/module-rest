@@ -443,6 +443,29 @@ class RestTest extends Unit
     }
 
     /**
+     * @param $schema
+     * @param $response
+     * @param $outcome
+     * @param $error
+     *
+     * @dataProvider schemaAndResponse
+     */
+
+    public function testSeeResponseIsValidOnJsonSchemachesJsonSchema($schema, $response, $outcome, $error) {
+
+        $response = file_get_contents(codecept_data_dir($response));
+        $this->setStubResponse($response);
+
+        $validSchema = file_get_contents(codecept_data_dir($schema));
+
+        if (!$outcome) {
+            $this->expectExceptionMessage($error);
+            $this->shouldFail();
+        }
+        $this->module->seeResponseIsValidOnJsonSchema($validSchema);
+    }
+
+    /**
      * @param $configUrl
      * @param $requestUrl
      * @param $expectedFullUrl
@@ -479,6 +502,17 @@ class RestTest extends Unit
         $module->_before(Stub::makeEmpty('\Codeception\Test\Test'));
 
         $module->sendGET($requestUrl);
+    }
+
+    public static function schemaAndResponse()
+    {
+        return [
+            //schema, responsefile, valid
+            ['schemas/basic-schema.json', 'responses/valid-basic-schema.json', true, ""],
+            ['schemas/basic-schema.json', 'responses/invalid-basic-schema.json', false, "Must have a minimum value of 0"],
+            ['schemas/complex-schema.json', 'responses/valid-complex-schema.json', true, ""],
+            ['schemas/complex-schema.json', 'responses/invalid-complex-schema.json', false, "String value found, but a boolean is required"]
+        ];
     }
 
     public static function configAndRequestUrls()
