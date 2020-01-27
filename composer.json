@@ -15,7 +15,8 @@
     "require": {
         "php": ">=5.6.0 <8.0",
         "flow/jsonpath": "^0.5",
-        "codeception/codeception": "^4.0"
+        "codeception/codeception": "^4.0",
+        "justinrainbow/json-schema": "^5.2.9"
     },
     "require-dev": {
         "codeception/util-robohelpers": "dev-master",

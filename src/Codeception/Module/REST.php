@@ -19,6 +19,8 @@ use Codeception\Util\JsonArray;
 use Codeception\Util\JsonType;
 use Codeception\Util\XmlStructure;
 use Codeception\Util\Soap as XmlUtils;
+use JsonSchema\Validator as JsonSchemaValidator;
+use JsonSchema\Constraints\Constraint as JsonContraint;
 
 /**
  * Module for testing REST WebService.
@@ -771,18 +773,7 @@ EOF;
     {
         $responseContent = $this->connectionModule->_getResponseContent();
         \PHPUnit\Framework\Assert::assertNotEquals('', $responseContent, 'response is empty');
-        json_decode($responseContent);
-        $errorCode = json_last_error();
-        $errorMessage = json_last_error_msg();
-        \PHPUnit\Framework\Assert::assertEquals(
-            JSON_ERROR_NONE,
-            $errorCode,
-            sprintf(
-                "Invalid json: %s. System message: %s.",
-                $responseContent,
-                $errorMessage
-            )
-        );
+        $this->decodeAndValidateJson($responseContent);
     }
 
     /**
@@ -839,6 +830,58 @@ EOF;
             $this->connectionModule->_getResponseContent(),
             new JsonContains($json)
         );
+    }
+
+    /**
+     * Checks whether last response matches the supplied json schema
+     * Supply schema as json string
+     *
+     * @part json
+     */
+    public function seeResponseIsValidOnJsonSchema($schema)
+    {
+        $responseContent = $this->connectionModule->_getResponseContent();
+        \PHPUnit\Framework\Assert::assertNotEquals('', $responseContent, 'response is empty');
+        $responseObject = $this->decodeAndValidateJson($responseContent);
+
+        \PHPUnit\Framework\Assert::assertNotEquals('', $schema, 'schema is empty');
+        $schemaObject = $this->decodeAndValidateJson($schema, "Invalid schema json: %s. System message: %s.");
+
+        $validator = new JsonSchemaValidator();
+        $validator->validate($responseObject, $schemaObject, JsonContraint::CHECK_MODE_VALIDATE_SCHEMA);
+        $outcome = $validator->isValid();
+        $error = "";
+        if (!$outcome) {
+            $errors = $validator->getErrors();
+            $error = array_shift($errors)["message"];
+        }
+        \PHPUnit\Framework\Assert::assertTrue(
+            $outcome,
+            $error
+        );
+    }
+
+    /**
+     * Converts string to json and asserts that no error occured while decoding.
+     *
+     * @param string $jsonString the json encoded string
+     * @param string $errorFormat optional string for custom sprintf format
+     */
+    protected function decodeAndValidateJson($jsonString, $errorFormat="Invalid json: %s. System message: %s.")
+    {
+        $json = json_decode($jsonString);
+        $errorCode = json_last_error();
+        $errorMessage = json_last_error_msg();
+        \PHPUnit\Framework\Assert::assertEquals(
+            JSON_ERROR_NONE,
+            $errorCode,
+            sprintf(
+                $errorFormat,
+                $jsonString,
+                $errorMessage
+            )
+        );
+        return $json;
     }
 
     /**
