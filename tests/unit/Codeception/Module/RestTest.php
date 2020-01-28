@@ -465,6 +465,21 @@ class RestTest extends Unit
         $this->module->seeResponseIsValidOnJsonSchema($validSchema);
     }
 
+    public function testSeeResponseIsValidOnJsonSchemachesJsonSchemaUsingExample() {
+        $this->setStubResponse('{"name": "john", "age": 20}');
+        $this->module->seeResponseIsValidOnJsonSchema('{"type": "object"}');
+
+        $schema = [
+            "properties" => [
+                "age" => [
+                    "type" => "integer",
+                    "minimum" => 18
+                ]
+            ]
+        ];
+        $this->module->seeResponseIsValidOnJsonSchema(json_encode($schema));
+    }
+
     /**
      * @param $configUrl
      * @param $requestUrl

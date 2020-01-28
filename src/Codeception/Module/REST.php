@@ -833,9 +833,31 @@ EOF;
     }
 
     /**
-     * Checks whether last response matches the supplied json schema
-     * Supply schema as json string
+     * Checks whether last response matches the supplied json schema (https://json-schema.org/)
+     * Supply schema as json string.
      *
+     * Examples:
+     *
+     * ``` php
+     * <?php
+     * // response: {"name": "john", "age": 20}
+     * $I->seeResponseIsValidOnJsonSchema('{"type": "object"}');
+     *
+     * // response {"name": "john", "age": 20}
+     * $schema = [
+     *  "properties" => [
+     *      "age" => [
+     *          "type" => "integer",
+     *          "minimum" => 18
+     *      ]
+     *  ]
+     * ];
+     * $I->seeResponseIsValidOnJsonSchema(json_encode($schema));
+     *
+     * ?>
+     * ```
+     *
+     * @param string $schema
      * @part json
      */
     public function seeResponseIsValidOnJsonSchema($schema)
