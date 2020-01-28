@@ -456,18 +456,16 @@ class RestTest extends Unit
         $response = file_get_contents(codecept_data_dir($response));
         $this->setStubResponse($response);
 
-        $validSchema = file_get_contents(codecept_data_dir($schema));
-
         if (!$outcome) {
             $this->expectExceptionMessage($error);
             $this->shouldFail();
         }
-        $this->module->seeResponseIsValidOnJsonSchema($validSchema);
+        $this->module->seeResponseIsValidOnJsonSchema($schema);
     }
 
-    public function testSeeResponseIsValidOnJsonSchemachesJsonSchemaUsingExample() {
+    public function testSeeResponseIsValidOnJsonSchemachesJsonSchemaString() {
         $this->setStubResponse('{"name": "john", "age": 20}');
-        $this->module->seeResponseIsValidOnJsonSchema('{"type": "object"}');
+        $this->module->seeResponseIsValidOnJsonSchemaString('{"type": "object"}');
 
         $schema = [
             "properties" => [
@@ -477,7 +475,7 @@ class RestTest extends Unit
                 ]
             ]
         ];
-        $this->module->seeResponseIsValidOnJsonSchema(json_encode($schema));
+        $this->module->seeResponseIsValidOnJsonSchemaString(json_encode($schema));
     }
 
     /**

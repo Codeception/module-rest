@@ -841,7 +841,7 @@ EOF;
      * ``` php
      * <?php
      * // response: {"name": "john", "age": 20}
-     * $I->seeResponseIsValidOnJsonSchema('{"type": "object"}');
+     * $I->seeResponseIsValidOnJsonSchemaString('{"type": "object"}');
      *
      * // response {"name": "john", "age": 20}
      * $schema = [
@@ -852,7 +852,7 @@ EOF;
      *      ]
      *  ]
      * ];
-     * $I->seeResponseIsValidOnJsonSchema(json_encode($schema));
+     * $I->seeResponseIsValidOnJsonSchemaString(json_encode($schema));
      *
      * ?>
      * ```
@@ -860,7 +860,7 @@ EOF;
      * @param string $schema
      * @part json
      */
-    public function seeResponseIsValidOnJsonSchema($schema)
+    public function seeResponseIsValidOnJsonSchemaString($schema)
     {
         $responseContent = $this->connectionModule->_getResponseContent();
         \PHPUnit\Framework\Assert::assertNotEquals('', $responseContent, 'response is empty');
@@ -881,6 +881,24 @@ EOF;
             $outcome,
             $error
         );
+    }
+
+    /**
+     * Checks whether last response matches the supplied json schema (https://json-schema.org/)
+     * Supply schema as filepath in your codeception data directory.
+     *
+     * @see codecept_data_dir()
+     *
+     * @param string $schemaFilename
+     * @part json
+     */
+    public function seeResponseIsValidOnJsonSchema($schemaFilename)
+    {
+        $file = codecept_data_dir() . $schemaFilename;
+        if (!file_exists($file)) {
+            throw new ModuleException(__CLASS__, "File $file does not exist");
+        }
+        $this->seeResponseIsValidOnJsonSchemaString(file_get_contents($file));
     }
 
     /**
