@@ -460,7 +460,7 @@ class RestTest extends Unit
             $this->expectExceptionMessage($error);
             $this->shouldFail();
         }
-        $this->module->seeResponseIsValidOnJsonSchema($schema);
+        $this->module->seeResponseIsValidOnJsonSchema(codecept_data_dir($schema));
     }
 
     public function testSeeResponseIsValidOnJsonSchemachesJsonSchemaString() {

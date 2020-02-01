@@ -885,16 +885,16 @@ EOF;
 
     /**
      * Checks whether last response matches the supplied json schema (https://json-schema.org/)
-     * Supply schema as filepath in your codeception data directory.
+     * Supply schema as relative file path in your project directory or an absolute path
      *
-     * @see codecept_data_dir()
+     * @see codecept_absolute_path()
      *
      * @param string $schemaFilename
      * @part json
      */
     public function seeResponseIsValidOnJsonSchema($schemaFilename)
     {
-        $file = codecept_data_dir() . $schemaFilename;
+        $file = codecept_absolute_path($schemaFilename);
         if (!file_exists($file)) {
             throw new ModuleException(__CLASS__, "File $file does not exist");
         }
