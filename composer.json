@@ -11,11 +11,10 @@
         }
     ],
     "minimum-stability": "RC",
-
     "require": {
         "php": ">=5.6.0 <8.0",
         "flow/jsonpath": "^0.4.0",
-        "codeception/codeception": "4.0.x-dev | ^4.0"
+        "codeception/codeception": "^4.0"
     },
     "require-dev": {
         "codeception/util-robohelpers": "dev-master",
