@@ -1,6 +1,6 @@
 # REST module for Codeception
 
-[![Build Status](https://travis-ci.org/Codeception/module-rest.svg?branch=master)](https://travis-ci.org/Codeception/module-rest)
+![Build Status](https://github.com/Codeception/module-rest/workflows/CI/badge.svg)
 
 ## Installation
 
