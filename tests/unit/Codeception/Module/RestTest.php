@@ -442,6 +442,64 @@ class RestTest extends Unit
         $this->module->amDigestAuthenticated('username', 'password');
     }
 
+    public function testCanResetHTTPAuthenticated()
+    {
+        $this->module->amHttpAuthenticated('user', 'pass');
+        $this->module->sendGET('/rest/user/');
+        $server = $this->module->client->getRequest()->getServer();
+        $this->assertArrayHasKey('PHP_AUTH_USER', $server);
+        $this->assertArrayHasKey('PHP_AUTH_PW', $server);
+        $this->module->setServerParameters([]);
+        $this->module->sendGET('/rest/user/');
+        $server = $this->module->client->getRequest()->getServer();
+        $this->assertArrayNotHasKey('PHP_AUTH_USER', $server);
+        $this->assertArrayNotHasKey('PHP_AUTH_PW', $server);
+    }
+
+    public function testHaveServerParameter()
+    {
+        $this->module->haveServerParameter('my', 'param');
+        $this->module->sendGET('/rest/user/');
+        $server = $this->module->client->getRequest()->getServer();
+        $this->assertArrayHasKey('my', $server);
+    }
+
+    /**
+     * @param $schema
+     * @param $response
+     * @param $outcome
+     * @param $error
+     *
+     * @dataProvider schemaAndResponse
+     */
+
+    public function testSeeResponseIsValidOnJsonSchemachesJsonSchema($schema, $response, $outcome, $error) {
+
+        $response = file_get_contents(codecept_data_dir($response));
+        $this->setStubResponse($response);
+
+        if (!$outcome) {
+            $this->expectExceptionMessage($error);
+            $this->shouldFail();
+        }
+        $this->module->seeResponseIsValidOnJsonSchema(codecept_data_dir($schema));
+    }
+
+    public function testSeeResponseIsValidOnJsonSchemachesJsonSchemaString() {
+        $this->setStubResponse('{"name": "john", "age": 20}');
+        $this->module->seeResponseIsValidOnJsonSchemaString('{"type": "object"}');
+
+        $schema = [
+            "properties" => [
+                "age" => [
+                    "type" => "integer",
+                    "minimum" => 18
+                ]
+            ]
+        ];
+        $this->module->seeResponseIsValidOnJsonSchemaString(json_encode($schema));
+    }
+
     /**
      * @param $configUrl
      * @param $requestUrl
@@ -479,6 +537,17 @@ class RestTest extends Unit
         $module->_before(Stub::makeEmpty('\Codeception\Test\Test'));
 
         $module->sendGET($requestUrl);
+    }
+
+    public static function schemaAndResponse()
+    {
+        return [
+            //schema, responsefile, valid
+            ['schemas/basic-schema.json', 'responses/valid-basic-schema.json', true, ""],
+            ['schemas/basic-schema.json', 'responses/invalid-basic-schema.json', false, "Must have a minimum value of 0"],
+            ['schemas/complex-schema.json', 'responses/valid-complex-schema.json', true, ""],
+            ['schemas/complex-schema.json', 'responses/invalid-complex-schema.json', false, "String value found, but a boolean is required"]
+        ];
     }
 
     public static function configAndRequestUrls()

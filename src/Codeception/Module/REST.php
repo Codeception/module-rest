@@ -19,6 +19,8 @@ use Codeception\Util\JsonArray;
 use Codeception\Util\JsonType;
 use Codeception\Util\XmlStructure;
 use Codeception\Util\Soap as XmlUtils;
+use JsonSchema\Validator as JsonSchemaValidator;
+use JsonSchema\Constraints\Constraint as JsonContraint;
 
 /**
  * Module for testing REST WebService.
@@ -771,18 +773,7 @@ EOF;
     {
         $responseContent = $this->connectionModule->_getResponseContent();
         \PHPUnit\Framework\Assert::assertNotEquals('', $responseContent, 'response is empty');
-        json_decode($responseContent);
-        $errorCode = json_last_error();
-        $errorMessage = json_last_error_msg();
-        \PHPUnit\Framework\Assert::assertEquals(
-            JSON_ERROR_NONE,
-            $errorCode,
-            sprintf(
-                "Invalid json: %s. System message: %s.",
-                $responseContent,
-                $errorMessage
-            )
-        );
+        $this->decodeAndValidateJson($responseContent);
     }
 
     /**
@@ -839,6 +830,98 @@ EOF;
             $this->connectionModule->_getResponseContent(),
             new JsonContains($json)
         );
+    }
+
+    /**
+     * Checks whether last response matches the supplied json schema (https://json-schema.org/)
+     * Supply schema as json string.
+     *
+     * Examples:
+     *
+     * ``` php
+     * <?php
+     * // response: {"name": "john", "age": 20}
+     * $I->seeResponseIsValidOnJsonSchemaString('{"type": "object"}');
+     *
+     * // response {"name": "john", "age": 20}
+     * $schema = [
+     *  "properties" => [
+     *      "age" => [
+     *          "type" => "integer",
+     *          "minimum" => 18
+     *      ]
+     *  ]
+     * ];
+     * $I->seeResponseIsValidOnJsonSchemaString(json_encode($schema));
+     *
+     * ?>
+     * ```
+     *
+     * @param string $schema
+     * @part json
+     */
+    public function seeResponseIsValidOnJsonSchemaString($schema)
+    {
+        $responseContent = $this->connectionModule->_getResponseContent();
+        \PHPUnit\Framework\Assert::assertNotEquals('', $responseContent, 'response is empty');
+        $responseObject = $this->decodeAndValidateJson($responseContent);
+
+        \PHPUnit\Framework\Assert::assertNotEquals('', $schema, 'schema is empty');
+        $schemaObject = $this->decodeAndValidateJson($schema, "Invalid schema json: %s. System message: %s.");
+
+        $validator = new JsonSchemaValidator();
+        $validator->validate($responseObject, $schemaObject, JsonContraint::CHECK_MODE_VALIDATE_SCHEMA);
+        $outcome = $validator->isValid();
+        $error = "";
+        if (!$outcome) {
+            $errors = $validator->getErrors();
+            $error = array_shift($errors)["message"];
+        }
+        \PHPUnit\Framework\Assert::assertTrue(
+            $outcome,
+            $error
+        );
+    }
+
+    /**
+     * Checks whether last response matches the supplied json schema (https://json-schema.org/)
+     * Supply schema as relative file path in your project directory or an absolute path
+     *
+     * @see codecept_absolute_path()
+     *
+     * @param string $schemaFilename
+     * @part json
+     */
+    public function seeResponseIsValidOnJsonSchema($schemaFilename)
+    {
+        $file = codecept_absolute_path($schemaFilename);
+        if (!file_exists($file)) {
+            throw new ModuleException(__CLASS__, "File $file does not exist");
+        }
+        $this->seeResponseIsValidOnJsonSchemaString(file_get_contents($file));
+    }
+
+    /**
+     * Converts string to json and asserts that no error occured while decoding.
+     *
+     * @param string $jsonString the json encoded string
+     * @param string $errorFormat optional string for custom sprintf format
+     */
+    protected function decodeAndValidateJson($jsonString, $errorFormat="Invalid json: %s. System message: %s.")
+    {
+        $json = json_decode($jsonString);
+        $errorCode = json_last_error();
+        $errorMessage = json_last_error_msg();
+        \PHPUnit\Framework\Assert::assertEquals(
+            JSON_ERROR_NONE,
+            $errorCode,
+            sprintf(
+                $errorFormat,
+                $jsonString,
+                $errorMessage
+            )
+        );
+        return $json;
     }
 
     /**
@@ -1507,5 +1590,30 @@ EOF;
     public function startFollowingRedirects()
     {
         $this->client->followRedirects(true);
+    }
+    
+    /**
+     * Sets SERVER parameters valid for all next requests.
+     * this will remove old ones.
+     * 
+     * ```php
+     * $I->setServerParameters([]);
+     * ```
+     */
+    public function setServerParameters(array $params)
+    {
+        $this->client->setServerParameters($params);
+    }
+    
+    /**
+     * Sets SERVER parameter valid for all next requests.
+     * 
+     * ```php
+     * $I->haveServerParameter('name', 'value');
+     * ```
+     */
+    public function haveServerParameter($name, $value)
+    {
+        $this->client->setServerParameter($name, $value);
     }
 }
