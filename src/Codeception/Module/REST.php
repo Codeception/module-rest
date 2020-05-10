@@ -1196,7 +1196,7 @@ EOF;
      * // {'user_id': '1'}
      * $I->seeResponseMatchesJsonType([
      *      'user_id' => 'string:>0', // works with strings as well
-     * }
+     * ]);
      * ?>
      * ```
      *
