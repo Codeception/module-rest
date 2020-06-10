@@ -1131,7 +1131,7 @@ EOF;
     /**
      * Checks that JSON matches provided types.
      * In case you don't know the actual values of JSON data returned you can match them by type.
-     * It starts the check with a root element. If JSON data is array it will check the first element of an array.
+     * It starts the check with a root element. If JSON data is an array it will check all elements of it.
      * You can specify the path in the json which should be checked with JsonPath
      *
      * Basic example:
