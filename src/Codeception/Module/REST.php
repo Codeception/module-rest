@@ -35,6 +35,9 @@ use JsonSchema\Constraints\Constraint as JsonContraint;
  * * shortDebugResponse *optional* - amount of chars to limit the api response length
  *
  * This module requires PHPBrowser or any of Framework modules enabled.
+ * 
+ * In case you need to configure low-level HTTP fields, that's done on the PHPBrowser level.
+ * Check the example below for details.
  *
  * ### Example
  *
@@ -42,8 +45,13 @@ use JsonSchema\Constraints\Constraint as JsonContraint;
  *        enabled:
  *            - REST:
  *                depends: PhpBrowser
- *                url: 'http://serviceapp/api/v1/'
+ *                url: &url 'http://serviceapp/api/v1/' # you only need the &url anchor for further PhpBrowser configs
  *                shortDebugResponse: 300 # only the first 300 chars of the response
+ *        config:
+ *            PhpBrowser:
+ *                url: *url # repeats the URL from the REST module; not needed if you don't have further settings like below
+ *                headers:
+ *                    Content-Type: application/json
  *
  * ## Public Properties
  *
