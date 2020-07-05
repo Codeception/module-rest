@@ -1129,9 +1129,9 @@ EOF;
     }
 
     /**
-     * Checks that Json matches provided types.
+     * Checks that JSON matches provided types.
      * In case you don't know the actual values of JSON data returned you can match them by type.
-     * Starts check with a root element. If JSON data is array it will check the first element of an array.
+     * It starts the check with a root element. If JSON data is an array it will check all elements of it.
      * You can specify the path in the json which should be checked with JsonPath
      *
      * Basic example:
@@ -1151,7 +1151,7 @@ EOF;
      * ?>
      * ```
      *
-     * In this case you can match that record contains fields with data types you expected.
+     * You can check if the record contains fields with the data types you expect.
      * The list of possible data types:
      *
      * * string
@@ -1159,8 +1159,9 @@ EOF;
      * * float
      * * array (json object is array as well)
      * * boolean
+     * * null
      *
-     * You can also use nested data type structures:
+     * You can also use nested data type structures, and define multiple types for the same field:
      *
      * ```php
      * <?php
@@ -1172,7 +1173,8 @@ EOF;
      * ?>
      * ```
      *
-     * You can also apply filters to check values. Filter can be applied with `:` char after the type declaration.
+     * You can also apply filters to check values. Filter can be applied with a `:` char after the type declaration,
+     * or after another filter if you need more than one.
      *
      * Here is the list of possible filters:
      *
@@ -1200,12 +1202,13 @@ EOF;
      * ?>
      * ```
      *
-     * You can also add custom filters y accessing `JsonType::addCustomFilter` method.
+     * You can also add custom filters by using `{@link JsonType::addCustomFilter()}`.
      * See [JsonType reference](http://codeception.com/docs/reference/JsonType).
      *
      * @part json
      * @param array $jsonType
      * @param string $jsonPath
+     * @see JsonType
      * @version 2.1.3
      */
     public function seeResponseMatchesJsonType(array $jsonType, $jsonPath = null)
