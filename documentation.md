@@ -668,20 +668,25 @@ You can also apply filters to check values. Filter can be applied with `:` char 
 Here is the list of possible filters:
 
 * `integer:>{val}` - checks that integer is greater than {val} (works with float and string types too).
+* `integer:>={val}` - checks that integer is greater or equal than {val} (works with float and string types too).
 * `integer:<{val}` - checks that integer is lower than {val} (works with float and string types too).
+* `integer:<={val}` - checks that integer is lower or equal than {val} (works with float and string types too).
 * `string:url` - checks that value is valid url.
 * `string:date` - checks that value is date in JavaScript format: https://weblog.west-wind.com/posts/2014/Jan/06/JavaScript-JSON-Date-Parsing-and-real-Dates
 * `string:email` - checks that value is a valid email according to http://emailregex.com/
 * `string:regex({val})` - checks that string matches a regex provided with {val}
+* `string:empty` - checks that string is empty
 
 This is how filters can be used:
 
 ```php
 <?php
-// {'user_id': 1, 'email' => 'davert@codeception.com'}
+// {'user_id': 1, 'email' => 'davert@codeception.com', 'name': 'Michael Bodnarchuk', 'karma': -15}
 $I->seeResponseMatchesJsonType([
      'user_id' => 'string:>0:<1000', // multiple filters can be used
-     'email' => 'string:regex(~\@~)' // we just check that @ char is included
+     'email' => 'string:regex(~\@~)', // we just check that @ char is included
+     'name' => 'string:!empty', // we can check the opposite condition prepending the ! char
+     'karma' => 'integer:>-1000:<1000' // negative values can also be used                
 ]);
 
 // {'user_id': '1'}

@@ -40,6 +40,7 @@ class JsonTypeTest extends \Codeception\Test\Unit
 
     public function testIntegerFilter()
     {
+        $this->data['karma'] = -15;
         $jsonType = new JsonType($this->data);
         $this->assertStringContainsString('`id: 11` is of type', $jsonType->matches(['id' => 'integer:<5']));
         $this->assertStringContainsString('`id: 11` is of type', $jsonType->matches(['id' => 'integer:>15']));
@@ -47,6 +48,24 @@ class JsonTypeTest extends \Codeception\Test\Unit
         $this->assertTrue($jsonType->matches(['id' => 'integer:>5']));
         $this->assertTrue($jsonType->matches(['id' => 'integer:>5:<12']));
         $this->assertNotTrue($jsonType->matches(['id' => 'integer:>5:<10']));
+        $this->assertTrue($jsonType->matches(['id' => 'integer:>=10']));
+        $this->assertTrue($jsonType->matches(['id' => 'integer:>=11']));
+        $this->assertNotTrue($jsonType->matches(['id' => 'integer:>=12']));
+        $this->assertTrue($jsonType->matches(['id' => 'integer:<=11']));
+        $this->assertTrue($jsonType->matches(['id' => 'integer:<=12']));
+        $this->assertNotTrue($jsonType->matches(['id' => 'integer:<=10']));
+        $this->assertTrue($jsonType->matches(['id' => 'integer:<=11:>=11:<=12:>=10']));
+        $this->assertNotTrue($jsonType->matches(['id' => 'integer:<=11:>=11:<=12:<=10']));
+        $this->assertTrue($jsonType->matches(['karma' => 'integer:<-14']));
+        $this->assertNotTrue($jsonType->matches(['karma' => 'integer:<-15']));
+        $this->assertTrue($jsonType->matches(['karma' => 'integer:>-16']));
+        $this->assertNotTrue($jsonType->matches(['karma' => 'integer:>-15']));
+        $this->assertTrue($jsonType->matches(['karma' => 'integer:<=-14']));
+        $this->assertTrue($jsonType->matches(['karma' => 'integer:<=-15']));
+        $this->assertNotTrue($jsonType->matches(['karma' => 'integer:<=-16']));
+        $this->assertTrue($jsonType->matches(['karma' => 'integer:>=-16']));
+        $this->assertTrue($jsonType->matches(['karma' => 'integer:>=-15']));
+        $this->assertNotTrue($jsonType->matches(['karma' => 'integer:>=-14']));
     }
 
     public function testUrlFilter()
