@@ -35,7 +35,7 @@ use JsonSchema\Constraints\Constraint as JsonContraint;
  * * shortDebugResponse *optional* - amount of chars to limit the api response length
  *
  * This module requires PHPBrowser or any of Framework modules enabled.
- * 
+ *
  * In case you need to configure low-level HTTP fields, that's done on the PHPBrowser level.
  * Check the example below for details.
  *
@@ -358,11 +358,8 @@ EOF;
         if ($this->isFunctional) {
             throw new ModuleException(__METHOD__, 'Not supported by functional modules');
         }
-        if (!defined('\GuzzleHttp\Client::VERSION')) {
+        if (!defined('\GuzzleHttp\Client::MAJOR_VERSION') && !defined('\GuzzleHttp\Client::VERSION')) {
             throw new ModuleException(__METHOD__, 'Not supported if not using a Guzzle client');
-        }
-        if (version_compare(\GuzzleHttp\Client::VERSION, '6.2.1', 'lt')) {
-            throw new ModuleException(__METHOD__, 'Guzzle ' . \GuzzleHttp\Client::VERSION . ' found. Requires Guzzle >=6.3.0 for NTLM auth option');
         }
         $this->client->setAuth($username, $password, 'ntlm');
     }
@@ -1602,11 +1599,11 @@ EOF;
     {
         $this->client->followRedirects(true);
     }
-    
+
     /**
      * Sets SERVER parameters valid for all next requests.
      * this will remove old ones.
-     * 
+     *
      * ```php
      * $I->setServerParameters([]);
      * ```
@@ -1615,10 +1612,10 @@ EOF;
     {
         $this->client->setServerParameters($params);
     }
-    
+
     /**
      * Sets SERVER parameter valid for all next requests.
-     * 
+     *
      * ```php
      * $I->haveServerParameter('name', 'value');
      * ```
