@@ -168,7 +168,7 @@ EOF;
     }
 
     /**
-     * Sets HTTP header valid for all next requests. Use `deleteHeader` to unset it
+     * Sets a HTTP header to be used for all subsequent requests. Use [`deleteHeader`](#deleteHeader) to unset it.
      *
      * ```php
      * <?php
@@ -188,8 +188,7 @@ EOF;
     }
 
     /**
-     * Deletes the header with the passed name.  Subsequent requests
-     * will not have the deleted header in its request.
+     * Deletes a HTTP header, so that subsequent requests will not send it anymore.
      *
      * Example:
      * ```php
