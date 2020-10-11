@@ -188,7 +188,8 @@ EOF;
     }
 
     /**
-     * Deletes a HTTP header, so that subsequent requests will not send it anymore.
+     * Deletes a HTTP header (that was originally added by [haveHttpHeader()](#haveHttpHeader)),
+     * so that subsequent requests will not send it anymore.
      *
      * Example:
      * ```php
