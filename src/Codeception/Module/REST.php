@@ -188,7 +188,8 @@ EOF;
     }
 
     /**
-     * Deletes a HTTP header, so that subsequent requests will not send it anymore.
+     * Deletes a HTTP header (that was originally added by [haveHttpHeader()](#haveHttpHeader)),
+     * so that subsequent requests will not send it anymore.
      *
      * Example:
      * ```php
@@ -429,6 +430,12 @@ EOF;
      *          'tmp_name' => codecept_data_dir('sample_file.pdf')
      *     ]
      * ]);
+     * // If your field names contain square brackets (e.g. `<input type="text" name="form[task]">`),
+     * // PHP parses them into an array. In this case you need to pass the fields like this:
+     * $I->sendPOST('/add-task', ['form' => [
+     *     'task' => 'lorem ipsum',
+     *     'category' => 'miscellaneous',
+     * ]]);
      * ```
      *
      * @param $url
