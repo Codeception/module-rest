@@ -195,10 +195,10 @@ EOF;
      * ```php
      * <?php
      * $I->haveHttpHeader('X-Requested-With', 'Codeception');
-     * $I->sendGET('test-headers.php');
+     * $I->sendGet('test-headers.php');
      * // ...
      * $I->deleteHeader('X-Requested-With');
-     * $I->sendPOST('some-other-page.php');
+     * $I->sendPost('some-other-page.php');
      * ?>
      * ```
      *
@@ -417,11 +417,11 @@ EOF;
      * ```php
      * <?php
      * //simple POST call
-     * $I->sendPOST('/message', ['subject' => 'Read this!', 'to' => 'johndoe@example.com']);
+     * $I->sendPost('/message', ['subject' => 'Read this!', 'to' => 'johndoe@example.com']);
      * //simple upload method
-     * $I->sendPOST('/message/24', ['inline' => 0], ['attachmentFile' => codecept_data_dir('sample_file.pdf')]);
+     * $I->sendPost('/message/24', ['inline' => 0], ['attachmentFile' => codecept_data_dir('sample_file.pdf')]);
      * //uploading a file with a custom name and mime-type. This is also useful to simulate upload errors.
-     * $I->sendPOST('/message/24', ['inline' => 0], [
+     * $I->sendPost('/message/24', ['inline' => 0], [
      *     'attachmentFile' => [
      *          'name' => 'document.pdf',
      *          'type' => 'application/pdf',
@@ -432,7 +432,7 @@ EOF;
      * ]);
      * // If your field names contain square brackets (e.g. `<input type="text" name="form[task]">`),
      * // PHP parses them into an array. In this case you need to pass the fields like this:
-     * $I->sendPOST('/add-task', ['form' => [
+     * $I->sendPost('/add-task', ['form' => [
      *     'task' => 'lorem ipsum',
      *     'category' => 'miscellaneous',
      * ]]);
@@ -449,7 +449,7 @@ EOF;
      * @part json
      * @part xml
      */
-    public function sendPOST($url, $params = [], $files = [])
+    public function sendPost($url, $params = [], $files = [])
     {
         $this->execute('POST', $url, $params, $files);
     }
@@ -462,7 +462,7 @@ EOF;
      * @part json
      * @part xml
      */
-    public function sendHEAD($url, $params = [])
+    public function sendHead($url, $params = [])
     {
         $this->execute('HEAD', $url, $params);
     }
@@ -475,7 +475,7 @@ EOF;
      * @part json
      * @part xml
      */
-    public function sendOPTIONS($url, $params = [])
+    public function sendOptions($url, $params = [])
     {
         $this->execute('OPTIONS', $url, $params);
     }
@@ -488,7 +488,7 @@ EOF;
      * @part json
      * @part xml
      */
-    public function sendGET($url, $params = [])
+    public function sendGet($url, $params = [])
     {
         $this->execute('GET', $url, $params);
     }
@@ -502,7 +502,7 @@ EOF;
      * @part json
      * @part xml
      */
-    public function sendPUT($url, $params = [], $files = [])
+    public function sendPut($url, $params = [], $files = [])
     {
         $this->execute('PUT', $url, $params, $files);
     }
@@ -516,7 +516,7 @@ EOF;
      * @part json
      * @part xml
      */
-    public function sendPATCH($url, $params = [], $files = [])
+    public function sendPatch($url, $params = [], $files = [])
     {
         $this->execute('PATCH', $url, $params, $files);
     }
@@ -530,7 +530,7 @@ EOF;
      * @part json
      * @part xml
      */
-    public function sendDELETE($url, $params = [], $files = [])
+    public function sendDelete($url, $params = [], $files = [])
     {
         $this->execute('DELETE', $url, $params, $files);
     }
@@ -576,7 +576,7 @@ EOF;
      * @part json
      * @part xml
      */
-    public function sendLINK($url, array $linkEntries)
+    public function sendLink($url, array $linkEntries)
     {
         $this->setHeaderLink($linkEntries);
         $this->execute('LINK', $url);
@@ -592,7 +592,7 @@ EOF;
      * @part json
      * @part xml
      */
-    public function sendUNLINK($url, array $linkEntries)
+    public function sendUnlink($url, array $linkEntries)
     {
         $this->setHeaderLink($linkEntries);
         $this->execute('UNLINK', $url);
@@ -943,7 +943,7 @@ EOF;
      * ``` php
      * <?php
      * $user_id = $I->grabResponse();
-     * $I->sendPUT('/user', array('id' => $user_id, 'name' => 'davert'));
+     * $I->sendPut('/user', array('id' => $user_id, 'name' => 'davert'));
      * ?>
      * ```
      *
@@ -971,7 +971,7 @@ EOF;
      * <?php
      * // match the first `user.id` in json
      * $firstUserId = $I->grabDataFromResponseByJsonPath('$..users[0].id');
-     * $I->sendPUT('/user', array('id' => $firstUserId[0], 'name' => 'davert'));
+     * $I->sendPut('/user', array('id' => $firstUserId[0], 'name' => 'davert'));
      * ?>
      * ```
      *
