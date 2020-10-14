@@ -430,8 +430,8 @@ EOF;
      *          'tmp_name' => codecept_data_dir('sample_file.pdf')
      *     ]
      * ]);
-     * // Some frameworks (e.g. Symfony) create field names in the form of an "array": `<input type="text" name="form[task]">`
-     * // In this case you need to pass the fields like this:
+     * // If your field names contain square brackets (e.g. `<input type="text" name="form[task]">`),
+     * // PHP parses them into an array. In this case you need to pass the fields like this:
      * $I->sendPOST('/add-task', ['form' => [
      *     'task' => 'lorem ipsum',
      *     'category' => 'miscellaneous',
