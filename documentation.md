@@ -14,14 +14,22 @@ Otherwise, a PHPBrowser should be specified as a dependency to send requests and
 
 This module requires PHPBrowser or any of Framework modules enabled.
 
+In case you need to configure low-level HTTP fields, that's done on the PHPBrowser level.
+Check the example below for details.
+
 ### Example
 
     modules:
        enabled:
            - REST:
                depends: PhpBrowser
-               url: 'http://serviceapp/api/v1/'
+               url: &url 'http://serviceapp/api/v1/' # you only need the &url anchor for further PhpBrowser configs
                shortDebugResponse: 300 # only the first 300 chars of the response
+       config:
+           PhpBrowser:
+               url: *url # repeats the URL from the REST module; not needed if you don't have further settings like below
+               headers:
+                   Content-Type: application/json
 
 ## Public Properties
 
@@ -118,17 +126,17 @@ $I->amNTLMAuthenticated('jon_snow', 'targaryen');
 
 ### deleteHeader
  
-Deletes the header with the passed name.  Subsequent requests
-will not have the deleted header in its request.
+Deletes a HTTP header (that was originally added by [haveHttpHeader()](#haveHttpHeader)),
+so that subsequent requests will not send it anymore.
 
 Example:
 ```php
 <?php
 $I->haveHttpHeader('X-Requested-With', 'Codeception');
-$I->sendGET('test-headers.php');
+$I->sendGet('test-headers.php');
 // ...
 $I->deleteHeader('X-Requested-With');
-$I->sendPOST('some-other-page.php');
+$I->sendPost('some-other-page.php');
 ?>
 ```
 
@@ -285,7 +293,7 @@ Example:
 <?php
 // match the first `user.id` in json
 $firstUserId = $I->grabDataFromResponseByJsonPath('$..users[0].id');
-$I->sendPUT('/user', array('id' => $firstUserId[0], 'name' => 'davert'));
+$I->sendPut('/user', array('id' => $firstUserId[0], 'name' => 'davert'));
 ?>
 ```
 
@@ -317,7 +325,7 @@ Example:
 ``` php
 <?php
 $user_id = $I->grabResponse();
-$I->sendPUT('/user', array('id' => $user_id, 'name' => 'davert'));
+$I->sendPut('/user', array('id' => $user_id, 'name' => 'davert'));
 ?>
 ```
 
@@ -339,7 +347,7 @@ Element is matched by either CSS or XPath
 
 ### haveHttpHeader
  
-Sets HTTP header valid for all next requests. Use `deleteHeader` to unset it
+Sets a HTTP header to be used for all subsequent requests. Use [`deleteHeader`](#deleteHeader) to unset it.
 
 ```php
 <?php
@@ -352,6 +360,15 @@ $I->haveHttpHeader('Content-Type', 'application/json');
  * `param` $value
  * `[Part]` json
  * `[Part]` xml
+
+
+### haveServerParameter
+ 
+Sets SERVER parameter valid for all next requests.
+
+```php
+$I->haveServerParameter('name', 'value');
+```
 
 
 ### seeBinaryResponseEquals
@@ -520,6 +537,47 @@ This is done with json_last_error function.
  * `[Part]` json
 
 
+### seeResponseIsValidOnJsonSchema
+ 
+Checks whether last response matches the supplied json schema (https://json-schema.org/)
+Supply schema as relative file path in your project directory or an absolute path
+
+@see codecept_absolute_path()
+
+ * `param string` $schemaFilename
+ * `[Part]` json
+
+
+### seeResponseIsValidOnJsonSchemaString
+ 
+Checks whether last response matches the supplied json schema (https://json-schema.org/)
+Supply schema as json string.
+
+Examples:
+
+``` php
+<?php
+// response: {"name": "john", "age": 20}
+$I->seeResponseIsValidOnJsonSchemaString('{"type": "object"}');
+
+// response {"name": "john", "age": 20}
+$schema = [
+ "properties" => [
+     "age" => [
+         "type" => "integer",
+         "minimum" => 18
+     ]
+ ]
+];
+$I->seeResponseIsValidOnJsonSchemaString(json_encode($schema));
+
+?>
+```
+
+ * `param string` $schema
+ * `[Part]` json
+
+
 ### seeResponseIsXml
  
 Checks whether last response was valid XML.
@@ -620,9 +678,9 @@ $I->seeResponseJsonMatchesXpath('/store//price');
 
 ### seeResponseMatchesJsonType
  
-Checks that Json matches provided types.
+Checks that JSON matches provided types.
 In case you don't know the actual values of JSON data returned you can match them by type.
-Starts check with a root element. If JSON data is array it will check the first element of an array.
+It starts the check with a root element. If JSON data is an array it will check all elements of it.
 You can specify the path in the json which should be checked with JsonPath
 
 Basic example:
@@ -642,7 +700,7 @@ $I->seeResponseMatchesJsonType(['name' => 'string'], '$.users[0]');
 ?>
 ```
 
-In this case you can match that record contains fields with data types you expected.
+You can check if the record contains fields with the data types you expect.
 The list of possible data types:
 
 * string
@@ -650,8 +708,9 @@ The list of possible data types:
 * float
 * array (json object is array as well)
 * boolean
+* null
 
-You can also use nested data type structures:
+You can also use nested data type structures, and define multiple types for the same field:
 
 ```php
 <?php
@@ -663,45 +722,42 @@ $I->seeResponseMatchesJsonType([
 ?>
 ```
 
-You can also apply filters to check values. Filter can be applied with `:` char after the type declaration.
+You can also apply filters to check values. Filter can be applied with a `:` char after the type declaration,
+or after another filter if you need more than one.
 
 Here is the list of possible filters:
 
 * `integer:>{val}` - checks that integer is greater than {val} (works with float and string types too).
-* `integer:>={val}` - checks that integer is greater or equal than {val} (works with float and string types too).
 * `integer:<{val}` - checks that integer is lower than {val} (works with float and string types too).
-* `integer:<={val}` - checks that integer is lower or equal than {val} (works with float and string types too).
 * `string:url` - checks that value is valid url.
 * `string:date` - checks that value is date in JavaScript format: https://weblog.west-wind.com/posts/2014/Jan/06/JavaScript-JSON-Date-Parsing-and-real-Dates
 * `string:email` - checks that value is a valid email according to http://emailregex.com/
 * `string:regex({val})` - checks that string matches a regex provided with {val}
-* `string:empty` - checks that string is empty
 
 This is how filters can be used:
 
 ```php
 <?php
-// {'user_id': 1, 'email' => 'davert@codeception.com', 'name': 'Michael Bodnarchuk', 'karma': -15}
+// {'user_id': 1, 'email' => 'davert@codeception.com'}
 $I->seeResponseMatchesJsonType([
      'user_id' => 'string:>0:<1000', // multiple filters can be used
-     'email' => 'string:regex(~\@~)', // we just check that @ char is included
-     'name' => 'string:!empty', // we can check the opposite condition prepending the ! char
-     'karma' => 'integer:>-1000:<1000' // negative values can also be used                
+     'email' => 'string:regex(~\@~)' // we just check that @ char is included
 ]);
 
 // {'user_id': '1'}
 $I->seeResponseMatchesJsonType([
      'user_id' => 'string:>0', // works with strings as well
-}
+]);
 ?>
 ```
 
-You can also add custom filters y accessing `JsonType::addCustomFilter` method.
+You can also add custom filters by using `{@link JsonType::addCustomFilter()}`.
 See [JsonType reference](http://codeception.com/docs/reference/JsonType).
 
  * `[Part]` json
  * `param array` $jsonType
  * `param string` $jsonPath
+@see JsonType
  * `Available since` 2.1.3
 
 
@@ -746,7 +802,7 @@ $I->seeXmlResponseMatchesXpath('//root/user[@id=1]');
  * `param` $xpath
 
 
-### sendDELETE
+### sendDelete
  
 Sends DELETE request to given uri.
 
@@ -757,7 +813,7 @@ Sends DELETE request to given uri.
  * `[Part]` xml
 
 
-### sendGET
+### sendGet
  
 Sends a GET request to given uri.
 
@@ -767,7 +823,7 @@ Sends a GET request to given uri.
  * `[Part]` xml
 
 
-### sendHEAD
+### sendHead
  
 Sends a HEAD request to given uri.
 
@@ -777,7 +833,7 @@ Sends a HEAD request to given uri.
  * `[Part]` xml
 
 
-### sendLINK
+### sendLink
  
 Sends LINK request to given uri.
 
@@ -791,7 +847,7 @@ Sends LINK request to given uri.
  * `[Part]` xml
 
 
-### sendOPTIONS
+### sendOptions
  
 Sends an OPTIONS request to given uri.
 
@@ -801,7 +857,7 @@ Sends an OPTIONS request to given uri.
  * `[Part]` xml
 
 
-### sendPATCH
+### sendPatch
  
 Sends PATCH request to given uri.
 
@@ -812,7 +868,7 @@ Sends PATCH request to given uri.
  * `[Part]` xml
 
 
-### sendPOST
+### sendPost
  
 Sends a POST request to given uri. Parameters and files can be provided separately.
 
@@ -820,11 +876,11 @@ Example:
 ```php
 <?php
 //simple POST call
-$I->sendPOST('/message', ['subject' => 'Read this!', 'to' => 'johndoe@example.com']);
+$I->sendPost('/message', ['subject' => 'Read this!', 'to' => 'johndoe@example.com']);
 //simple upload method
-$I->sendPOST('/message/24', ['inline' => 0], ['attachmentFile' => codecept_data_dir('sample_file.pdf')]);
+$I->sendPost('/message/24', ['inline' => 0], ['attachmentFile' => codecept_data_dir('sample_file.pdf')]);
 //uploading a file with a custom name and mime-type. This is also useful to simulate upload errors.
-$I->sendPOST('/message/24', ['inline' => 0], [
+$I->sendPost('/message/24', ['inline' => 0], [
     'attachmentFile' => [
          'name' => 'document.pdf',
          'type' => 'application/pdf',
@@ -833,6 +889,12 @@ $I->sendPOST('/message/24', ['inline' => 0], [
          'tmp_name' => codecept_data_dir('sample_file.pdf')
     ]
 ]);
+// If your field names contain square brackets (e.g. `<input type="text" name="form[task]">`),
+// PHP parses them into an array. In this case you need to pass the fields like this:
+$I->sendPost('/add-task', ['form' => [
+    'task' => 'lorem ipsum',
+    'category' => 'miscellaneous',
+]]);
 ```
 
  * `param` $url
@@ -847,7 +909,7 @@ $I->sendPOST('/message/24', ['inline' => 0], [
  * `[Part]` xml
 
 
-### sendPUT
+### sendPut
  
 Sends PUT request to given uri.
 
@@ -858,7 +920,7 @@ Sends PUT request to given uri.
  * `[Part]` xml
 
 
-### sendUNLINK
+### sendUnlink
  
 Sends UNLINK request to given uri.
 
@@ -868,6 +930,16 @@ Sends UNLINK request to given uri.
 @author samva.ua@gmail.com
  * `[Part]` json
  * `[Part]` xml
+
+
+### setServerParameters
+ 
+Sets SERVER parameters valid for all next requests.
+this will remove old ones.
+
+```php
+$I->setServerParameters([]);
+```
 
 
 ### startFollowingRedirects
