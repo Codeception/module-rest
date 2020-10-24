@@ -18,7 +18,6 @@
         "justinrainbow/json-schema": "~5.2.9"
     },
     "require-dev": {
-        "codeception/util-robohelpers": "dev-master",
         "codeception/util-universalframework": "^1.0",
         "codeception/lib-innerbrowser": "^1.0"
     },
