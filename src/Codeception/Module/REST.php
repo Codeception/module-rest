@@ -56,7 +56,7 @@ use JsonSchema\Constraints\Constraint as JsonContraint;
  * ## JSONPath
  *
  * [JSONPath](http://goessner.net/articles/JsonPath/) is the equivalent to XPath, for querying JSON data structures.
- * The following methods require that you have [`flow/jsonpath` > 0.2](https://github.com/FlowCommunications/JSONPath/) installed:
+ * The following methods require that you have [`flow/jsonpath` > 0.2](https://github.com/FlowCommunications/JSONPath/) or [softcreatr/jsonpath](https://github.com/SoftCreatR/JSONPath) installed:
  * * [`grabDataFromResponseByJsonPath()`](#grabDataFromResponseByJsonPath)
  * * [`seeResponseJsonMatchesJsonPath()`](#seeResponseJsonMatchesJsonPath)
  * * [`dontSeeResponseJsonMatchesJsonPath()`](#dontSeeResponseJsonMatchesJsonPath)
