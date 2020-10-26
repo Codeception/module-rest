@@ -53,16 +53,20 @@ use JsonSchema\Constraints\Constraint as JsonContraint;
  *                headers:
  *                    Content-Type: application/json
  *
+ * ## JSONPath
+ *
+ * [JSONPath](http://goessner.net/articles/JsonPath/) is the equivalent to XPath, for querying JSON data structures.
+ * The following methods require that you have [`flow/jsonpath` > 0.2](https://github.com/FlowCommunications/JSONPath/) installed:
+ * * [`grabDataFromResponseByJsonPath()`](#grabDataFromResponseByJsonPath)
+ * * [`seeResponseJsonMatchesJsonPath()`](#seeResponseJsonMatchesJsonPath)
+ * * [`dontSeeResponseJsonMatchesJsonPath()`](#dontSeeResponseJsonMatchesJsonPath)
+ * Here's an [Online JSPNPath Expressions Tester](http://jsonpath.curiousconcept.com/)
+ *
  * ## Public Properties
  *
  * * headers - array of headers going to be sent.
  * * params - array of sent data
  * * response - last response (string)
- *
- * ## Parts
- *
- * * Json - actions for validating Json responses (no Xml responses)
- * * Xml - actions for validating XML responses (no Json responses)
  *
  * ## Conflicts
  *
@@ -958,13 +962,8 @@ EOF;
     }
 
     /**
-     * Returns data from the current JSON response using [JSONPath](http://goessner.net/articles/JsonPath/) as selector.
-     * JsonPath is XPath equivalent for querying Json structures.
-     * Try your JsonPath expressions [online](http://jsonpath.curiousconcept.com/).
+     * See [#jsonpath](#jsonpath) for general info on JSONPath.
      * Even for a single value an array is returned.
-     *
-     * This method **require [`flow/jsonpath` > 0.2](https://github.com/FlowCommunications/JSONPath/) library to be installed**.
-     *
      * Example:
      *
      * ``` php
@@ -1054,12 +1053,8 @@ EOF;
     }
 
     /**
-     * Checks if json structure in response matches [JsonPath](http://goessner.net/articles/JsonPath/).
-     * JsonPath is XPath equivalent for querying Json structures.
-     * Try your JsonPath expressions [online](http://jsonpath.curiousconcept.com/).
-     * This assertion allows you to check the structure of response json.
-     *
-     * This method **require [`flow/jsonpath` > 0.2](https://github.com/FlowCommunications/JSONPath/) library to be installed**.
+     * See [#jsonpath](#jsonpath) for general info on JSONPath.
+     * Checks if JSON structure in response matches JSONPath.
      *
      * ```json
      *   { "store": {
@@ -1108,7 +1103,8 @@ EOF;
     }
 
     /**
-     * Opposite to seeResponseJsonMatchesJsonPath
+     * See [#jsonpath](#jsonpath) for general info on JSONPath.
+     * Opposite to [`seeResponseJsonMatchesJsonPath()`[#seeResponseJsonMatchesJsonPath]
      *
      * @param string $jsonPath
      * @part json
