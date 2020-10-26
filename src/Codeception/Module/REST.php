@@ -1104,7 +1104,7 @@ EOF;
 
     /**
      * See [#jsonpath](#jsonpath) for general info on JSONPath.
-     * Opposite to [`seeResponseJsonMatchesJsonPath()`[#seeResponseJsonMatchesJsonPath]
+     * Opposite to [`seeResponseJsonMatchesJsonPath()`](#seeResponseJsonMatchesJsonPath)
      *
      * @param string $jsonPath
      * @part json
