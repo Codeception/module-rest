@@ -64,6 +64,11 @@ use JsonSchema\Constraints\Constraint as JsonContraint;
  * * params - array of sent data
  * * response - last response (string)
  *
+ * ## Parts
+ *
+ * * Json - actions for validating Json responses (no Xml responses)
+ * * Xml - actions for validating XML responses (no Json responses)
+ *
  * ## Conflicts
  *
  * Conflicts with SOAP module
