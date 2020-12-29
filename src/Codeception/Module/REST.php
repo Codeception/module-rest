@@ -34,8 +34,6 @@ use JsonSchema\Constraints\Constraint as JsonContraint;
  * * `url` *optional* - the url of api
  * * `shortDebugResponse` *optional* - number of chars to limit the API response length
  *
- * In case you need to configure low-level HTTP headers, that's done on the PhpBrowser level.
- *
  * ### Example
  *
  * ```yaml
@@ -43,11 +41,21 @@ use JsonSchema\Constraints\Constraint as JsonContraint;
  *    enabled:
  *        - REST:
  *            depends: PhpBrowser
- *            url: &url 'http://serviceapp/api/v1/' # you only need the &url anchor for further PhpBrowser configs
+ *            url: 'https://example.com/api/v1/'
  *            shortDebugResponse: 300 # only the first 300 characters of the response
+ * ```
+ *
+ * In case you need to configure low-level HTTP headers, that's done on the PhpBrowser level like so:
+ *
+ * ```yaml
+ * modules:
+ *    enabled:
+ *        - REST:
+ *            depends: PhpBrowser
+ *            url: &url 'https://example.com/api/v1/'
  *    config:
  *        PhpBrowser:
- *            url: *url # repeats the URL from the REST module; not needed if you don't have further settings like below
+ *            url: *url
  *            headers:
  *                Content-Type: application/json
  * ```
