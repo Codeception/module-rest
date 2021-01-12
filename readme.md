@@ -1,13 +1,24 @@
-# REST module for Codeception
+# Codeception Module REST
 
-![Build Status](https://github.com/Codeception/module-rest/workflows/CI/badge.svg)
+A REST module for Codeception
+
+[![Actions Status](https://github.com/Codeception/module-rest/workflows/CI/badge.svg)](https://github.com/Codeception/module-rest/actions)
+[![Latest Stable Version](https://poser.pugx.org/codeception/module-rest/v/stable)](https://github.com/Codeception/module-rest/releases)
+[![Total Downloads](https://poser.pugx.org/codeception/module-rest/downloads)](https://packagist.org/packages/codeception/module-rest)
+[![License](https://poser.pugx.org/codeception/module-rest/license)](/LICENSE)
 
 ## Installation
 
 ```
-composer require --dev "codeception/module-rest"
+composer require "codeception/module-rest" --dev
 ```
 
 ## Documentation
 
-<a href="https://codeception.com/docs/modules/REST">Module documentation</a>
+See [the module documentation](https://codeception.com/docs/modules/REST).
+
+## License
+
+`Codeception Module REST` is open-sourced software licensed under the [MIT](/LICENSE) License.
+
+© Codeception PHP Testing Framework
