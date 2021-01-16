@@ -71,6 +71,8 @@ use JsonSchema\Constraints\Constraint as JsonContraint;
  */
 class REST extends CodeceptionModule implements DependsOnModule, PartedModule, API, ConflictsWithModule
 {
+    const QUERY_PARAMS_AWARE_METHODS = ['GET', 'HEAD'];
+
     protected $config = [
         'url' => '',
         'aws' => ''
@@ -610,9 +612,10 @@ EOF;
         $this->params = $parameters;
 
         $parameters = $this->encodeApplicationJson($method, $parameters);
+        $isQueryParamsAwareMethod = in_array($method, self::QUERY_PARAMS_AWARE_METHODS, true);
 
-        if (is_array($parameters) || $method === 'GET') {
-            if (!empty($parameters) && $method === 'GET') {
+        if (is_array($parameters) || $isQueryParamsAwareMethod) {
+            if (!empty($parameters) && $isQueryParamsAwareMethod) {
                 if (strpos($url, '?') !== false) {
                     $url .= '&';
                 } else {
@@ -620,7 +623,7 @@ EOF;
                 }
                 $url .= http_build_query($parameters);
             }
-            if ($method == 'GET') {
+            if ($isQueryParamsAwareMethod) {
                 $this->debugSection("Request", "$method $url");
                 $files = [];
             } else {
@@ -675,7 +678,9 @@ EOF;
 
     protected function encodeApplicationJson($method, $parameters)
     {
-        if ($method !== 'GET' && array_key_exists('Content-Type', $this->connectionModule->headers)
+        if (
+            array_key_exists('Content-Type', $this->connectionModule->headers)
+            && !in_array($method, self::QUERY_PARAMS_AWARE_METHODS, true)
             && ($this->connectionModule->headers['Content-Type'] === 'application/json'
                 || preg_match('!^application/.+\+json$!', $this->connectionModule->headers['Content-Type'])
             )
