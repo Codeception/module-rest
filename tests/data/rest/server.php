@@ -14,7 +14,7 @@ function RESTServer()
 
         // get the request data
         $data = NULL;
-        if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $data = $_GET;
         } else if ($tmp = file_get_contents('php://input')) {
             $data = json_decode($tmp);

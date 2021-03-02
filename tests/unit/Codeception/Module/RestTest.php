@@ -1,5 +1,7 @@
 <?php
 
+use Codeception\Configuration;
+use Codeception\Example;
 use Codeception\Module\UniversalFramework;
 use Codeception\Test\Unit;
 use Codeception\Util\Stub;
@@ -17,9 +19,9 @@ class RestTest extends Unit
 
     public function _setUp()
     {
-        $index = \Codeception\Configuration::dataDir() . '/rest/index.php';
+        $index = Configuration::dataDir() . '/rest/index.php';
 
-        $container = \Codeception\Util\Stub::make('Codeception\Lib\ModuleContainer');
+        $container = Stub::make('Codeception\Lib\ModuleContainer');
         $connectionModule = new UniversalFramework($container, ['index' => $index]);
         $connectionModule->_initialize();
         $this->module = Stub::make('\Codeception\Module\REST');
@@ -204,14 +206,28 @@ class RestTest extends Unit
         $this->assertJson($request->getContent());
     }
 
-    public function testGetApplicationJsonNotIncludesJsonAsContent()
+    /**
+     * @param string $method
+     *
+     * @dataProvider queryParamsAwareMethods
+     */
+    public function testGetApplicationJsonNotIncludesJsonAsContent($method)
     {
+        $method = 'send' . $method;
         $this->module->haveHttpHeader('Content-Type', 'application/json');
-        $this->module->sendGET('/', ['name' => 'john']);
+        $this->module->$method('/', ['name' => 'john']);
         /** @var $request \Symfony\Component\BrowserKit\Request  **/
         $request = $this->module->client->getRequest();
         $this->assertNull($request->getContent());
         $this->assertContains('john', $request->getParameters());
+    }
+
+    public function queryParamsAwareMethods()
+    {
+        return [
+            ['Get'],
+            ['Head'],
+        ];
     }
 
     public function testUrlIsFull()
@@ -529,7 +545,7 @@ class RestTest extends Unit
 
         $config = ['url' => $configUrl];
 
-        /** @var \Codeception\Module\REST */
+        /** @var REST */
         $module = Stub::make('\Codeception\Module\REST');
         $module->_setConfig($config);
         $module->_inject($connectionModule);
