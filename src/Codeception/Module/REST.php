@@ -71,7 +71,7 @@ use JsonSchema\Constraints\Constraint as JsonContraint;
  */
 class REST extends CodeceptionModule implements DependsOnModule, PartedModule, API, ConflictsWithModule
 {
-    const QUERY_PARAMS_AWARE_METHODS = ['GET', 'HEAD'];
+    const QUERY_PARAMS_AWARE_METHODS = ['GET', 'HEAD', 'DELETE'];
 
     protected $config = [
         'url' => '',
