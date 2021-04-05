@@ -632,6 +632,8 @@ EOF;
         // allow full url to be requested
         if (!$url) {
             $url = $this->config['url'];
+        } elseif (!is_string($url)) {
+            throw new ModuleException(__CLASS__, 'URL must be string');
         } elseif (strpos($url, '://') === false && $this->config['url']) {
             $url = rtrim($this->config['url'], '/') . '/' . ltrim($url, '/');
         }
@@ -646,6 +648,13 @@ EOF;
             }
         } else {
             $parameters = $this->encodeApplicationJson($method, $parameters);
+
+            if (!is_string($parameters) && !is_array($parameters)) {
+                if ($parameters instanceof \JsonSerializable) {
+                    throw new ModuleException(__CLASS__, $method . ' parameters is JsonSerializable object, but Content-Type header is not set to application/json');
+                }
+                throw new ModuleException(__CLASS__, $method . ' parameters must be array, string or object implementing JsonSerializable interface');
+            }
         }
 
         if (is_array($parameters) || $isQueryParamsAwareMethod) {

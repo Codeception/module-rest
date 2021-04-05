@@ -241,10 +241,52 @@ class RestTest extends Unit
     /**
      * @dataProvider queryParamsAwareMethods
      */
-    public function testRequestThrowsExceptionIfParametersIsString($method)
+    public function testThrowsExceptionIfParametersIsString($method)
     {
         $this->expectExceptionMessage($method, ' parameters must be passed in array format');
         $this->module->send($method, '/', 'string');
+    }
+
+    /**
+     * @dataProvider invalidParameterTypes
+     */
+    public function testThrowsExceptionIfParametersIsOfUnexpectedType($parameters)
+    {
+        $this->expectExceptionMessage('POST parameters must be array, string or object implementing JsonSerializable interface');
+        $this->module->sendPOST('/', $parameters);
+    }
+
+    public function invalidParameterTypes()
+    {
+        return [
+            'boolean'  => [true],
+            'resource' => [STDERR],
+            'integer'  => [5],
+            'float'    => [6.6],
+            'object'   => [new \LogicException('test')],
+        ];
+    }
+
+    public function testThrowsExceptionIfUrlIsNotString()
+    {
+        $this->expectExceptionMessage('URL must be string');
+        $this->module->sendPOST([1]);
+    }
+
+    public function testThrowsExceptionIfParametersIsJsonSerializableButContentTypeIsNotSet()
+    {
+        $this->expectExceptionMessage("parameters is JsonSerializable object, but Content-Type header is not set to application/json");
+        $parameters = new \Codeception\Util\Maybe(['foo']);
+        $this->module->sendPOST('/', $parameters);
+    }
+
+    public function testDoesntThrowExceptionIfParametersIsJsonSerializableAndContentTypeIsSet()
+    {
+        $parameters = new \Codeception\Util\Maybe(['foo']);
+
+        $this->module->haveHttpHeader('Content-Type', 'application/json');
+        $this->module->sendPOST('/', $parameters);
+        $this->assertTrue(true, 'this test fails by throwing exception');
     }
 
     public function testUrlIsFull()
