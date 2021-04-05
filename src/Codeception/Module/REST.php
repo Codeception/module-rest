@@ -25,33 +25,40 @@ use JsonSchema\Constraints\Constraint as JsonContraint;
 /**
  * Module for testing REST WebService.
  *
- * This module can be used either with frameworks or PHPBrowser.
- * If a framework module is connected, the testing will occur in the application directly.
- * Otherwise, a PHPBrowser should be specified as a dependency to send requests and receive responses from a server.
+ * This module requires either [PhpBrowser](https://codeception.com/docs/modules/PhpBrowser)
+ * or a framework module (e.g. [Symfony](https://codeception.com/docs/modules/Symfony), [Laravel](https://codeception.com/docs/modules/Laravel5))
+ * to send the actual HTTP request.
  *
  * ## Configuration
  *
- * * url *optional* - the url of api
- * * shortDebugResponse *optional* - amount of chars to limit the api response length
- *
- * This module requires PHPBrowser or any of Framework modules enabled.
- *
- * In case you need to configure low-level HTTP fields, that's done on the PHPBrowser level.
- * Check the example below for details.
+ * * `url` *optional* - the url of api
+ * * `shortDebugResponse` *optional* - number of chars to limit the API response length
  *
  * ### Example
  *
- *     modules:
- *        enabled:
- *            - REST:
- *                depends: PhpBrowser
- *                url: &url 'http://serviceapp/api/v1/' # you only need the &url anchor for further PhpBrowser configs
- *                shortDebugResponse: 300 # only the first 300 chars of the response
- *        config:
- *            PhpBrowser:
- *                url: *url # repeats the URL from the REST module; not needed if you don't have further settings like below
- *                headers:
- *                    Content-Type: application/json
+ * ```yaml
+ * modules:
+ *    enabled:
+ *        - REST:
+ *            depends: PhpBrowser
+ *            url: 'https://example.com/api/v1/'
+ *            shortDebugResponse: 300 # only the first 300 characters of the response
+ * ```
+ *
+ * In case you need to configure low-level HTTP headers, that's done on the PhpBrowser level like so:
+ *
+ * ```yaml
+ * modules:
+ *    enabled:
+ *        - REST:
+ *            depends: PhpBrowser
+ *            url: &url 'https://example.com/api/v1/'
+ *    config:
+ *        PhpBrowser:
+ *            url: *url
+ *            headers:
+ *                Content-Type: application/json
+ * ```
  *
  * ## Public Properties
  *
