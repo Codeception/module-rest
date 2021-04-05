@@ -400,7 +400,7 @@ EOF;
      * ?>
      * ```
      * @param array $additionalAWSConfig
-     * @throws ModuleException
+     * @throws ConfigurationException
      */
     public function amAWSAuthenticated($additionalAWSConfig = [])
     {
