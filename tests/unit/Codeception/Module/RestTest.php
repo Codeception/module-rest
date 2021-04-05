@@ -220,9 +220,8 @@ class RestTest extends Unit
      */
     public function testGetApplicationJsonNotIncludesJsonAsContent($method)
     {
-        $method = 'send' . $method;
         $this->module->haveHttpHeader('Content-Type', 'application/json');
-        $this->module->$method('/', ['name' => 'john']);
+        $this->module->send($method, '/', ['name' => 'john']);
         /** @var $request \Symfony\Component\BrowserKit\Request  **/
         $request = $this->module->client->getRequest();
         $this->assertNull($request->getContent());
@@ -232,9 +231,20 @@ class RestTest extends Unit
     public function queryParamsAwareMethods()
     {
         return [
-            ['Get'],
-            ['Head'],
+            'GET'     => ['GET'],
+            'HEAD'    => ['HEAD'],
+            'DELETE'  => ['DELETE'],
+            'OPTIONS' => ['OPTIONS'],
         ];
+    }
+
+    /**
+     * @dataProvider queryParamsAwareMethods
+     */
+    public function testRequestThrowsExceptionIfParametersIsString($method)
+    {
+        $this->expectExceptionMessage($method, ' parameters must be passed in array format');
+        $this->module->send($method, '/', 'string');
     }
 
     public function testUrlIsFull()

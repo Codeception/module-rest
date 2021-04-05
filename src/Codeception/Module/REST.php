@@ -638,19 +638,26 @@ EOF;
 
         $this->params = $parameters;
 
-        $parameters = $this->encodeApplicationJson($method, $parameters);
         $isQueryParamsAwareMethod = in_array($method, self::QUERY_PARAMS_AWARE_METHODS, true);
 
-        if (is_array($parameters) || $isQueryParamsAwareMethod) {
-            if (!empty($parameters) && $isQueryParamsAwareMethod) {
-                if (strpos($url, '?') !== false) {
-                    $url .= '&';
-                } else {
-                    $url .= '?';
-                }
-                $url .= http_build_query($parameters);
+        if ($isQueryParamsAwareMethod) {
+            if (!is_array($parameters)) {
+                throw new ModuleException(__CLASS__, $method . ' parameters must be passed in array format');
             }
+        } else {
+            $parameters = $this->encodeApplicationJson($method, $parameters);
+        }
+
+        if (is_array($parameters) || $isQueryParamsAwareMethod) {
             if ($isQueryParamsAwareMethod) {
+                if (!empty($parameters)) {
+                    if (strpos($url, '?') !== false) {
+                        $url .= '&';
+                    } else {
+                        $url .= '?';
+                    }
+                    $url .= http_build_query($parameters);
+                }
                 $this->debugSection("Request", "$method $url");
                 $files = [];
             } else {
@@ -707,7 +714,6 @@ EOF;
     {
         if (
             array_key_exists('Content-Type', $this->connectionModule->headers)
-            && !in_array($method, self::QUERY_PARAMS_AWARE_METHODS, true)
             && ($this->connectionModule->headers['Content-Type'] === 'application/json'
                 || preg_match('!^application/.+\+json$!', $this->connectionModule->headers['Content-Type'])
             )
