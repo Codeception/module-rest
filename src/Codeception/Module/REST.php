@@ -561,7 +561,7 @@ EOF;
      */
     public function send($method, $url, $params = [], $files = [])
     {
-        $this->execute($method, $url, $params, $files);
+        $this->execute(strtoupper($method), $url, $params, $files);
     }
 
     /**
