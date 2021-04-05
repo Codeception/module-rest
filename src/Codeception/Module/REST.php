@@ -56,7 +56,7 @@ use JsonSchema\Constraints\Constraint as JsonContraint;
  * ## JSONPath
  *
  * [JSONPath](http://goessner.net/articles/JsonPath/) is the equivalent to XPath, for querying JSON data structures.
- * Here's an [Online JSPNPath Expressions Tester](http://jsonpath.curiousconcept.com/)
+ * Here's an [Online JSONPath Expressions Tester](http://jsonpath.curiousconcept.com/)
  *
  * ## Public Properties
  *
