@@ -538,6 +538,21 @@ EOF;
     }
 
     /**
+     * Sends a HTTP request.
+     *
+     * @param $method
+     * @param $url
+     * @param array|\JsonSerializable $params
+     * @param array $files
+     * @part json
+     * @part xml
+     */
+    public function send($method, $url, $params = [], $files = [])
+    {
+        $this->execute($method, $url, $params, $files);
+    }
+
+    /**
      * Sets Headers "Link" as one header "Link" based on linkEntries
      *
      * @param array $linkEntries (entry is array with keys "uri" and "link-param")
