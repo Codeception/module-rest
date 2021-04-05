@@ -1581,8 +1581,8 @@ EOF;
      * ?>
      * ```
      *
-     * @param $hash the hashed data response expected
-     * @param $algo the hash algorithm to use. Default md5.
+     * @param string $hash the hashed data response expected
+     * @param string $algo the hash algorithm to use. Default md5.
      * @part json
      * @part xml
      */
@@ -1602,8 +1602,8 @@ EOF;
      * ```
      * Opposite to `seeBinaryResponseEquals`
      *
-     * @param $hash the hashed data response expected
-     * @param $algo the hash algorithm to use. Default md5.
+     * @param string $hash the hashed data response expected
+     * @param string $algo the hash algorithm to use. Default md5.
      * @part json
      * @part xml
      */

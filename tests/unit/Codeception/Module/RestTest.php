@@ -243,7 +243,7 @@ class RestTest extends Unit
      */
     public function testThrowsExceptionIfParametersIsString($method)
     {
-        $this->expectExceptionMessage($method, ' parameters must be passed in array format');
+        $this->expectExceptionMessage($method . ' parameters must be passed in array format');
         $this->module->send($method, '/', 'string');
     }
 
