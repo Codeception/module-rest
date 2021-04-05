@@ -87,6 +87,13 @@ class RestTest extends Unit
         $this->module->dontSeeResponseContainsJson(['name' => 'john']);
     }
 
+    public function testSend()
+    {
+        $this->module->send('POST','/rest/user/', ['name' => 'john']);
+        $this->module->seeResponseContains('john');
+        $this->module->seeResponseContainsJson(['name' => 'john']);
+    }
+
     public function testGrabDataFromResponseByJsonPath()
     {
         $this->module->sendGET('/rest/user/');
