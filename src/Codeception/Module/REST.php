@@ -453,7 +453,7 @@ EOF;
      * ```
      *
      * @param $url
-     * @param array|\JsonSerializable $params
+     * @param array|string|\JsonSerializable $params
      * @param array $files A list of filenames or "mocks" of $_FILES (each entry being an array with the following
      *                     keys: name, type, error, size, tmp_name (pointing to the real file path). Each key works
      *                     as the "name" attribute of a file input field.
@@ -511,7 +511,7 @@ EOF;
      * Sends PUT request to given uri.
      *
      * @param $url
-     * @param array $params
+     * @param array|string|\JsonSerializable $params
      * @param array $files
      * @part json
      * @part xml
@@ -525,7 +525,7 @@ EOF;
      * Sends PATCH request to given uri.
      *
      * @param       $url
-     * @param array $params
+     * @param array|string|\JsonSerializable $params
      * @param array $files
      * @part json
      * @part xml
@@ -554,7 +554,7 @@ EOF;
      *
      * @param $method
      * @param $url
-     * @param array|\JsonSerializable $params
+     * @param array|string|\JsonSerializable $params
      * @param array $files
      * @part json
      * @part xml
