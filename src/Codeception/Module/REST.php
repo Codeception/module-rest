@@ -1275,12 +1275,11 @@ EOF;
      * Opposite to `seeResponseMatchesJsonType`.
      *
      * @part json
-     * @param $jsonType jsonType structure
-     * @param null $jsonPath optionally set specific path to structure with JsonPath
+     * @param array $jsonType JsonType structure
+     * @param string $jsonPath
      * @see seeResponseMatchesJsonType
-     * @version 2.1.3
      */
-    public function dontSeeResponseMatchesJsonType($jsonType, $jsonPath = null)
+    public function dontSeeResponseMatchesJsonType(array $jsonType, $jsonPath = null)
     {
         $jsonArray = new JsonArray($this->connectionModule->_getResponseContent());
         if ($jsonPath) {
