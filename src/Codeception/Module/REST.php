@@ -997,7 +997,6 @@ EOF;
      * @return string
      * @part json
      * @part xml
-     * @version 1.1
      */
     public function grabResponse()
     {
@@ -1021,7 +1020,6 @@ EOF;
      * @return array Array of matching items
      * @throws \Exception
      * @part json
-     * @version 2.0.9
      */
     public function grabDataFromResponseByJsonPath($jsonPath)
     {
@@ -1067,7 +1065,6 @@ EOF;
      * ```
      * @param string $xpath
      * @part json
-     * @version 2.0.9
      */
     public function seeResponseJsonMatchesXpath($xpath)
     {
@@ -1134,7 +1131,6 @@ EOF;
      *
      * @param string $jsonPath
      * @part json
-     * @version 2.0.9
      */
     public function seeResponseJsonMatchesJsonPath($jsonPath)
     {
@@ -1259,7 +1255,6 @@ EOF;
      * @param array $jsonType
      * @param string $jsonPath
      * @see JsonType
-     * @version 2.1.3
      */
     public function seeResponseMatchesJsonType(array $jsonType, $jsonPath = null)
     {
