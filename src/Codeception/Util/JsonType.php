@@ -240,5 +240,7 @@ class JsonType
         if (preg_match('~^<(-?[\d\.]+)$~', $filter, $matches)) {
             return (float)$value < (float)$matches[1];
         }
+
+        return false;
     }
 }
