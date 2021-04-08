@@ -648,13 +648,6 @@ EOF;
             }
         } else {
             $parameters = $this->encodeApplicationJson($method, $parameters);
-
-            if (!is_string($parameters) && !is_array($parameters)) {
-                if ($parameters instanceof \JsonSerializable) {
-                    throw new ModuleException(__CLASS__, $method . ' parameters is JsonSerializable object, but Content-Type header is not set to application/json');
-                }
-                throw new ModuleException(__CLASS__, $method . ' parameters must be array, string or object implementing JsonSerializable interface');
-            }
         }
 
         if (is_array($parameters) || $isQueryParamsAwareMethod) {
@@ -735,6 +728,15 @@ EOF;
                 return json_encode($parameters);
             }
         }
+
+        if ($parameters instanceof \JsonSerializable) {
+            throw new ModuleException(__CLASS__, $method . ' parameters is JsonSerializable object, but Content-Type header is not set to application/json');
+        }
+
+        if (!is_string($parameters) && !is_array($parameters)) {
+            throw new ModuleException(__CLASS__, $method . ' parameters must be array, string or object implementing JsonSerializable interface');
+        }
+
         return $parameters;
     }
 
