@@ -87,6 +87,13 @@ class RestTest extends Unit
         $this->module->dontSeeResponseContainsJson(['name' => 'john']);
     }
 
+    public function testSend()
+    {
+        $this->module->send('POST','/rest/user/', ['name' => 'john']);
+        $this->module->seeResponseContains('john');
+        $this->module->seeResponseContainsJson(['name' => 'john']);
+    }
+
     public function testGrabDataFromResponseByJsonPath()
     {
         $this->module->sendGET('/rest/user/');
@@ -213,9 +220,8 @@ class RestTest extends Unit
      */
     public function testGetApplicationJsonNotIncludesJsonAsContent($method)
     {
-        $method = 'send' . $method;
         $this->module->haveHttpHeader('Content-Type', 'application/json');
-        $this->module->$method('/', ['name' => 'john']);
+        $this->module->send($method, '/', ['name' => 'john']);
         /** @var $request \Symfony\Component\BrowserKit\Request  **/
         $request = $this->module->client->getRequest();
         $this->assertNull($request->getContent());
@@ -225,9 +231,62 @@ class RestTest extends Unit
     public function queryParamsAwareMethods()
     {
         return [
-            ['Get'],
-            ['Head'],
+            'GET'     => ['GET'],
+            'HEAD'    => ['HEAD'],
+            'DELETE'  => ['DELETE'],
+            'OPTIONS' => ['OPTIONS'],
         ];
+    }
+
+    /**
+     * @dataProvider queryParamsAwareMethods
+     */
+    public function testThrowsExceptionIfParametersIsString($method)
+    {
+        $this->expectExceptionMessage($method . ' parameters must be passed in array format');
+        $this->module->send($method, '/', 'string');
+    }
+
+    /**
+     * @dataProvider invalidParameterTypes
+     */
+    public function testThrowsExceptionIfParametersIsOfUnexpectedType($parameters)
+    {
+        $this->expectExceptionMessage('POST parameters must be array, string or object implementing JsonSerializable interface');
+        $this->module->sendPOST('/', $parameters);
+    }
+
+    public function invalidParameterTypes()
+    {
+        return [
+            'boolean'  => [true],
+            'resource' => [STDERR],
+            'integer'  => [5],
+            'float'    => [6.6],
+            'object'   => [new \LogicException('test')],
+        ];
+    }
+
+    public function testThrowsExceptionIfUrlIsNotString()
+    {
+        $this->expectExceptionMessage('URL must be string');
+        $this->module->sendPOST([1]);
+    }
+
+    public function testThrowsExceptionIfParametersIsJsonSerializableButContentTypeIsNotSet()
+    {
+        $this->expectExceptionMessage("parameters is JsonSerializable object, but Content-Type header is not set to application/json");
+        $parameters = new \Codeception\Util\Maybe(['foo']);
+        $this->module->sendPOST('/', $parameters);
+    }
+
+    public function testDoesntThrowExceptionIfParametersIsJsonSerializableAndContentTypeIsSet()
+    {
+        $parameters = new \Codeception\Util\Maybe(['foo']);
+
+        $this->module->haveHttpHeader('Content-Type', 'application/json');
+        $this->module->sendPOST('/', $parameters);
+        $this->assertTrue(true, 'this test fails by throwing exception');
     }
 
     public function testUrlIsFull()
