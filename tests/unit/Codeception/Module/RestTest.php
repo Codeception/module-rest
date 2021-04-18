@@ -233,7 +233,6 @@ class RestTest extends Unit
         return [
             'GET'     => ['GET'],
             'HEAD'    => ['HEAD'],
-            'DELETE'  => ['DELETE'],
             'OPTIONS' => ['OPTIONS'],
         ];
     }
