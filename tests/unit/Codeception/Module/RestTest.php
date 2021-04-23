@@ -216,11 +216,63 @@ class RestTest extends Unit
     /**
      * @param string $method
      *
-     * @dataProvider queryParamsAwareMethods
+     * @dataProvider requestBodyAwareMethods
      */
-    public function testGetApplicationJsonNotIncludesJsonAsContent($method)
+    public function testRequestBodyIsSentAsJsonForThisMethod($method)
     {
         $this->module->haveHttpHeader('Content-Type', 'application/json');
+        $this->module->send($method, '/', ['name' => 'john']);
+        /** @var $request \Symfony\Component\BrowserKit\Request  **/
+        $request = $this->module->client->getRequest();
+        $this->assertSame(json_encode(['name' => 'john']), $request->getContent());
+    }
+
+    /**
+     * @param string $method
+     *
+     * @dataProvider requestBodyAwareMethods
+     */
+    public function testRequestBodyIsSentUrlEncodedForThisMethod($method)
+    {
+        $this->module->send($method, '/', ['name' => 'john']);
+        /** @var $request \Symfony\Component\BrowserKit\Request  **/
+        $request = $this->module->client->getRequest();
+        $this->assertSame(http_build_query(['name' => 'john']), $request->getContent());
+    }
+
+    public function requestBodyAwareMethods()
+    {
+        return [
+            'POST'   => ['POST'],
+            'PUT'    => ['PUT'],
+            'PATCH'  => ['PATCH'],
+            'DELETE' => ['DELETE'],
+        ];
+    }
+
+    /**
+     * @param string $method
+     *
+     * @dataProvider queryParamsAwareMethods
+     */
+    public function testJsonRequestBodyIsNotSentForThisMethod($method)
+    {
+        $this->module->haveHttpHeader('Content-Type', 'application/json');
+        $this->module->send($method, '/', ['name' => 'john']);
+        /** @var $request \Symfony\Component\BrowserKit\Request  **/
+        $request = $this->module->client->getRequest();
+        $this->assertNull($request->getContent());
+        $this->assertContains('john', $request->getParameters());
+    }
+
+
+    /**
+     * @param string $method
+     *
+     * @dataProvider queryParamsAwareMethods
+     */
+    public function testUrlEncodedRequestBodyIsNotSentForThisMethod($method)
+    {
         $this->module->send($method, '/', ['name' => 'john']);
         /** @var $request \Symfony\Component\BrowserKit\Request  **/
         $request = $this->module->client->getRequest();
@@ -233,7 +285,6 @@ class RestTest extends Unit
         return [
             'GET'     => ['GET'],
             'HEAD'    => ['HEAD'],
-            'DELETE'  => ['DELETE'],
             'OPTIONS' => ['OPTIONS'],
         ];
     }
