@@ -7,6 +7,10 @@ A REST module for Codeception
 [![Total Downloads](https://poser.pugx.org/codeception/module-rest/downloads)](https://packagist.org/packages/codeception/module-rest)
 [![License](https://poser.pugx.org/codeception/module-rest/license)](/LICENSE)
 
+## Requirements
+
+* `PHP 7.1` or higher.
+
 ## Installation
 
 ```
