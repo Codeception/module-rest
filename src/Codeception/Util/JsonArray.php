@@ -79,10 +79,10 @@ class JsonArray
         return $this->jsonArray;
     }
 
-    public function filterByXPath($xpath)
+    public function filterByXPath(string $xPath)
     {
         $path = new DOMXPath($this->toXml());
-        return $path->query($xpath);
+        return $path->query($xPath);
     }
 
     public function filterByJsonPath($jsonPath): array

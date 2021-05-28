@@ -31,6 +31,9 @@ namespace Codeception\Util;
  */
 class JsonType
 {
+    /**
+     * @var array|JsonArray
+     */
     protected $jsonArray;
 
     /**
@@ -72,12 +75,10 @@ class JsonType
      *   return strlen($value) == $len;
      * });
      * // use it as 'string:len(5)'
-     * ?>
      * ```
      *
-     * @param          $name
      */
-    public static function addCustomFilter($name, callable $callable)
+    public static function addCustomFilter(string $name, callable $callable)
     {
         static::$customFilters[$name] = $callable;
     }
@@ -119,7 +120,7 @@ class JsonType
     /**
      * @return string|bool
      */
-    protected function typeComparison($data, $jsonType)
+    protected function typeComparison(array $data, array $jsonType)
     {
         foreach ($jsonType as $key => $type) {
             if (!array_key_exists($key, $data)) {
@@ -190,7 +191,7 @@ class JsonType
         return true;
     }
 
-    protected function matchFilter($filter, string $value)
+    protected function matchFilter(string $filter, string $value)
     {
         $filter = trim($filter);
         if (strpos($filter, '!') === 0) {

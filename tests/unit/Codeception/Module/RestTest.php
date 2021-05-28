@@ -322,7 +322,7 @@ final class RestTest extends Unit
 
     public function testThrowsExceptionIfUrlIsNotString()
     {
-        $this->expectExceptionMessage('URL must be string');
+        $this->expectException(TypeError::class);
         $this->module->sendPOST([1]);
     }
 

@@ -218,14 +218,12 @@ EOF;
      * <?php
      * $I->haveHttpHeader('Content-Type', 'application/json');
      * // all next requests will contain this header
-    * ```
+     * ```
      *
-     * @param $name
-     * @param $value
      * @part json
      * @part xml
      */
-    public function haveHttpHeader($name, $value): void
+    public function haveHttpHeader(string $name, string $value): void
     {
         $this->connectionModule->haveHttpHeader($name, $value);
     }
@@ -242,7 +240,7 @@ EOF;
      * // ...
      * $I->deleteHeader('X-Requested-With');
      * $I->sendPost('some-other-page.php');
-    * ```
+     * ```
      *
      * @param string $name the name of the header to delete.
      * @part json
@@ -351,12 +349,10 @@ EOF;
     /**
      * Adds Digest authentication via username/password.
      *
-     * @param $username
-     * @param $password
      * @part json
      * @part xml
      */
-    public function amDigestAuthenticated($username, $password): void
+    public function amDigestAuthenticated(string $username, string $password): void
     {
         if ($this->isFunctional) {
             throw new ModuleException(__METHOD__, 'Not supported by functional modules');
@@ -387,13 +383,11 @@ EOF;
      * $I->amNTLMAuthenticated('jon_snow', 'targaryen');
      * ```
      *
-     * @param $username
-     * @param $password
      * @throws ModuleException
      * @part json
      * @part xml
      */
-    public function amNTLMAuthenticated($username, $password): void
+    public function amNTLMAuthenticated(string $username, string $password): void
     {
         if ($this->isFunctional) {
             throw new ModuleException(__METHOD__, 'Not supported by functional modules');
@@ -477,7 +471,6 @@ EOF;
      * ]]);
      * ```
      *
-     * @param $url
      * @param array|string|JsonSerializable $params
      * @param array $files A list of filenames or "mocks" of $_FILES (each entry being an array with the following
      *                     keys: name, type, error, size, tmp_name (pointing to the real file path). Each key works
@@ -488,7 +481,7 @@ EOF;
      * @part json
      * @part xml
      */
-    public function sendPost($url, $params = [], array $files = []): void
+    public function sendPost(string $url, $params = [], array $files = []): void
     {
         $this->execute('POST', $url, $params, $files);
     }
@@ -496,12 +489,10 @@ EOF;
     /**
      * Sends a HEAD request to given uri.
      *
-     * @param $url
-     * @param array $params
      * @part json
      * @part xml
      */
-    public function sendHead($url, array $params = []): void
+    public function sendHead(string $url, array $params = []): void
     {
         $this->execute('HEAD', $url, $params);
     }
@@ -509,12 +500,10 @@ EOF;
     /**
      * Sends an OPTIONS request to given uri.
      *
-     * @param $url
-     * @param array $params
      * @part json
      * @part xml
      */
-    public function sendOptions($url, array $params = []): void
+    public function sendOptions(string $url, array $params = []): void
     {
         $this->execute('OPTIONS', $url, $params);
     }
@@ -522,12 +511,10 @@ EOF;
     /**
      * Sends a GET request to given uri.
      *
-     * @param $url
-     * @param array $params
      * @part json
      * @part xml
      */
-    public function sendGet($url, array $params = []): void
+    public function sendGet(string $url, array $params = []): void
     {
         $this->execute('GET', $url, $params);
     }
@@ -535,13 +522,11 @@ EOF;
     /**
      * Sends PUT request to given uri.
      *
-     * @param $url
      * @param array|string|JsonSerializable $params
-     * @param array $files
      * @part json
      * @part xml
      */
-    public function sendPut($url, $params = [], array $files = []): void
+    public function sendPut(string $url, $params = [], array $files = []): void
     {
         $this->execute('PUT', $url, $params, $files);
     }
@@ -549,13 +534,11 @@ EOF;
     /**
      * Sends PATCH request to given uri.
      *
-     * @param       $url
      * @param array|string|JsonSerializable $params
-     * @param array $files
      * @part json
      * @part xml
      */
-    public function sendPatch($url, $params = [], array $files = []): void
+    public function sendPatch(string $url, $params = [], array $files = []): void
     {
         $this->execute('PATCH', $url, $params, $files);
     }
@@ -563,13 +546,10 @@ EOF;
     /**
      * Sends DELETE request to given uri.
      *
-     * @param $url
-     * @param array $params
-     * @param array $files
      * @part json
      * @part xml
      */
-    public function sendDelete($url, array $params = [], array $files = []): void
+    public function sendDelete(string $url, array $params = [], array $files = []): void
     {
         $this->execute('DELETE', $url, $params, $files);
     }
@@ -577,14 +557,11 @@ EOF;
     /**
      * Sends a HTTP request.
      *
-     * @param $method
-     * @param $url
      * @param array|string|JsonSerializable $params
-     * @param array $files
      * @part json
      * @part xml
      */
-    public function send($method, $url, $params = [], array $files = []): void
+    public function send(string $method, string $url, $params = [], array $files = []): void
     {
         $this->execute(strtoupper($method), $url, $params, $files);
     }
@@ -621,7 +598,6 @@ EOF;
     /**
      * Sends LINK request to given uri.
      *
-     * @param       $url
      * @param array $linkEntries (entry is array with keys "uri" and "link-param")
      *
      * @link http://tools.ietf.org/html/rfc2068#section-19.6.2.4
@@ -630,7 +606,7 @@ EOF;
      * @part json
      * @part xml
      */
-    public function sendLink($url, array $linkEntries): void
+    public function sendLink(string $url, array $linkEntries): void
     {
         $this->setHeaderLink($linkEntries);
         $this->execute('LINK', $url);
@@ -639,14 +615,13 @@ EOF;
     /**
      * Sends UNLINK request to given uri.
      *
-     * @param       $url
      * @param array $linkEntries (entry is array with keys "uri" and "link-param")
      * @link http://tools.ietf.org/html/rfc2068#section-19.6.2.4
      * @author samva.ua@gmail.com
      * @part json
      * @part xml
      */
-    public function sendUnlink($url, array $linkEntries): void
+    public function sendUnlink(string $url, array $linkEntries): void
     {
         $this->setHeaderLink($linkEntries);
         $this->execute('UNLINK', $url);
@@ -737,7 +712,7 @@ EOF;
         return '[binary-data length:' . strlen($data) . ' md5:' . md5($data) . ']';
     }
 
-    protected function encodeApplicationJson($method, $parameters)
+    protected function encodeApplicationJson(string $method, $parameters)
     {
         if (
             array_key_exists('Content-Type', $this->connectionModule->headers)
@@ -810,10 +785,7 @@ EOF;
         return $files;
     }
 
-    /**
-     * @return string|bool
-     */
-    private function getFileType($file)
+    private function getFileType($file): string
     {
         if (function_exists('mime_content_type') && mime_content_type($file)) {
             return mime_content_type($file);
@@ -821,7 +793,7 @@ EOF;
         return 'application/octet-stream';
     }
 
-    private function checkFileBeforeUpload($file): void
+    private function checkFileBeforeUpload(string $file): void
     {
         if (!file_exists($file)) {
             throw new ModuleException(__CLASS__, sprintf('File %s does not exist', $file));
@@ -1087,7 +1059,6 @@ EOF;
      * // at least one item in store has price
      * $I->seeResponseJsonMatchesXpath('/store//price');
      * ```
-     * @param string $xPath
      * @part json
      */
     public function seeResponseJsonMatchesXpath(string $xPath): void
@@ -1103,7 +1074,6 @@ EOF;
     /**
      * Opposite to seeResponseJsonMatchesXpath
      *
-     * @param string $xPath
      * @part json
      */
     public function dontSeeResponseJsonMatchesXpath(string $xPath): void
@@ -1328,9 +1298,8 @@ EOF;
      *
      * @part json
      * @part xml
-     * @param $code
      */
-    public function seeResponseCodeIs($code): void
+    public function seeResponseCodeIs(int $code): void
     {
         $this->connectionModule->seeResponseCodeIs($code);
     }
@@ -1348,9 +1317,8 @@ EOF;
      *
      * @part json
      * @part xml
-     * @param $code
      */
-    public function dontSeeResponseCodeIs($code): void
+    public function dontSeeResponseCodeIs(int $code): void
     {
         $this->connectionModule->dontSeeResponseCodeIs($code);
     }
@@ -1434,9 +1402,8 @@ EOF;
      * $I->seeXmlResponseMatchesXpath('//root/user[@id=1]');
      * ```
      * @part xml
-     * @param $xPath
      */
-    public function seeXmlResponseMatchesXpath($xPath): void
+    public function seeXmlResponseMatchesXpath(string $xPath): void
     {
         $xmlStructure = new XmlStructure($this->connectionModule->_getResponseContent());
         $this->assertTrue($xmlStructure->matchesXpath($xPath), 'xpath not matched');
@@ -1450,9 +1417,8 @@ EOF;
      * $I->dontSeeXmlResponseMatchesXpath('//root/user[@id=1]');
      * ```
      * @part xml
-     * @param $xPath
      */
-    public function dontSeeXmlResponseMatchesXpath($xPath): void
+    public function dontSeeXmlResponseMatchesXpath(string $xPath): void
     {
         $structure = new XmlStructure($this->connectionModule->_getResponseContent());
         $this->assertFalse($structure->matchesXpath($xPath), 'accidentally matched xpath');
@@ -1476,12 +1442,9 @@ EOF;
      * Finds and returns attribute of element.
      * Element is matched by either CSS or XPath
      *
-     * @param $cssOrXPath
-     * @param $attribute
-     * @return string
      * @part xml
      */
-    public function grabAttributeFromXmlElement(string $cssOrXPath, $attribute): string
+    public function grabAttributeFromXmlElement(string $cssOrXPath, string $attribute): string
     {
         $el = (new XmlStructure($this->connectionModule->_getResponseContent()))->matchElement($cssOrXPath);
         if (!$el->hasAttribute($attribute)) {
