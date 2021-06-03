@@ -17,7 +17,7 @@ function RESTServer()
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $data = $_GET;
         } else if ($tmp = file_get_contents('php://input')) {
-            $data = json_decode($tmp);
+            $data = json_decode($tmp, null, 512, JSON_THROW_ON_ERROR);
         }
 
         $response = call_user_func($callback, $data);
@@ -25,6 +25,6 @@ function RESTServer()
             print $response;
             return;
         }
-        print json_encode($response);
+        print json_encode($response, JSON_THROW_ON_ERROR);
     }
 }

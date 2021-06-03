@@ -225,7 +225,7 @@ final class RestTest extends Unit
         $this->module->send($method, '/', ['name' => 'john']);
         /** @var $request \Symfony\Component\BrowserKit\Request  **/
         $request = $this->module->client->getRequest();
-        $this->assertSame(json_encode(['name' => 'john']), $request->getContent());
+        $this->assertSame(json_encode(['name' => 'john'], JSON_THROW_ON_ERROR), $request->getContent());
     }
 
     /**
@@ -624,7 +624,7 @@ final class RestTest extends Unit
                 ]
             ]
         ];
-        $this->module->seeResponseIsValidOnJsonSchemaString(json_encode($schema));
+        $this->module->seeResponseIsValidOnJsonSchemaString(json_encode($schema, JSON_THROW_ON_ERROR));
     }
 
     /**

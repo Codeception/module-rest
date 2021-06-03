@@ -124,7 +124,7 @@ class JsonType
     {
         foreach ($jsonType as $key => $type) {
             if (!array_key_exists($key, $data)) {
-                return "Key `$key` doesn't exist in " . json_encode($data);
+                return "Key `$key` doesn't exist in " . json_encode($data, JSON_THROW_ON_ERROR);
             }
 
             if (is_array($jsonType[$key])) {
