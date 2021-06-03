@@ -3,10 +3,9 @@
 declare(strict_types=1);
 
 use Codeception\Configuration;
-use Codeception\Example;
 use Codeception\Module\UniversalFramework;
+use Codeception\Stub;
 use Codeception\Test\Unit;
-use Codeception\Util\Stub;
 
 /**
  * Class RestTest
