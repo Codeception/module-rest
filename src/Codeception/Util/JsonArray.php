@@ -1,9 +1,15 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Codeception\Util;
 
+use DOMDocument;
+use DOMNode;
+use DOMXPath;
+use Exception;
 use Flow\JSONPath\JSONPath;
 use InvalidArgumentException;
-use DOMDocument;
 
 class JsonArray
 {
@@ -15,7 +21,7 @@ class JsonArray
     /**
      * @var DOMDocument
      */
-    protected $jsonXml = null;
+    protected $jsonXml;
 
     public function __construct($jsonString)
     {
@@ -43,7 +49,7 @@ class JsonArray
         }
     }
 
-    public function toXml()
+    public function toXml(): DOMDocument
     {
         if ($this->jsonXml) {
             return $this->jsonXml;
@@ -68,24 +74,21 @@ class JsonArray
         return $dom;
     }
 
-    /**
-     * @return array
-     */
-    public function toArray()
+    public function toArray(): array
     {
         return $this->jsonArray;
     }
 
-    public function filterByXPath($xpath)
+    public function filterByXPath(string $xPath)
     {
-        $path = new \DOMXPath($this->toXml());
-        return $path->query($xpath);
+        $path = new DOMXPath($this->toXml());
+        return $path->query($xPath);
     }
 
-    public function filterByJsonPath($jsonPath)
+    public function filterByJsonPath($jsonPath): array
     {
-        if (!class_exists('Flow\JSONPath\JSONPath')) {
-            throw new \Exception('JSONPath library not installed. Please add `softcreatr/jsonpath` to composer.json');
+        if (!class_exists(\Flow\JSONPath\JSONPath::class)) {
+            throw new Exception('JSONPath library not installed. Please add `softcreatr/jsonpath` to composer.json');
         }
         return (new JSONPath($this->jsonArray))->find($jsonPath)->getData();
     }
@@ -95,12 +98,12 @@ class JsonArray
         return $this->toXml()->saveXML();
     }
 
-    public function containsArray(array $needle)
+    public function containsArray(array $needle): bool
     {
         return (new ArrayContainsComparator($this->jsonArray))->containsArray($needle);
     }
 
-    private function arrayToXml(\DOMDocument $doc, \DOMNode $node, $array)
+    private function arrayToXml(DOMDocument $doc, DOMNode $node, $array)
     {
         foreach ($array as $key => $value) {
             if (is_numeric($key)) {
@@ -109,7 +112,7 @@ class JsonArray
             } else {
                 try {
                     $subNode = $doc->createElement($key);
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $key = $this->getValidTagNameForInvalidKey($key);
                     $subNode = $doc->createElement($key);
                 }

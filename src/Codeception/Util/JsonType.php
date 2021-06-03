@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Codeception\Util;
 
 /**
@@ -29,8 +31,14 @@ namespace Codeception\Util;
  */
 class JsonType
 {
+    /**
+     * @var array|JsonArray
+     */
     protected $jsonArray;
 
+    /**
+     * @var array
+     */
     protected static $customFilters = [];
 
     /**
@@ -38,7 +46,7 @@ class JsonType
      * Pass an array or `\Codeception\Util\JsonArray` with data.
      * If non-associative array is passed - the very first element of it will be used for matching.
      *
-     * @param $jsonArray array|\Codeception\Util\JsonArray
+     * @param $jsonArray array|JsonArray
      */
     public function __construct($jsonArray)
     {
@@ -67,13 +75,10 @@ class JsonType
      *   return strlen($value) == $len;
      * });
      * // use it as 'string:len(5)'
-     * ?>
      * ```
      *
-     * @param          $name
-     * @param callable $callable
      */
-    public static function addCustomFilter($name, callable $callable)
+    public static function addCustomFilter(string $name, callable $callable)
     {
         static::$customFilters[$name] = $callable;
     }
@@ -91,21 +96,20 @@ class JsonType
      * If matching fails function returns a string with a message describing failure.
      * On success returns `true`.
      *
-     * @param array $jsonType
-     * @return bool|string
+     * @return string|bool
      */
     public function matches(array $jsonType)
     {
         if (array_key_exists(0, $this->jsonArray) && is_array($this->jsonArray[0])) {
             // a list of items
             $msg = '';
-            foreach ($this->jsonArray as $array) {
-                $res = $this->typeComparison($array, $jsonType);
+            foreach ($this->jsonArray as $singleJsonArray) {
+                $res = $this->typeComparison($singleJsonArray, $jsonType);
                 if ($res !== true) {
                     $msg .= "\n" . $res;
                 }
             }
-            if ($msg) {
+            if ($msg !== '') {
                 return $msg;
             }
             return true;
@@ -113,7 +117,10 @@ class JsonType
         return $this->typeComparison($this->jsonArray, $jsonType);
     }
 
-    protected function typeComparison($data, $jsonType)
+    /**
+     * @return string|bool
+     */
+    protected function typeComparison(array $data, array $jsonType)
     {
         foreach ($jsonType as $key => $type) {
             if (!array_key_exists($key, $data)) {
@@ -163,13 +170,13 @@ class JsonType
 
                 foreach ($filters as $filter) {
                     // Fill regex pattern back into the filter.
-                    $filter = preg_replace_callback('/\$\$\d+/', function ($m) use ($regexes) {
+                    $filter = preg_replace_callback('#\$\$\d+#', function ($m) use ($regexes) {
                         $pos = (int)substr($m[0], 2);
 
                         return $regexes[1][$pos];
                     }, $filter);
 
-                    $matched = $matched && $this->matchFilter($filter, $data[$key]);
+                    $matched = $matched && $this->matchFilter($filter, (string) $data[$key]);
                 }
 
                 if ($matched) {
@@ -184,7 +191,7 @@ class JsonType
         return true;
     }
 
-    protected function matchFilter($filter, $value)
+    protected function matchFilter(string $filter, string $value)
     {
         $filter = trim($filter);
         if (strpos($filter, '!') === 0) {
@@ -193,11 +200,9 @@ class JsonType
 
         // apply custom filters
         foreach (static::$customFilters as $customFilter => $callable) {
-            if (strpos($customFilter, '/') === 0) {
-                if (preg_match($customFilter, $filter, $matches)) {
-                    array_shift($matches);
-                    return call_user_func_array($callable, array_merge([$value], $matches));
-                }
+            if (strpos($customFilter, '/') === 0 && preg_match($customFilter, $filter, $matches)) {
+                array_shift($matches);
+                return call_user_func_array($callable, array_merge([$value], $matches));
             }
             if ($customFilter == $filter) {
                 return $callable($value);
@@ -212,32 +217,32 @@ class JsonType
         }
         if ($filter === 'date') {
             return preg_match(
-                '/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(\.\d+)?(?:Z|(\+|-)([\d|:]*))?$/',
+                '#^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(\.\d+)?(?:Z|(\+|-)([\d|:]*))?$#',
                 $value
             );
         }
         if ($filter === 'email') { // from http://emailregex.com/
             // @codingStandardsIgnoreStart
-            return preg_match('/^(?!(?:(?:\x22?\x5C[\x00-\x7E]\x22?)|(?:\x22?[^\x5C\x22]\x22?)){255,})(?!(?:(?:\x22?\x5C[\x00-\x7E]\x22?)|(?:\x22?[^\x5C\x22]\x22?)){65,}@)(?:(?:[\x21\x23-\x27\x2A\x2B\x2D\x2F-\x39\x3D\x3F\x5E-\x7E]+)|(?:\x22(?:[\x01-\x08\x0B\x0C\x0E-\x1F\x21\x23-\x5B\x5D-\x7F]|(?:\x5C[\x00-\x7F]))*\x22))(?:\.(?:(?:[\x21\x23-\x27\x2A\x2B\x2D\x2F-\x39\x3D\x3F\x5E-\x7E]+)|(?:\x22(?:[\x01-\x08\x0B\x0C\x0E-\x1F\x21\x23-\x5B\x5D-\x7F]|(?:\x5C[\x00-\x7F]))*\x22)))*@(?:(?:(?!.*[^.]{64,})(?:(?:(?:xn--)?[a-z0-9]+(?:-[a-z0-9]+)*\.){1,126}){1,}(?:(?:[a-z][a-z0-9]*)|(?:(?:xn--)[a-z0-9]+))(?:-[a-z0-9]+)*)|(?:\[(?:(?:IPv6:(?:(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){7})|(?:(?!(?:.*[a-f0-9][:\]]){7,})(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,5})?::(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,5})?)))|(?:(?:IPv6:(?:(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){5}:)|(?:(?!(?:.*[a-f0-9]:){5,})(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,3})?::(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,3}:)?)))?(?:(?:25[0-5])|(?:2[0-4][0-9])|(?:1[0-9]{2})|(?:[1-9]?[0-9]))(?:\.(?:(?:25[0-5])|(?:2[0-4][0-9])|(?:1[0-9]{2})|(?:[1-9]?[0-9]))){3}))\]))$/iD',
+            return preg_match('#^(?!(?:(?:\x22?\x5C[\x00-\x7E]\x22?)|(?:\x22?[^\x5C\x22]\x22?)){255,})(?!(?:(?:\x22?\x5C[\x00-\x7E]\x22?)|(?:\x22?[^\x5C\x22]\x22?)){65,}@)(?:(?:[\x21\x23-\x27\x2A\x2B\x2D\x2F-\x39\x3D\x3F\x5E-\x7E]+)|(?:\x22(?:[\x01-\x08\x0B\x0C\x0E-\x1F\x21\x23-\x5B\x5D-\x7F]|(?:\x5C[\x00-\x7F]))*\x22))(?:\.(?:(?:[\x21\x23-\x27\x2A\x2B\x2D\x2F-\x39\x3D\x3F\x5E-\x7E]+)|(?:\x22(?:[\x01-\x08\x0B\x0C\x0E-\x1F\x21\x23-\x5B\x5D-\x7F]|(?:\x5C[\x00-\x7F]))*\x22)))*@(?:(?:(?!.*[^.]{64,})(?:(?:(?:xn--)?[a-z0-9]+(?:-[a-z0-9]+)*\.){1,126}){1,}(?:(?:[a-z][a-z0-9]*)|(?:(?:xn--)[a-z0-9]+))(?:-[a-z0-9]+)*)|(?:\[(?:(?:IPv6:(?:(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){7})|(?:(?!(?:.*[a-f0-9][:\]]){7,})(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,5})?::(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,5})?)))|(?:(?:IPv6:(?:(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){5}:)|(?:(?!(?:.*[a-f0-9]:){5,})(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,3})?::(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,3}:)?)))?(?:(?:25[0-5])|(?:2[0-4]\d)|(?:1\d{2})|(?:[1-9]?\d))(?:\.(?:(?:25[0-5])|(?:2[0-4]\d)|(?:1\d{2})|(?:[1-9]?\d))){3}))\]))$#iD',
                 $value);
             // @codingStandardsIgnoreEnd
         }
         if ($filter === 'empty') {
             return empty($value);
         }
-        if (preg_match('~^regex\((.*?)\)$~', $filter, $matches)) {
+        if (preg_match('#^regex\((.*?)\)$#', $filter, $matches)) {
             return preg_match($matches[1], $value);
         }
-        if (preg_match('~^>=(-?[\d\.]+)$~', $filter, $matches)) {
+        if (preg_match('#^>=(-?[\d\.]+)$#', $filter, $matches)) {
             return (float)$value >= (float)$matches[1];
         }
-        if (preg_match('~^<=(-?[\d\.]+)$~', $filter, $matches)) {
+        if (preg_match('#^<=(-?[\d\.]+)$#', $filter, $matches)) {
             return (float)$value <= (float)$matches[1];
         }
-        if (preg_match('~^>(-?[\d\.]+)$~', $filter, $matches)) {
+        if (preg_match('#^>(-?[\d\.]+)$#', $filter, $matches)) {
             return (float)$value > (float)$matches[1];
         }
-        if (preg_match('~^<(-?[\d\.]+)$~', $filter, $matches)) {
+        if (preg_match('#^<(-?[\d\.]+)$#', $filter, $matches)) {
             return (float)$value < (float)$matches[1];
         }
 

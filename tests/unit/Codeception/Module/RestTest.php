@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Codeception\Configuration;
 use Codeception\Example;
 use Codeception\Module\UniversalFramework;
@@ -10,7 +12,7 @@ use Codeception\Util\Stub;
  * Class RestTest
  * @group appveyor
  */
-class RestTest extends Unit
+final class RestTest extends Unit
 {
     /**
      * @var \Codeception\Module\REST
@@ -329,7 +331,7 @@ class RestTest extends Unit
 
     public function testThrowsExceptionIfUrlIsNotString()
     {
-        $this->expectExceptionMessage('URL must be string');
+        $this->expectException(TypeError::class);
         $this->module->sendPOST([1]);
     }
 
@@ -560,7 +562,7 @@ class RestTest extends Unit
     {
         $data = base64_decode('/9j/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/yQALCAABAAEBAREA/8wABgAQEAX/2gAIAQEAAD8A0s8g/9k=');
         $this->setStubResponse($data);
-        $this->module->seeBinaryResponseEquals(md5($data));
+        $this->module->seeBinaryResponseEquals(sha1($data));
     }
 
     public function testDontSeeBinaryResponseEquals()
