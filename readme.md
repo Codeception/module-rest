@@ -17,6 +17,8 @@ composer require "codeception/module-rest" --dev
 
 See [the module documentation](https://codeception.com/docs/modules/REST).
 
+[Changelog](https://github.com/Codeception/module-rest/releases)
+
 ## License
 
 `Codeception Module REST` is open-sourced software licensed under the [MIT](/LICENSE) License.
