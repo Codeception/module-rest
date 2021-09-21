@@ -663,7 +663,7 @@ EOF;
                 $this->debugSection("Request", "$method $url");
                 $files = [];
             } else {
-                $this->debugSection("Request", "$method $url " . json_encode($parameters));
+                $this->debugSection("Request", "$method $url " . json_encode($parameters, JSON_PRESERVE_ZERO_FRACTION));
                 $files = $this->formatFilesArray($files);
             }
             $this->response = (string)$this->connectionModule->_request($method, $url, $parameters, $files);
@@ -721,11 +721,11 @@ EOF;
             )
         ) {
             if ($parameters instanceof \JsonSerializable) {
-                return json_encode($parameters);
+                return json_encode($parameters, JSON_PRESERVE_ZERO_FRACTION);
             }
             if (is_array($parameters) || $parameters instanceof \ArrayAccess) {
                 $parameters = $this->scalarizeArray($parameters);
-                return json_encode($parameters);
+                return json_encode($parameters, JSON_PRESERVE_ZERO_FRACTION);
             }
         }
 
