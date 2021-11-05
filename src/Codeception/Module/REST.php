@@ -8,23 +8,23 @@ use ArrayAccess;
 use Codeception\Exception\ConfigurationException;
 use Codeception\Exception\ModuleConfigException;
 use Codeception\Exception\ModuleException;
+use Codeception\Lib\Framework;
+use Codeception\Lib\InnerBrowser;
+use Codeception\Lib\Interfaces\API;
 use Codeception\Lib\Interfaces\ConflictsWithModule;
+use Codeception\Lib\Interfaces\DependsOnModule;
+use Codeception\Lib\Interfaces\PartedModule;
 use Codeception\Module;
 use Codeception\PHPUnit\Constraint\JsonContains;
 use Codeception\PHPUnit\Constraint\JsonType as JsonTypeConstraint;
 use Codeception\TestInterface;
-use Codeception\Lib\Interfaces\API;
-use Codeception\Lib\Framework;
-use Codeception\Lib\InnerBrowser;
-use Codeception\Lib\Interfaces\DependsOnModule;
-use Codeception\Lib\Interfaces\PartedModule;
 use Codeception\Util\JsonArray;
 use Codeception\Util\JsonType;
-use Codeception\Util\XmlStructure;
 use Codeception\Util\Soap as XmlUtils;
+use Codeception\Util\XmlStructure;
 use Exception;
-use JsonSchema\Validator as JsonSchemaValidator;
 use JsonSchema\Constraints\Constraint as JsonConstraint;
+use JsonSchema\Validator as JsonSchemaValidator;
 use JsonSerializable;
 use PHPUnit\Framework\Assert;
 use Symfony\Component\BrowserKit\AbstractBrowser;
@@ -686,7 +686,9 @@ EOF;
                 $this->debugSection("Request", sprintf('%s %s', $method, $url));
                 $files = [];
             } else {
-                $this->debugSection("Request", sprintf('%s %s ', $method, $url) . json_encode($parameters, JSON_PRESERVE_ZERO_FRACTION));
+                $this->debugSection("Request",
+                    sprintf('%s %s ', $method, $url) . json_encode($parameters, JSON_PRESERVE_ZERO_FRACTION | JSON_THROW_ON_ERROR)
+                );
                 $files = $this->formatFilesArray($files);
             }
             $this->response = $this->connectionModule->_request($method, $url, $parameters, $files);
@@ -746,11 +748,11 @@ EOF;
             )
         ) {
             if ($parameters instanceof JsonSerializable) {
-                return json_encode($parameters, JSON_PRESERVE_ZERO_FRACTION);
+                return json_encode($parameters, JSON_PRESERVE_ZERO_FRACTION | JSON_THROW_ON_ERROR);
             }
             if (is_array($parameters) || $parameters instanceof ArrayAccess) {
                 $parameters = $this->scalarizeArray($parameters);
-                return json_encode($parameters, JSON_PRESERVE_ZERO_FRACTION);
+                return json_encode($parameters, JSON_PRESERVE_ZERO_FRACTION | JSON_THROW_ON_ERROR);
             }
         }
 

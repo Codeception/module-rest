@@ -9,7 +9,7 @@ A REST module for Codeception
 
 ## Requirements
 
-* `PHP 7.1` or higher.
+* `PHP 7.4` or higher.
 
 ## Installation
 

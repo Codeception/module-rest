@@ -177,7 +177,7 @@ final class JsonTypeTest extends \Codeception\Test\Unit
             "birthdate": null,
             "firstname": "John",
             "lastname": "Doe"
-        }', true));
+        }', true, 512, JSON_THROW_ON_ERROR));
         $this->assertTrue($jsonType->matches([
             'birthdate' => 'string|null'
         ]));
@@ -190,13 +190,13 @@ final class JsonTypeTest extends \Codeception\Test\Unit
     {
         $jsonType = new JsonType(json_decode('{
             "type": "DAY"
-        }', true));
+        }', true, 512, JSON_THROW_ON_ERROR));
         $this->assertTrue($jsonType->matches([
             'type' => 'string:=DAY|string:=WEEK'
         ]));
         $jsonType = new JsonType(json_decode('{
             "type": "WEEK"
-        }', true));
+        }', true, 512, JSON_THROW_ON_ERROR));
         $this->assertTrue($jsonType->matches([
             'type' => 'string:=DAY|string:=WEEK'
         ]));
