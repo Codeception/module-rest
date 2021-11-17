@@ -431,7 +431,7 @@ EOF;
      * ```php
      * <?php
      * //simple POST call
-     * $I->sendPost('/message', ['subject' => 'Read this!', 'to' => 'johndoe@example.com']);
+     * $response = $I->sendPost('/message', ['subject' => 'Read this!', 'to' => 'johndoe@example.com']);
      * //simple upload method
      * $I->sendPost('/message/24', ['inline' => 0], ['attachmentFile' => codecept_data_dir('sample_file.pdf')]);
      * //uploading a file with a custom name and mime-type. This is also useful to simulate upload errors.
@@ -465,7 +465,7 @@ EOF;
      */
     public function sendPost($url, $params = [], $files = [])
     {
-        $this->execute('POST', $url, $params, $files);
+        return $this->execute('POST', $url, $params, $files);
     }
 
     /**
@@ -478,7 +478,7 @@ EOF;
      */
     public function sendHead($url, $params = [])
     {
-        $this->execute('HEAD', $url, $params);
+        return $this->execute('HEAD', $url, $params);
     }
 
     /**
@@ -497,6 +497,14 @@ EOF;
     /**
      * Sends a GET request to given uri.
      *
+     * ```php
+     * <?php
+     * $response = $I->sendGet('/users');
+     *
+     * // send get with query params
+     * $I->sendGet('/orders', ['id' => 1])
+     * ```
+     *
      * @param $url
      * @param array $params
      * @part json
@@ -504,11 +512,16 @@ EOF;
      */
     public function sendGet($url, $params = [])
     {
-        $this->execute('GET', $url, $params);
+        return $this->execute('GET', $url, $params);
     }
 
     /**
      * Sends PUT request to given uri.
+     *
+     * ```php
+     * <?php
+     * $response = $I->sendPut('/message/1', ['subject' => 'Read this!']);
+     * ```
      *
      * @param $url
      * @param array|string|\JsonSerializable $params
@@ -518,11 +531,16 @@ EOF;
      */
     public function sendPut($url, $params = [], $files = [])
     {
-        $this->execute('PUT', $url, $params, $files);
+        return $this->execute('PUT', $url, $params, $files);
     }
 
     /**
      * Sends PATCH request to given uri.
+     *
+     * ```php
+     * <?php
+     * $response = $I->sendPatch('/message/1', ['subject' => 'Read this!']);
+     * ```
      *
      * @param       $url
      * @param array|string|\JsonSerializable $params
@@ -532,11 +550,17 @@ EOF;
      */
     public function sendPatch($url, $params = [], $files = [])
     {
-        $this->execute('PATCH', $url, $params, $files);
+        return $this->execute('PATCH', $url, $params, $files);
     }
 
     /**
      * Sends DELETE request to given uri.
+     *
+     * ```php
+     * <?php
+     * $I->sendDelete('/message/1');
+     * ```
+
      *
      * @param $url
      * @param array $params
@@ -546,7 +570,7 @@ EOF;
      */
     public function sendDelete($url, $params = [], $files = [])
     {
-        $this->execute('DELETE', $url, $params, $files);
+        return $this->execute('DELETE', $url, $params, $files);
     }
 
     /**
@@ -561,7 +585,7 @@ EOF;
      */
     public function send($method, $url, $params = [], $files = [])
     {
-        $this->execute(strtoupper($method), $url, $params, $files);
+        return $this->execute(strtoupper($method), $url, $params, $files);
     }
 
     /**
@@ -688,6 +712,8 @@ EOF;
         } else {
             $this->debugSection("Response", $printedResponse);
         }
+
+        return $this->response;
     }
 
     /**

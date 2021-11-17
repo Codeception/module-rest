@@ -64,34 +64,43 @@ class RestTest extends Unit
 
     public function testGet()
     {
-        $this->module->sendGET('/rest/user/');
+        $response = $this->module->sendGET('/rest/user/');
         $this->module->seeResponseIsJson();
         $this->module->seeResponseContains('davert');
         $this->module->seeResponseContainsJson(['name' => 'davert']);
         $this->module->seeResponseCodeIs(200);
         $this->module->dontSeeResponseCodeIs(404);
+        $this->assertNotEmpty($response);
+        $this->assertStringContainsString('"name":"davert"', $response);
     }
 
     public function testPost()
     {
-        $this->module->sendPOST('/rest/user/', ['name' => 'john']);
+        $response = $this->module->sendPOST('/rest/user/', ['name' => 'john']);
         $this->module->seeResponseContains('john');
         $this->module->seeResponseContainsJson(['name' => 'john']);
+        $this->assertNotEmpty($response);
+        $this->assertStringContainsString('"name":"john"', $response);
     }
 
     public function testPut()
     {
-        $this->module->sendPUT('/rest/user/', ['name' => 'laura']);
+        $response = $this->module->sendPUT('/rest/user/', ['name' => 'laura']);
         $this->module->seeResponseContains('davert@mail.ua');
         $this->module->seeResponseContainsJson(['name' => 'laura']);
         $this->module->dontSeeResponseContainsJson(['name' => 'john']);
+        $this->assertNotEmpty($response);
+        $this->assertStringContainsString('"name":"laura"', $response);
+
     }
 
     public function testSend()
     {
-        $this->module->send('POST','/rest/user/', ['name' => 'john']);
+        $response = $this->module->send('POST','/rest/user/', ['name' => 'john']);
         $this->module->seeResponseContains('john');
         $this->module->seeResponseContainsJson(['name' => 'john']);
+        $this->assertNotEmpty($response);
+        $this->assertStringContainsString('"name":"john"', $response);
     }
 
     public function testGrabDataFromResponseByJsonPath()
