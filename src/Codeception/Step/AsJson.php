@@ -11,6 +11,7 @@ class AsJson extends Action implements GeneratedStep
     {
         $container->getModule('REST')->haveHttpHeader('Content-Type', 'application/json');
         $resp = parent::run($container);
+        $container->getModule('REST')->seeResponseIsJson();
         return json_decode($resp, true);
     }
 
@@ -21,7 +22,7 @@ class AsJson extends Action implements GeneratedStep
         // should only be applied to send* methods
         if (strpos($action, 'send') !== 0) return;
 
-        $conditionalDoc = "* JSON response will be automatically  decoded \n     " . $template->getVar('doc');
+        $conditionalDoc = "* JSON response will be automatically decoded \n     " . $template->getVar('doc');
 
         return $template
             ->place('doc', $conditionalDoc)
