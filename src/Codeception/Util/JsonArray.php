@@ -6,6 +6,7 @@ namespace Codeception\Util;
 
 use DOMDocument;
 use DOMNode;
+use DOMNodeList;
 use DOMXPath;
 use Exception;
 use Flow\JSONPath\JSONPath;
@@ -13,15 +14,9 @@ use InvalidArgumentException;
 
 class JsonArray
 {
-    /**
-     * @var array
-     */
-    protected $jsonArray = [];
-    
-    /**
-     * @var DOMDocument
-     */
-    protected $jsonXml;
+    protected array $jsonArray = [];
+
+    protected ?DOMDocument $jsonXml = null;
 
     public function __construct($jsonString)
     {
@@ -79,20 +74,27 @@ class JsonArray
         return $this->jsonArray;
     }
 
+    /**
+     * @return DOMNodeList|bool
+     */
     public function filterByXPath(string $xPath)
     {
         $path = new DOMXPath($this->toXml());
         return $path->query($xPath);
     }
 
-    public function filterByJsonPath($jsonPath): array
+    public function filterByJsonPath(string $jsonPath): array
     {
-        if (!class_exists(\Flow\JSONPath\JSONPath::class)) {
+        if (!class_exists(JSONPath::class)) {
             throw new Exception('JSONPath library not installed. Please add `softcreatr/jsonpath` to composer.json');
         }
+
         return (new JSONPath($this->jsonArray))->find($jsonPath)->getData();
     }
 
+    /**
+     * @return string|false
+     */
     public function getXmlString()
     {
         return $this->toXml()->saveXML();
@@ -103,7 +105,7 @@ class JsonArray
         return (new ArrayContainsComparator($this->jsonArray))->containsArray($needle);
     }
 
-    private function arrayToXml(DOMDocument $doc, DOMNode $node, $array)
+    private function arrayToXml(DOMDocument $doc, DOMNode $node, array $array): void
     {
         foreach ($array as $key => $value) {
             if (is_numeric($key)) {
@@ -112,12 +114,14 @@ class JsonArray
             } else {
                 try {
                     $subNode = $doc->createElement($key);
-                } catch (Exception $e) {
+                } catch (Exception $exception) {
                     $key = $this->getValidTagNameForInvalidKey($key);
                     $subNode = $doc->createElement($key);
                 }
+
                 $node->appendChild($subNode);
             }
+
             if (is_array($value)) {
                 $this->arrayToXml($doc, $subNode, $value);
             } else {
@@ -134,6 +138,7 @@ class JsonArray
             $map[$key] = $tagName;
             codecept_debug($tagName . ' is "' . $key . '"');
         }
+
         return $map[$key];
     }
 }

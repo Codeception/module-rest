@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Codeception\Util;
 
-final class JsonTypeTest extends \Codeception\Test\Unit
+use Codeception\Test\Unit;
+
+final class JsonTypeTest extends Unit
 {
-    protected $types = [
+    protected array $types = [
         'id' => 'integer:>10',
         'retweeted' => 'Boolean',
         'in_reply_to_screen_name' => 'null|string',
@@ -15,7 +17,8 @@ final class JsonTypeTest extends \Codeception\Test\Unit
             'url' => 'String:url'
         ]
     ];
-    protected $data = [
+
+    protected array $data = [
         'id' => 11,
         'retweeted' => false,
         'in_reply_to_screen_name' => null,
@@ -23,7 +26,7 @@ final class JsonTypeTest extends \Codeception\Test\Unit
         'user' => ['url' => 'http://davert.com']
     ];
 
-    public function _after()
+    protected function _after()
     {
         JsonType::cleanCustomFilters();
     }
@@ -141,9 +144,7 @@ final class JsonTypeTest extends \Codeception\Test\Unit
 
     public function testCustomFilters()
     {
-        JsonType::addCustomFilter('slug', function ($value) {
-            return strpos($value, ' ') === false;
-        });
+        JsonType::addCustomFilter('slug', fn($value): bool => strpos($value, ' ') === false);
         $jsonType = new JsonType(['title' => 'have a test', 'slug' => 'have-a-test']);
         $this->assertTrue($jsonType->matches([
             'slug' => 'string:slug'
@@ -152,9 +153,7 @@ final class JsonTypeTest extends \Codeception\Test\Unit
             'title' => 'string:slug'
         ]));
 
-        JsonType::addCustomFilter('/len\((.*?)\)/', function ($value, $len) {
-            return strlen($value) == $len;
-        });
+        JsonType::addCustomFilter('/len\((.*?)\)/', fn($value, $len): bool => strlen($value) == $len);
         $this->assertTrue($jsonType->matches([
             'slug' => 'string:len(11)'
         ]));

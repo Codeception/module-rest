@@ -6,6 +6,7 @@ namespace Codeception\Module;
 
 use ArrayAccess;
 use Codeception\Exception\ConfigurationException;
+use Codeception\Exception\ExternalUrlException;
 use Codeception\Exception\ModuleConfigException;
 use Codeception\Exception\ModuleException;
 use Codeception\Lib\Framework;
@@ -23,6 +24,7 @@ use Codeception\Util\JsonType;
 use Codeception\Util\Soap as XmlUtils;
 use Codeception\Util\XmlStructure;
 use Exception;
+use JsonException;
 use JsonSchema\Constraints\Constraint as JsonConstraint;
 use JsonSchema\Validator as JsonSchemaValidator;
 use JsonSerializable;
@@ -94,7 +96,7 @@ class REST extends Module implements DependsOnModule, PartedModule, API, Conflic
     /**
      * @var string[]
      */
-    const QUERY_PARAMS_AWARE_METHODS = ['GET', 'HEAD', 'OPTIONS'];
+    public const QUERY_PARAMS_AWARE_METHODS = ['GET', 'HEAD', 'OPTIONS'];
 
     /**
      * @var array<string, string>
@@ -104,10 +106,7 @@ class REST extends Module implements DependsOnModule, PartedModule, API, Conflic
         'aws' => ''
     ];
 
-    /**
-     * @var string
-     */
-    protected $dependencyMessage = <<<EOF
+    protected string $dependencyMessage = <<<EOF
 Example configuring PhpBrowser as backend for REST module.
 --
 modules:
@@ -120,37 +119,23 @@ modules:
 Framework modules can be used for testing of API as well.
 EOF;
 
-    /**
-     * @var int
-     */
-    protected $DEFAULT_SHORTEN_VALUE = 150;
+    protected int $DEFAULT_SHORTEN_VALUE = 150;
 
     /**
      * @var HttpKernelBrowser|AbstractBrowser
      */
     public $client;
 
-    /**
-     * @var bool
-     */
-    public $isFunctional = false;
+    public bool $isFunctional = false;
 
-    /**
-     * @var InnerBrowser
-     */
-    protected $connectionModule;
+    protected ?InnerBrowser $connectionModule = null;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     public $params = [];
 
-    /**
-     * @var string
-     */
-    public $response = '';
+    public ?string $response = null;
 
-    public function _before(TestInterface $test)
+    public function _before(TestInterface $test): void
     {
         $this->client = &$this->connectionModule->client;
         $this->resetVariables();
@@ -170,9 +155,12 @@ EOF;
 
     public function _depends()
     {
-        return [\Codeception\Lib\InnerBrowser::class => $this->dependencyMessage];
+        return [InnerBrowser::class => $this->dependencyMessage];
     }
 
+    /**
+     * @return string[]
+     */
     public function _parts()
     {
         return ['xml', 'json'];
@@ -184,22 +172,23 @@ EOF;
         if ($this->connectionModule instanceof Framework) {
             $this->isFunctional = true;
         }
-        if ($this->connectionModule instanceof PhpBrowser) {
-            if (!$this->connectionModule->_getConfig('url')) {
-                $this->connectionModule->_setConfig(['url' => $this->config['url']]);
-            }
+
+        if ($this->connectionModule instanceof PhpBrowser && !$this->connectionModule->_getConfig('url')) {
+            $this->connectionModule->_setConfig(['url' => $this->config['url']]);
         }
     }
 
     public function _failed(TestInterface $test, $fail)
     {
-        if (!$this->response) {
+        if ($this->response === '' || $this->response === '0') {
             return;
         }
+
         $printedResponse = $this->response;
         if ($this->isBinaryData($printedResponse)) {
             $printedResponse = $this->binaryToDebugString($printedResponse);
         }
+
         $test->getMetadata()->addReport('body', $printedResponse);
     }
 
@@ -208,6 +197,7 @@ EOF;
         if ($this->client->getInternalRequest() === null) {
             throw new ModuleException($this, "Response is empty. Use `\$I->sendXXX()` methods to send HTTP request");
         }
+
         return $this->client;
     }
 
@@ -269,6 +259,7 @@ EOF;
             );
             return;
         }
+
         $this->assertNotNull($this->getRunningClient()->getInternalResponse()->getHeader($name));
     }
 
@@ -290,6 +281,7 @@ EOF;
             );
             return;
         }
+
         $this->assertNull($this->getRunningClient()->getInternalResponse()->getHeader($name));
     }
 
@@ -316,9 +308,7 @@ EOF;
     /**
      * Returns the value of the specified header name
      *
-     * @param string $name
      * @param bool $first Whether to return the first value or all header values
-     *
      * @return string|array The first header value if $first is true, an array of values otherwise
      * @part json
      * @part xml
@@ -331,8 +321,6 @@ EOF;
     /**
      * Adds HTTP authentication via username/password.
      *
-     * @param string $username
-     * @param string $password
      * @part json
      * @part xml
      */
@@ -357,13 +345,13 @@ EOF;
         if ($this->isFunctional) {
             throw new ModuleException(__METHOD__, 'Not supported by functional modules');
         }
+
         $this->client->setAuth($username, $password, 'digest');
     }
 
     /**
      * Adds Bearer authentication via access token.
      *
-     * @param string $accessToken
      * @part json
      * @part xml
      */
@@ -392,9 +380,11 @@ EOF;
         if ($this->isFunctional) {
             throw new ModuleException(__METHOD__, 'Not supported by functional modules');
         }
+
         if (!defined('\GuzzleHttp\Client::MAJOR_VERSION') && !defined('\GuzzleHttp\Client::VERSION')) {
             throw new ModuleException(__METHOD__, 'Not supported if not using a Guzzle client');
         }
+
         $this->client->setAuth($username, $password, 'ntlm');
     }
 
@@ -429,12 +419,15 @@ EOF;
             if (!isset($config['key'])) {
                 throw new ConfigurationException('AWS Key is not set');
             }
+
             if (!isset($config['secret'])) {
                 throw new ConfigurationException('AWS Secret is not set');
             }
+
             if (!isset($config['service'])) {
                 throw new ConfigurationException('AWS Service is not set');
             }
+
             if (!isset($config['region'])) {
                 throw new ConfigurationException('AWS Region is not set');
             }
@@ -650,6 +643,13 @@ EOF;
         $this->execute('UNLINK', $url);
     }
 
+    /**
+     * @param $method
+     * @param $url
+     * @param array|string|object $parameters
+     * @param array $files
+     * @throws ModuleException|ExternalUrlException|JsonException
+     */
     protected function execute($method, $url, $parameters = [], $files = [])
     {
         // allow full url to be requested
@@ -681,8 +681,10 @@ EOF;
                     } else {
                         $url .= '?';
                     }
+
                     $url .= http_build_query($parameters);
                 }
+
                 $this->debugSection("Request", sprintf('%s %s', $method, $url));
                 $files = [];
             } else {
@@ -691,15 +693,18 @@ EOF;
                 );
                 $files = $this->formatFilesArray($files);
             }
+
             $this->response = $this->connectionModule->_request($method, $url, $parameters, $files);
         } else {
             $requestData = $parameters;
             if ($this->isBinaryData($requestData)) {
                 $requestData = $this->binaryToDebugString($requestData);
             }
+
             $this->debugSection("Request", sprintf('%s %s ', $method, $url) . $requestData);
             $this->response = $this->connectionModule->_request($method, $url, [], $files, [], $parameters);
         }
+
         $printedResponse = $this->response;
         if ($this->isBinaryData((string) $printedResponse)) {
             $printedResponse = $this->binaryToDebugString($printedResponse);
@@ -721,7 +726,6 @@ EOF;
      * Check if data has non-printable bytes and it is not a valid unicode string
      *
      * @param string $data the text or binary data string
-     * @return bool
      */
     protected function isBinaryData(string $data): bool
     {
@@ -750,6 +754,7 @@ EOF;
             if ($parameters instanceof JsonSerializable) {
                 return json_encode($parameters, JSON_PRESERVE_ZERO_FRACTION | JSON_THROW_ON_ERROR);
             }
+
             if (is_array($parameters) || $parameters instanceof ArrayAccess) {
                 $parameters = $this->scalarizeArray($parameters);
                 return json_encode($parameters, JSON_PRESERVE_ZERO_FRACTION | JSON_THROW_ON_ERROR);
@@ -781,18 +786,22 @@ EOF;
                 ];
                 continue;
             }
+
             if (is_array($value)) {
                 if (isset($value['tmp_name'])) {
                     $this->checkFileBeforeUpload($value['tmp_name']);
                     if (!isset($value['name'])) {
                         $value['name'] = basename($value['tmp_name']);
                     }
+
                     if (!isset($value['size'])) {
                         $value['size'] = filesize($value['tmp_name']);
                     }
+
                     if (!isset($value['type'])) {
                         $value['type'] = $this->getFileType($value['tmp_name']);
                     }
+
                     if (!isset($value['error'])) {
                         $value['error'] = 0;
                     }
@@ -817,6 +826,7 @@ EOF;
         if (function_exists('mime_content_type') && mime_content_type($file)) {
             return mime_content_type($file);
         }
+
         return 'application/octet-stream';
     }
 
@@ -825,9 +835,11 @@ EOF;
         if (!file_exists($file)) {
             throw new ModuleException(__CLASS__, sprintf('File %s does not exist', $file));
         }
+
         if (!is_readable($file)) {
             throw new ModuleException(__CLASS__, sprintf('File %s is not readable', $file));
         }
+
         if (!is_file($file)) {
             throw new ModuleException(__CLASS__, sprintf('File %s is not a regular file', $file));
         }
@@ -843,10 +855,8 @@ EOF;
 
         $short = $this->_getConfig('shortDebugResponse');
 
-        if (!is_null($short)) {
-            if (!is_int($short) || $short < 0) {
-                throw new ModuleConfigException(__CLASS__, 'The value of "shortDebugMessage" should be integer and greater or equal "0".');
-            }
+        if (!is_null($short) && (!is_int($short) || $short < 0)) {
+            throw new ModuleConfigException(__CLASS__, 'The value of "shortDebugMessage" should be integer and greater or equal "0".');
         }
     }
 
@@ -866,7 +876,6 @@ EOF;
     /**
      * Checks whether the last response contains text.
      *
-     * @param string $text
      * @part json
      * @part xml
      */
@@ -878,7 +887,6 @@ EOF;
     /**
      * Checks whether last response do not contain text.
      *
-     * @param string $text
      * @part json
      * @part xml
      */
@@ -907,7 +915,6 @@ EOF;
      *
      * This method recursively checks if one array can be found inside of another.
      *
-     * @param array $json
      * @part json
      */
     public function seeResponseContainsJson(array $json = []): void
@@ -942,7 +949,6 @@ EOF;
      *
      * ```
      *
-     * @param string $schema
      * @part json
      */
     public function seeResponseIsValidOnJsonSchemaString(string $schema): void
@@ -956,12 +962,14 @@ EOF;
 
         $validator = new JsonSchemaValidator();
         $validator->validate($responseObject, $schemaObject, JsonConstraint::CHECK_MODE_VALIDATE_SCHEMA);
+
         $outcome = $validator->isValid();
         $error = '';
         if (!$outcome) {
             $errors = $validator->getErrors();
             $error = array_shift($errors)["message"];
         }
+
         Assert::assertTrue(
             $outcome,
             $error
@@ -982,6 +990,7 @@ EOF;
         if (!file_exists($file)) {
             throw new ModuleException(__CLASS__, sprintf('File %s does not exist', $file));
         }
+
         $this->seeResponseIsValidOnJsonSchemaString(file_get_contents($file));
     }
 
@@ -1019,7 +1028,6 @@ EOF;
      * $I->sendPut('/user', array('id' => $user_id, 'name' => 'davert'));
      * ```
      *
-     * @return string
      * @part json
      * @part xml
      */
@@ -1040,12 +1048,11 @@ EOF;
      * $I->sendPut('/user', array('id' => $firstUserId[0], 'name' => 'davert'));
      * ```
      *
-     * @param string $jsonPath
      * @return array Array of matching items
      * @throws Exception
      * @part json
      */
-    public function grabDataFromResponseByJsonPath($jsonPath): array
+    public function grabDataFromResponseByJsonPath(string $jsonPath): array
     {
         return (new JsonArray($this->connectionModule->_getResponseContent()))->filterByJsonPath($jsonPath);
     }
@@ -1094,7 +1101,7 @@ EOF;
         $this->assertGreaterThan(
             0,
             (new JsonArray($response))->filterByXPath($xPath)->length,
-            "Received JSON did not match the XPath `$xPath`.\nJson Response: \n" . $response
+            "Received JSON did not match the XPath `{$xPath}`.\nJson Response: \n" . $response
         );
     }
 
@@ -1109,7 +1116,7 @@ EOF;
         $this->assertEquals(
             0,
             (new JsonArray($response))->filterByXPath($xPath)->length,
-            "Received JSON matched the XPath `$xPath`.\nJson Response: \n" . $response
+            "Received JSON matched the XPath `{$xPath}`.\nJson Response: \n" . $response
         );
     }
 
@@ -1149,7 +1156,6 @@ EOF;
      * $I->seeResponseJsonMatchesJsonPath('$.store..price');
      * ```
      *
-     * @param string $jsonPath
      * @part json
      */
     public function seeResponseJsonMatchesJsonPath(string $jsonPath): void
@@ -1157,7 +1163,7 @@ EOF;
         $response = $this->connectionModule->_getResponseContent();
         $this->assertNotEmpty(
             (new JsonArray($response))->filterByJsonPath($jsonPath),
-            "Received JSON did not match the JsonPath `$jsonPath`.\nJson Response: \n" . $response
+            "Received JSON did not match the JsonPath `{$jsonPath}`.\nJson Response: \n" . $response
         );
     }
 
@@ -1165,7 +1171,6 @@ EOF;
      * See [#jsonpath](#jsonpath) for general info on JSONPath.
      * Opposite to [`seeResponseJsonMatchesJsonPath()`](#seeResponseJsonMatchesJsonPath)
      *
-     * @param string $jsonPath
      * @part json
      */
     public function dontSeeResponseJsonMatchesJsonPath(string $jsonPath): void
@@ -1173,7 +1178,7 @@ EOF;
         $response = $this->connectionModule->_getResponseContent();
         $this->assertEmpty(
             (new JsonArray($response))->filterByJsonPath($jsonPath),
-            "Received JSON matched the JsonPath `$jsonPath`.\nJson Response: \n" . $response
+            "Received JSON matched the JsonPath `{$jsonPath}`.\nJson Response: \n" . $response
         );
     }
 
@@ -1181,7 +1186,6 @@ EOF;
      * Opposite to seeResponseContainsJson
      *
      * @part json
-     * @param array $json
      */
     public function dontSeeResponseContainsJson(array $json = []): void
     {
@@ -1269,7 +1273,6 @@ EOF;
      * See [JsonType reference](http://codeception.com/docs/reference/JsonType).
      *
      * @part json
-     * @param string|null $jsonPath
      * @see JsonType
      */
     public function seeResponseMatchesJsonType(array $jsonType, string $jsonPath = null): void
@@ -1287,7 +1290,6 @@ EOF;
      *
      * @part json
      * @param array $jsonType JsonType structure
-     * @param string|null $jsonPath
      * @see seeResponseMatchesJsonType
      */
     public function dontSeeResponseMatchesJsonType(array $jsonType, string $jsonPath = null): void
@@ -1305,7 +1307,6 @@ EOF;
      *
      * @part json
      * @part xml
-     * @param $expected
      */
     public function seeResponseEquals($expected): void
     {
@@ -1413,6 +1414,7 @@ EOF;
             $title = trim($error->message);
             libxml_clear_errors();
         }
+
         libxml_use_internal_errors(false);
         Assert::assertNotSame(
             false,
@@ -1455,8 +1457,7 @@ EOF;
      * Finds and returns text contents of element.
      * Element is matched by either CSS or XPath
      *
-     * @param $cssOrXPath
-     * @return string
+     * @param mixed $cssOrXPath
      * @part xml
      */
     public function grabTextContentFromXmlElement($cssOrXPath): string
@@ -1475,8 +1476,9 @@ EOF;
     {
         $el = (new XmlStructure($this->connectionModule->_getResponseContent()))->matchElement($cssOrXPath);
         if (!$el->hasAttribute($attribute)) {
-            $this->fail(sprintf('Attribute not found in element matched by \'%s\'', $cssOrXPath));
+            $this->fail(sprintf("Attribute not found in element matched by '%s'", $cssOrXPath));
         }
+
         return $el->getAttribute($attribute);
     }
 
@@ -1486,7 +1488,7 @@ EOF;
      *
      * Parameters can be passed either as DOMDocument, DOMNode, XML string, or array (if no attributes).
      *
-     * @param $xml
+     * @param mixed $xml
      * @part xml
      */
     public function seeXmlResponseEquals($xml): void
@@ -1501,7 +1503,7 @@ EOF;
      *
      * Parameter can be passed either as XmlBuilder, DOMDocument, DOMNode, XML string, or array (if no attributes).
      *
-     * @param $xml
+     * @param mixed $xml
      * @part xml
      */
     public function dontSeeXmlResponseEquals($xml): void
@@ -1524,7 +1526,7 @@ EOF;
      * $I->seeXmlResponseIncludes("<result>1</result>");
      * ```
      *
-     * @param $xml
+     * @param mixed $xml
      * @part xml
      */
     public function seeXmlResponseIncludes($xml): void
@@ -1541,7 +1543,7 @@ EOF;
      * Comparison is done by canonicalizing both xml`s.
      * Parameter can be passed either as XmlBuilder, DOMDocument, DOMNode, XML string, or array (if no attributes).
      *
-     * @param $xml
+     * @param mixed $xml
      * @part xml
      */
     public function dontSeeXmlResponseIncludes($xml): void

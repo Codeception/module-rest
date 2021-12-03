@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace Codeception\Util;
 
-class JsonArrayTest extends \Codeception\Test\Unit
-{
+use Codeception\Test\Unit;
+use InvalidArgumentException;
 
-    /**
-     * @var JsonArray
-     */
-    protected $jsonArray;
+final class JsonArrayTest extends Unit
+{
+    protected ?JsonArray $jsonArray = null;
 
     protected function _before()
     {
@@ -58,7 +57,7 @@ class JsonArrayTest extends \Codeception\Test\Unit
      */
     public function testThrowsInvalidArgumentExceptionIfJsonIsInvalid()
     {
-        $this->expectException('InvalidArgumentException');
+        $this->expectException(InvalidArgumentException::class);
         new JsonArray('{"test":');
     }
 
