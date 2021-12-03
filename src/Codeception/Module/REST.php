@@ -253,7 +253,7 @@ EOF;
     public function seeHttpHeader(string $name, $value = null): void
     {
         if ($value !== null) {
-            $this->assertEquals(
+            $this->assertSame(
                 $value,
                 $this->getRunningClient()->getInternalResponse()->getHeader($name)
             );
@@ -1005,7 +1005,7 @@ EOF;
         $json = json_decode($jsonString);
         $errorCode = json_last_error();
         $errorMessage = json_last_error_msg();
-        Assert::assertEquals(
+        Assert::assertSame(
             JSON_ERROR_NONE,
             $errorCode,
             sprintf(
@@ -1113,7 +1113,7 @@ EOF;
     public function dontSeeResponseJsonMatchesXpath(string $xPath): void
     {
         $response = $this->connectionModule->_getResponseContent();
-        $this->assertEquals(
+        $this->assertSame(
             0,
             (new JsonArray($response))->filterByXPath($xPath)->length,
             "Received JSON matched the XPath `{$xPath}`.\nJson Response: \n" . $response
@@ -1310,7 +1310,7 @@ EOF;
      */
     public function seeResponseEquals($expected): void
     {
-        $this->assertEquals($expected, $this->connectionModule->_getResponseContent());
+        $this->assertSame($expected, $this->connectionModule->_getResponseContent());
     }
 
     /**
@@ -1590,7 +1590,7 @@ EOF;
     public function seeBinaryResponseEquals(string $hash, string $algo = 'sha1'): void
     {
         $responseHash = hash($algo, $this->connectionModule->_getResponseContent());
-        $this->assertEquals($hash, $responseHash);
+        $this->assertSame($hash, $responseHash);
     }
 
     /**

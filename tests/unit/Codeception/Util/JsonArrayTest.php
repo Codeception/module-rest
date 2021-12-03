@@ -33,7 +33,7 @@ final class JsonArrayTest extends Unit
             . '{"user":"John Doe","age":27,"tags":["web-dev","java"]}]'
         );
         $this->assertStringContainsString('<tags>wed-dev</tags>', $jsonArray->toXml()->saveXML());
-        $this->assertEquals(2, $jsonArray->filterByXPath('//user')->length);
+        $this->assertSame(2, $jsonArray->filterByXPath('//user')->length);
     }
 
     public function testXPathLocation()
@@ -48,7 +48,7 @@ final class JsonArrayTest extends Unit
         $this->assertNotEmpty($this->jsonArray->filterByJsonPath('$..user'));
         $this->assertNotEmpty($this->jsonArray->filterByJsonPath('$.ticket.user.name'));
         $this->assertNotEmpty($this->jsonArray->filterByJsonPath('$..user.name'));
-        $this->assertEquals(['Davert'], $this->jsonArray->filterByJsonPath('$.ticket.user.name'));
+        $this->assertSame(['Davert'], $this->jsonArray->filterByJsonPath('$.ticket.user.name'));
         $this->assertEmpty($this->jsonArray->filterByJsonPath('$..invalid'));
     }
 
@@ -67,7 +67,7 @@ final class JsonArrayTest extends Unit
     public function testConvertsBareJson()
     {
         $jsonArray = new JsonArray('"I am a {string}."');
-        $this->assertEquals(['I am a {string}.'], $jsonArray->toArray());
+        $this->assertSame(['I am a {string}.'], $jsonArray->toArray());
     }
 
     /**
@@ -86,7 +86,7 @@ final class JsonArrayTest extends Unit
         $jsonArray = new JsonArray('{"success": 1}');
         $expectedXml = '<?xml version="1.0" encoding="UTF-8"?>'
             . "\n<root><success>1</success></root>\n";
-        $this->assertEquals($expectedXml, $jsonArray->toXml()->saveXML());
+        $this->assertSame($expectedXml, $jsonArray->toXml()->saveXML());
     }
 
     public function testConvertsArrayHavingTwoElements()
@@ -94,7 +94,7 @@ final class JsonArrayTest extends Unit
         $jsonArray = new JsonArray('{"success": 1, "info": "test"}');
         $expectedXml = '<?xml version="1.0" encoding="UTF-8"?>'
             . "\n<root><success>1</success><info>test</info></root>\n";
-        $this->assertEquals($expectedXml, $jsonArray->toXml()->saveXML());
+        $this->assertSame($expectedXml, $jsonArray->toXml()->saveXML());
     }
 
     public function testConvertsArrayHavingSingleSubArray()
@@ -102,6 +102,6 @@ final class JsonArrayTest extends Unit
         $jsonArray = new JsonArray('{"array": {"success": 1}}');
         $expectedXml = '<?xml version="1.0" encoding="UTF-8"?>'
             . "\n<array><success>1</success></array>\n";
-        $this->assertEquals($expectedXml, $jsonArray->toXml()->saveXML());
+        $this->assertSame($expectedXml, $jsonArray->toXml()->saveXML());
     }
 }

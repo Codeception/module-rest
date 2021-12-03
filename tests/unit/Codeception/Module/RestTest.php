@@ -45,7 +45,7 @@ final class RestTest extends Unit
     public function testConflictsWithAPI()
     {
         $this->assertInstanceOf(\Codeception\Lib\Interfaces\ConflictsWithModule::class, $this->module);
-        $this->assertEquals(\Codeception\Lib\Interfaces\API::class, $this->module->_conflicts());
+        $this->assertSame(\Codeception\Lib\Interfaces\API::class, $this->module->_conflicts());
     }
 
     private function setStubResponse($response)
@@ -115,13 +115,13 @@ final class RestTest extends Unit
     {
         $this->module->sendGET('/rest/user/');
         // simple assoc array
-        $this->assertEquals(['davert@mail.ua'], $this->module->grabDataFromResponseByJsonPath('$.email'));
+        $this->assertSame(['davert@mail.ua'], $this->module->grabDataFromResponseByJsonPath('$.email'));
         // nested assoc array
-        $this->assertEquals(['Kyiv'], $this->module->grabDataFromResponseByJsonPath('$.address.city'));
+        $this->assertSame(['Kyiv'], $this->module->grabDataFromResponseByJsonPath('$.address.city'));
         // nested index array
-        $this->assertEquals(['DavertMik'], $this->module->grabDataFromResponseByJsonPath('$.aliases[0]'));
+        $this->assertSame(['DavertMik'], $this->module->grabDataFromResponseByJsonPath('$.aliases[0]'));
         // empty if data not found
-        $this->assertEquals([], $this->module->grabDataFromResponseByJsonPath('$.address.street'));
+        $this->assertSame([], $this->module->grabDataFromResponseByJsonPath('$.address.street'));
     }
 
     public function testValidJson()
@@ -216,7 +216,7 @@ final class RestTest extends Unit
         $request = $this->module->client->getRequest();
         $this->assertContains('application/json', $request->getServer());
         $server = $request->getServer();
-        $this->assertEquals('application/json', $server['HTTP_CONTENT_TYPE']);
+        $this->assertSame('application/json', $server['HTTP_CONTENT_TYPE']);
         $this->assertJson($request->getContent());
         $this->assertEmpty($request->getParameters());
     }
@@ -359,7 +359,7 @@ final class RestTest extends Unit
         $this->module->sendGET('/api/v1/users');
         /** @var SymfonyRequest $request **/
         $request = $this->module->client->getRequest();
-        $this->assertEquals('http://localhost/api/v1/users', $request->getUri());
+        $this->assertSame('http://localhost/api/v1/users', $request->getUri());
     }
 
     public function testSeeHeaders()
@@ -376,9 +376,9 @@ final class RestTest extends Unit
         $this->module->dontSeeHttpHeader('Content-Language', 'en-RU');
         $this->module->dontSeeHttpHeader('Content-Language1');
         $this->module->seeHttpHeaderOnce('Content-Language');
-        $this->assertEquals('en-US', $this->module->grabHttpHeader('Content-Language'));
-        $this->assertEquals('no-cache', $this->module->grabHttpHeader('Cache-Control'));
-        $this->assertEquals(['no-cache', 'no-store'], $this->module->grabHttpHeader('Cache-Control', false));
+        $this->assertSame('en-US', $this->module->grabHttpHeader('Content-Language'));
+        $this->assertSame('no-cache', $this->module->grabHttpHeader('Cache-Control'));
+        $this->assertSame(['no-cache', 'no-store'], $this->module->grabHttpHeader('Cache-Control', false));
     }
 
     public function testSeeHeadersOnce()
@@ -514,7 +514,7 @@ final class RestTest extends Unit
             $this->module->seeResponseMatchesJsonType(['zzz' => 'string']);
             $this->fail('it had to throw exception');
         } catch (AssertionFailedError $assertionFailedError) {
-            $this->assertEquals('Key `zzz` doesn\'t exist in {"xxx":"yyy","user_id":1}', $assertionFailedError->getMessage());
+            $this->assertSame('Key `zzz` doesn\'t exist in {"xxx":"yyy","user_id":1}', $assertionFailedError->getMessage());
         }
     }
 
@@ -525,7 +525,7 @@ final class RestTest extends Unit
             $this->module->dontSeeResponseMatchesJsonType(['xxx' => 'string']);
             $this->fail('it had to throw exception');
         } catch (AssertionFailedError $e) {
-            $this->assertEquals('Unexpectedly response matched: {"xxx":"yyy","user_id":1}', $e->getMessage());
+            $this->assertSame('Unexpectedly response matched: {"xxx":"yyy","user_id":1}', $e->getMessage());
         }
     }
 
@@ -663,7 +663,7 @@ final class RestTest extends Unit
                     $server,
                     $content
                 ) use ($expectedFullUrl) {
-                    \PHPUnit\Framework\Assert::assertEquals($expectedFullUrl, $uri);
+                    \PHPUnit\Framework\Assert::assertSame($expectedFullUrl, $uri);
                 })
             );
 
