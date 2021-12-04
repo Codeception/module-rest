@@ -1,38 +1,35 @@
 <?php
 
-include_once 'server.php';
+include_once __DIR__ . '/server.php';
 
 $GLOBALS['RESTmap'] = [];
 
 $GLOBALS['RESTmap']['GET'] = [
-    'user' => function() {
-        return [
-            'name'    => 'davert',
-            'email'   => 'davert@mail.ua',
-            'aliases' => [
-                'DavertMik',
-                'davert.ua'
-            ],
-            'address' => [
-                'city'    => 'Kyiv',
-                'country' => 'Ukraine',
-            ]];
-    },
-    'zeroes' => function() {
-        return [
-            'responseCode' => 0,
-            'message' => 'OK',
-            'data' => [
-                9,
-                0,
-                0
-            ],
-        ];
-    },
+    'user' => fn(): array => [
+        'name'    => 'davert',
+        'email'   => 'davert@mail.ua',
+        'aliases' => [
+            'DavertMik',
+            'davert.ua'
+        ],
+        'address' => [
+            'city'    => 'Kyiv',
+            'country' => 'Ukraine',
+        ]],
+    'zeroes' => fn(): array => [
+        'responseCode' => 0,
+        'message' => 'OK',
+        'data' => [
+            9,
+            0,
+            0
+        ],
+    ],
     'foo' => function() {
         if (isset($_SERVER['HTTP_FOO'])) {
             return 'foo: "' . $_SERVER['HTTP_FOO'] . '"';
         }
+
         return 'foo: not found';
     }
 
@@ -43,11 +40,9 @@ $GLOBALS['RESTmap']['POST'] = [
         $name = $_POST['name'];
         return ['name' => $name];
     },
-    'file-upload' => function() {
-        return [
-            'uploaded' => isset($_FILES['file']['tmp_name']) && file_exists($_FILES['file']['tmp_name']),
-        ];
-    }
+    'file-upload' => fn(): array => [
+        'uploaded' => isset($_FILES['file']['tmp_name']) && file_exists($_FILES['file']['tmp_name']),
+    ]
 ];
 
 $GLOBALS['RESTmap']['PUT'] = [
@@ -60,7 +55,7 @@ $GLOBALS['RESTmap']['PUT'] = [
 ];
 
 $GLOBALS['RESTmap']['DELETE'] = [
-    'user' => function() {
+    'user' => function(): void {
         header('error', false, 404);
     }
 ];

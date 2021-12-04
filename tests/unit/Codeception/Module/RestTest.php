@@ -1,33 +1,39 @@
 <?php
 
+declare(strict_types=1);
+
 use Codeception\Configuration;
-use Codeception\Example;
+use Codeception\Module\REST;
 use Codeception\Module\UniversalFramework;
+use Codeception\Stub;
 use Codeception\Test\Unit;
-use Codeception\Util\Stub;
+use Codeception\Util\Maybe;
+use PHPUnit\Framework\AssertionFailedError;
+use PHPUnit\Framework\ExpectationFailedException;
+use Symfony\Component\BrowserKit\Request as SymfonyRequest;
+use Symfony\Component\BrowserKit\Response as SymfonyResponse;
 
 /**
  * Class RestTest
  * @group appveyor
  */
-class RestTest extends Unit
+final class RestTest extends Unit
 {
-    /**
-     * @var \Codeception\Module\REST
-     */
-    protected $module;
+    protected REST $module;
 
-    public function _setUp()
+    protected function _setUp()
     {
         $index = Configuration::dataDir() . '/rest/index.php';
 
-        $container = Stub::make('Codeception\Lib\ModuleContainer');
+        $container = Stub::make(\Codeception\Lib\ModuleContainer::class);
         $connectionModule = new UniversalFramework($container, ['index' => $index]);
         $connectionModule->_initialize();
-        $this->module = Stub::make('\Codeception\Module\REST');
+
+        $this->module = Stub::make(\Codeception\Module\REST::class);
         $this->module->_inject($connectionModule);
         $this->module->_initialize();
-        $this->module->_before(Stub::makeEmpty('\Codeception\Test\Test'));
+        $this->module->_before(Stub::makeEmpty(\Codeception\Test\Test::class));
+
         $this->module->client->setServerParameters([
             'SCRIPT_FILENAME' => 'index.php',
             'SCRIPT_NAME' => 'index',
@@ -38,26 +44,28 @@ class RestTest extends Unit
 
     public function testConflictsWithAPI()
     {
-        $this->assertInstanceOf('Codeception\Lib\Interfaces\ConflictsWithModule', $this->module);
-        $this->assertEquals('Codeception\Lib\Interfaces\API', $this->module->_conflicts());
+        $this->assertInstanceOf(\Codeception\Lib\Interfaces\ConflictsWithModule::class, $this->module);
+        $this->assertSame(\Codeception\Lib\Interfaces\API::class, $this->module->_conflicts());
     }
 
     private function setStubResponse($response)
     {
-        $connectionModule = Stub::make('\Codeception\Module\UniversalFramework', ['_getResponseContent' => $response]);
+        $connectionModule = Stub::make(\Codeception\Module\UniversalFramework::class, ['_getResponseContent' => $response]);
         $this->module->_inject($connectionModule);
         $this->module->_initialize();
-        $this->module->_before(Stub::makeEmpty('\Codeception\Test\Test'));
+        $this->module->_before(Stub::makeEmpty(\Codeception\Test\Test::class));
     }
 
     public function testBeforeHookResetsVariables()
     {
         $this->module->haveHttpHeader('Origin', 'http://www.example.com');
         $this->module->sendGET('/rest/user/');
+
         $server = $this->module->client->getInternalRequest()->getServer();
         $this->assertArrayHasKey('HTTP_ORIGIN', $server);
-        $this->module->_before(Stub::makeEmpty('\Codeception\Test\Test'));
+        $this->module->_before(Stub::makeEmpty(\Codeception\Test\Test::class));
         $this->module->sendGET('/rest/user/');
+
         $server = $this->module->client->getInternalRequest()->getServer();
         $this->assertArrayNotHasKey('HTTP_ORIGIN', $server);
     }
@@ -107,13 +115,13 @@ class RestTest extends Unit
     {
         $this->module->sendGET('/rest/user/');
         // simple assoc array
-        $this->assertEquals(['davert@mail.ua'], $this->module->grabDataFromResponseByJsonPath('$.email'));
+        $this->assertSame(['davert@mail.ua'], $this->module->grabDataFromResponseByJsonPath('$.email'));
         // nested assoc array
-        $this->assertEquals(['Kyiv'], $this->module->grabDataFromResponseByJsonPath('$.address.city'));
+        $this->assertSame(['Kyiv'], $this->module->grabDataFromResponseByJsonPath('$.address.city'));
         // nested index array
-        $this->assertEquals(['DavertMik'], $this->module->grabDataFromResponseByJsonPath('$.aliases[0]'));
+        $this->assertSame(['DavertMik'], $this->module->grabDataFromResponseByJsonPath('$.aliases[0]'));
         // empty if data not found
-        $this->assertEquals([], $this->module->grabDataFromResponseByJsonPath('$.address.street'));
+        $this->assertSame([], $this->module->grabDataFromResponseByJsonPath('$.address.street'));
     }
 
     public function testValidJson()
@@ -127,10 +135,11 @@ class RestTest extends Unit
 
     public function testInvalidJson()
     {
-        $this->expectException('PHPUnit\Framework\ExpectationFailedException');
+        $this->expectException(ExpectationFailedException::class);
         $this->setStubResponse('{xxx = yyy}');
         $this->module->seeResponseIsJson();
     }
+
     public function testValidXml()
     {
         $this->setStubResponse('<xml></xml>');
@@ -149,7 +158,7 @@ class RestTest extends Unit
 
     public function testInvalidXml()
     {
-        $this->expectException('PHPUnit\Framework\ExpectationFailedException');
+        $this->expectException(ExpectationFailedException::class);
         $this->setStubResponse('<xml><name>John</surname></xml>');
         $this->module->seeResponseIsXml();
     }
@@ -203,11 +212,11 @@ class RestTest extends Unit
     {
         $this->module->haveHttpHeader('Content-Type', 'application/json');
         $this->module->sendPOST('/', ['name' => 'john']);
-        /** @var $request \Symfony\Component\BrowserKit\Request  **/
+        /** @var SymfonyRequest $request **/
         $request = $this->module->client->getRequest();
         $this->assertContains('application/json', $request->getServer());
         $server = $request->getServer();
-        $this->assertEquals('application/json', $server['HTTP_CONTENT_TYPE']);
+        $this->assertSame('application/json', $server['HTTP_CONTENT_TYPE']);
         $this->assertJson($request->getContent());
         $this->assertEmpty($request->getParameters());
     }
@@ -216,40 +225,39 @@ class RestTest extends Unit
     {
         $this->module->haveHttpHeader('Content-Type', 'application/json');
         $this->module->sendPOST('/', new JsonSerializedItem());
-        /** @var $request \Symfony\Component\BrowserKit\Request  **/
+        /** @var SymfonyRequest $request **/
         $request = $this->module->client->getRequest();
         $this->assertContains('application/json', $request->getServer());
         $this->assertJson($request->getContent());
     }
 
     /**
-     * @param string $method
-     *
      * @dataProvider requestBodyAwareMethods
      */
-    public function testRequestBodyIsSentAsJsonForThisMethod($method)
+    public function testRequestBodyIsSentAsJsonForThisMethod(string $method)
     {
         $this->module->haveHttpHeader('Content-Type', 'application/json');
         $this->module->send($method, '/', ['name' => 'john']);
-        /** @var $request \Symfony\Component\BrowserKit\Request  **/
+        /** @var SymfonyRequest $request **/
         $request = $this->module->client->getRequest();
-        $this->assertSame(json_encode(['name' => 'john']), $request->getContent());
+        $this->assertSame(json_encode(['name' => 'john'], JSON_THROW_ON_ERROR), $request->getContent());
     }
 
     /**
-     * @param string $method
-     *
      * @dataProvider requestBodyAwareMethods
      */
-    public function testRequestBodyIsSentUrlEncodedForThisMethod($method)
+    public function testRequestBodyIsSentUrlEncodedForThisMethod(string $method)
     {
         $this->module->send($method, '/', ['name' => 'john']);
-        /** @var $request \Symfony\Component\BrowserKit\Request  **/
+        /** @var SymfonyRequest $request **/
         $request = $this->module->client->getRequest();
         $this->assertSame(http_build_query(['name' => 'john']), $request->getContent());
     }
 
-    public function requestBodyAwareMethods()
+    /**
+     * @return array<string, array<string>>
+     */
+    public function requestBodyAwareMethods(): array
     {
         return [
             'POST'   => ['POST'],
@@ -260,15 +268,13 @@ class RestTest extends Unit
     }
 
     /**
-     * @param string $method
-     *
      * @dataProvider queryParamsAwareMethods
      */
-    public function testJsonRequestBodyIsNotSentForThisMethod($method)
+    public function testJsonRequestBodyIsNotSentForThisMethod(string $method)
     {
         $this->module->haveHttpHeader('Content-Type', 'application/json');
         $this->module->send($method, '/', ['name' => 'john']);
-        /** @var $request \Symfony\Component\BrowserKit\Request  **/
+        /** @var SymfonyRequest $request **/
         $request = $this->module->client->getRequest();
         $this->assertNull($request->getContent());
         $this->assertContains('john', $request->getParameters());
@@ -276,20 +282,18 @@ class RestTest extends Unit
 
 
     /**
-     * @param string $method
-     *
      * @dataProvider queryParamsAwareMethods
      */
-    public function testUrlEncodedRequestBodyIsNotSentForThisMethod($method)
+    public function testUrlEncodedRequestBodyIsNotSentForThisMethod(string $method)
     {
         $this->module->send($method, '/', ['name' => 'john']);
-        /** @var $request \Symfony\Component\BrowserKit\Request  **/
+        /** @var SymfonyRequest $request **/
         $request = $this->module->client->getRequest();
         $this->assertNull($request->getContent());
         $this->assertContains('john', $request->getParameters());
     }
 
-    public function queryParamsAwareMethods()
+    public function queryParamsAwareMethods(): array
     {
         return [
             'GET'     => ['GET'],
@@ -301,13 +305,14 @@ class RestTest extends Unit
     /**
      * @dataProvider queryParamsAwareMethods
      */
-    public function testThrowsExceptionIfParametersIsString($method)
+    public function testThrowsExceptionIfParametersIsString(string $method)
     {
         $this->expectExceptionMessage($method . ' parameters must be passed in array format');
         $this->module->send($method, '/', 'string');
     }
 
     /**
+     * @param array|object $parameters
      * @dataProvider invalidParameterTypes
      */
     public function testThrowsExceptionIfParametersIsOfUnexpectedType($parameters)
@@ -316,7 +321,7 @@ class RestTest extends Unit
         $this->module->sendPOST('/', $parameters);
     }
 
-    public function invalidParameterTypes()
+    public function invalidParameterTypes(): array
     {
         return [
             'boolean'  => [true],
@@ -329,20 +334,20 @@ class RestTest extends Unit
 
     public function testThrowsExceptionIfUrlIsNotString()
     {
-        $this->expectExceptionMessage('URL must be string');
+        $this->expectException(TypeError::class);
         $this->module->sendPOST([1]);
     }
 
     public function testThrowsExceptionIfParametersIsJsonSerializableButContentTypeIsNotSet()
     {
         $this->expectExceptionMessage("parameters is JsonSerializable object, but Content-Type header is not set to application/json");
-        $parameters = new \Codeception\Util\Maybe(['foo']);
+        $parameters = new Maybe(['foo']);
         $this->module->sendPOST('/', $parameters);
     }
 
     public function testDoesntThrowExceptionIfParametersIsJsonSerializableAndContentTypeIsSet()
     {
-        $parameters = new \Codeception\Util\Maybe(['foo']);
+        $parameters = new Maybe(['foo']);
 
         $this->module->haveHttpHeader('Content-Type', 'application/json');
         $this->module->sendPOST('/', $parameters);
@@ -352,14 +357,14 @@ class RestTest extends Unit
     public function testUrlIsFull()
     {
         $this->module->sendGET('/api/v1/users');
-        /** @var $request \Symfony\Component\BrowserKit\Request  **/
+        /** @var SymfonyRequest $request **/
         $request = $this->module->client->getRequest();
-        $this->assertEquals('http://localhost/api/v1/users', $request->getUri());
+        $this->assertSame('http://localhost/api/v1/users', $request->getUri());
     }
 
     public function testSeeHeaders()
     {
-        $response = new \Symfony\Component\BrowserKit\Response("", 200, [
+        $response = new SymfonyResponse("", 200, [
             'Cache-Control' => ['no-cache', 'no-store'],
             'Content_Language' => 'en-US'
         ]);
@@ -371,15 +376,15 @@ class RestTest extends Unit
         $this->module->dontSeeHttpHeader('Content-Language', 'en-RU');
         $this->module->dontSeeHttpHeader('Content-Language1');
         $this->module->seeHttpHeaderOnce('Content-Language');
-        $this->assertEquals('en-US', $this->module->grabHttpHeader('Content-Language'));
-        $this->assertEquals('no-cache', $this->module->grabHttpHeader('Cache-Control'));
-        $this->assertEquals(['no-cache', 'no-store'], $this->module->grabHttpHeader('Cache-Control', false));
+        $this->assertSame('en-US', $this->module->grabHttpHeader('Content-Language'));
+        $this->assertSame('no-cache', $this->module->grabHttpHeader('Cache-Control'));
+        $this->assertSame(['no-cache', 'no-store'], $this->module->grabHttpHeader('Cache-Control', false));
     }
 
     public function testSeeHeadersOnce()
     {
         $this->shouldFail();
-        $response = new \Symfony\Component\BrowserKit\Response("", 200, [
+        $response = new SymfonyResponse("", 200, [
             'Cache-Control' => ['no-cache', 'no-store'],
         ]);
         $this->module->client->mockResponse($response);
@@ -481,7 +486,7 @@ class RestTest extends Unit
     {
         $this->module->haveHttpHeader('Content-Type', 'application/resource+json');
         $this->module->sendPOST('/', new JsonSerializedItem());
-        /** @var $request \Symfony\Component\BrowserKit\Request  **/
+        /** @var SymfonyRequest $request **/
         $request = $this->module->client->getRequest();
         $this->assertContains('application/resource+json', $request->getServer());
         $this->assertJson($request->getContent());
@@ -508,8 +513,8 @@ class RestTest extends Unit
         try {
             $this->module->seeResponseMatchesJsonType(['zzz' => 'string']);
             $this->fail('it had to throw exception');
-        } catch (PHPUnit\Framework\AssertionFailedError $e) {
-            $this->assertEquals('Key `zzz` doesn\'t exist in {"xxx":"yyy","user_id":1}', $e->getMessage());
+        } catch (AssertionFailedError $assertionFailedError) {
+            $this->assertSame('Key `zzz` doesn\'t exist in {"xxx":"yyy","user_id":1}', $assertionFailedError->getMessage());
         }
     }
 
@@ -519,8 +524,8 @@ class RestTest extends Unit
         try {
             $this->module->dontSeeResponseMatchesJsonType(['xxx' => 'string']);
             $this->fail('it had to throw exception');
-        } catch (PHPUnit\Framework\AssertionFailedError $e) {
-            $this->assertEquals('Unexpectedly response matched: {"xxx":"yyy","user_id":1}', $e->getMessage());
+        } catch (AssertionFailedError $e) {
+            $this->assertSame('Unexpectedly response matched: {"xxx":"yyy","user_id":1}', $e->getMessage());
         }
     }
 
@@ -560,7 +565,7 @@ class RestTest extends Unit
     {
         $data = base64_decode('/9j/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/yQALCAABAAEBAREA/8wABgAQEAX/2gAIAQEAAD8A0s8g/9k=');
         $this->setStubResponse($data);
-        $this->module->seeBinaryResponseEquals(md5($data));
+        $this->module->seeBinaryResponseEquals(sha1($data));
     }
 
     public function testDontSeeBinaryResponseEquals()
@@ -572,7 +577,7 @@ class RestTest extends Unit
 
     public function testAmDigestAuthenticatedThrowsExceptionWithFunctionalModules()
     {
-        $this->expectException('\Codeception\Exception\ModuleException');
+        $this->expectException(\Codeception\Exception\ModuleException::class);
         $this->expectExceptionMessage('Not supported by functional modules');
         $this->module->amDigestAuthenticated('username', 'password');
     }
@@ -581,11 +586,13 @@ class RestTest extends Unit
     {
         $this->module->amHttpAuthenticated('user', 'pass');
         $this->module->sendGET('/rest/user/');
+
         $server = $this->module->client->getRequest()->getServer();
         $this->assertArrayHasKey('PHP_AUTH_USER', $server);
         $this->assertArrayHasKey('PHP_AUTH_PW', $server);
         $this->module->setServerParameters([]);
         $this->module->sendGET('/rest/user/');
+
         $server = $this->module->client->getRequest()->getServer();
         $this->assertArrayNotHasKey('PHP_AUTH_USER', $server);
         $this->assertArrayNotHasKey('PHP_AUTH_PW', $server);
@@ -595,6 +602,7 @@ class RestTest extends Unit
     {
         $this->module->haveServerParameter('my', 'param');
         $this->module->sendGET('/rest/user/');
+
         $server = $this->module->client->getRequest()->getServer();
         $this->assertArrayHasKey('my', $server);
     }
@@ -608,8 +616,8 @@ class RestTest extends Unit
      * @dataProvider schemaAndResponse
      */
 
-    public function testSeeResponseIsValidOnJsonSchemachesJsonSchema($schema, $response, $outcome, $error) {
-
+    public function testSeeResponseIsValidOnJsonSchemachesJsonSchema(string $schema, string $response, bool $outcome, string $error)
+    {
         $response = file_get_contents(codecept_data_dir($response));
         $this->setStubResponse($response);
 
@@ -617,6 +625,7 @@ class RestTest extends Unit
             $this->expectExceptionMessage($error);
             $this->shouldFail();
         }
+
         $this->module->seeResponseIsValidOnJsonSchema(codecept_data_dir($schema));
     }
 
@@ -632,17 +641,13 @@ class RestTest extends Unit
                 ]
             ]
         ];
-        $this->module->seeResponseIsValidOnJsonSchemaString(json_encode($schema));
+        $this->module->seeResponseIsValidOnJsonSchemaString(json_encode($schema, JSON_THROW_ON_ERROR));
     }
 
     /**
-     * @param $configUrl
-     * @param $requestUrl
-     * @param $expectedFullUrl
-     *
      * @dataProvider configAndRequestUrls
      */
-    public function testRestExecute($configUrl, $requestUrl, $expectedFullUrl)
+    public function testRestExecute(string $configUrl, string $requestUrl, string $expectedFullUrl)
     {
         $connectionModule = $this->createMock(
             UniversalFramework::class
@@ -658,23 +663,23 @@ class RestTest extends Unit
                     $server,
                     $content
                 ) use ($expectedFullUrl) {
-                    \PHPUnit\Framework\Assert::assertEquals($expectedFullUrl, $uri);
+                    \PHPUnit\Framework\Assert::assertSame($expectedFullUrl, $uri);
                 })
             );
 
         $config = ['url' => $configUrl];
 
         /** @var REST */
-        $module = Stub::make('\Codeception\Module\REST');
+        $module = Stub::make(\Codeception\Module\REST::class);
         $module->_setConfig($config);
         $module->_inject($connectionModule);
         $module->_initialize();
-        $module->_before(Stub::makeEmpty('\Codeception\Test\Test'));
+        $module->_before(Stub::makeEmpty(\Codeception\Test\Test::class));
 
         $module->sendGET($requestUrl);
     }
 
-    public static function schemaAndResponse()
+    public static function schemaAndResponse(): array
     {
         return [
             //schema, responsefile, valid
@@ -685,7 +690,7 @@ class RestTest extends Unit
         ];
     }
 
-    public static function configAndRequestUrls()
+    public static function configAndRequestUrls(): array
     {
         return [
                 //$configUrl, $requestUrl, $expectedFullUrl
@@ -705,15 +710,14 @@ class RestTest extends Unit
 
     protected function shouldFail()
     {
-        $this->expectException('PHPUnit\Framework\AssertionFailedError');
+        $this->expectException(AssertionFailedError::class);
     }
 }
 
 class JsonSerializedItem implements JsonSerializable
 {
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return array("hello" => "world");
     }
 }
-
