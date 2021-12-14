@@ -1557,17 +1557,17 @@ EOF;
 
     /**
      * Checks if the hash of a binary response is exactly the same as provided.
-     * Parameter can be passed as any hash string supported by hash(), with an
-     * optional second parameter to specify the hash type, which defaults to md5.
+     * Parameter can be passed as any hash string supported by `hash()`, with an
+     * optional second parameter to specify the hash type, which defaults to sha1.
      *
-     * Example: Using md5 hash key
+     * Example: Using sha1 hash key
      *
      * ```php
      * <?php
-     * $I->seeBinaryResponseEquals("8c90748342f19b195b9c6b4eff742ded");
+     * $I->seeBinaryResponseEquals("df589122eac0f6a7bd8795436e692e3675cadc3b");
      * ```
      *
-     * Example: Using md5 for a file contents
+     * Example: Using sha1 for a file contents
      *
      * ```php
      * <?php
@@ -1583,7 +1583,7 @@ EOF;
      * ```
      *
      * @param string $hash the hashed data response expected
-     * @param string $algo the hash algorithm to use. Default md5.
+     * @param string $algo the hash algorithm to use. Default sha1.
      * @part json
      * @part xml
      */
