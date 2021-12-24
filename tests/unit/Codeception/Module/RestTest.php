@@ -664,6 +664,7 @@ final class RestTest extends Unit
                     $content
                 ) use ($expectedFullUrl) {
                     \PHPUnit\Framework\Assert::assertSame($expectedFullUrl, $uri);
+                    return '';
                 })
             );
 
