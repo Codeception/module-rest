@@ -15,7 +15,7 @@ class AsJson extends Action implements GeneratedStep
         return json_decode($resp, true);
     }
 
-    public static function getTemplate(Template $template)
+    public static function getTemplate(Template $template): ?Template
     {
         $action = $template->getVar('action');
 
