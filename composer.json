@@ -12,12 +12,12 @@
     ],
     "minimum-stability": "dev",
     "require": {
-        "php": "^7.4 | ^8.0",
+        "php": "^8.0",
         "ext-dom": "*",
         "ext-json": "*",
         "codeception/codeception": "^5.0.0-alpha1",
         "justinrainbow/json-schema": "~5.2.9",
-        "softcreatr/jsonpath": "^0.7 | ^0.8"
+        "softcreatr/jsonpath": "^0.8"
     },
     "require-dev": {
         "ext-libxml": "*",
