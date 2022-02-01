@@ -148,12 +148,12 @@ EOF;
         $this->connectionModule->headers = [];
     }
 
-    public function _conflicts()
+    public function _conflicts(): string
     {
         return \Codeception\Lib\Interfaces\API::class;
     }
 
-    public function _depends()
+    public function _depends(): array
     {
         return [InnerBrowser::class => $this->dependencyMessage];
     }
@@ -161,7 +161,7 @@ EOF;
     /**
      * @return string[]
      */
-    public function _parts()
+    public function _parts(): array
     {
         return ['xml', 'json'];
     }
