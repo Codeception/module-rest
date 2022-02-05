@@ -18,12 +18,8 @@ class JsonArray
 
     protected ?DOMDocument $jsonXml = null;
 
-    public function __construct($jsonString)
+    public function __construct(string $jsonString)
     {
-        if (!is_string($jsonString)) {
-            throw new InvalidArgumentException('$jsonString param must be a string.');
-        }
-
         $jsonDecode = json_decode($jsonString, true);
 
         if (!is_array($jsonDecode)) {
