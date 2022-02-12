@@ -70,10 +70,7 @@ class JsonArray
         return $this->jsonArray;
     }
 
-    /**
-     * @return DOMNodeList|bool
-     */
-    public function filterByXPath(string $xPath)
+    public function filterByXPath(string $xPath): DOMNodeList|false
     {
         $path = new DOMXPath($this->toXml());
         return $path->query($xPath);
@@ -88,10 +85,7 @@ class JsonArray
         return (new JSONPath($this->jsonArray))->find($jsonPath)->getData();
     }
 
-    /**
-     * @return string|false
-     */
-    public function getXmlString()
+    public function getXmlString(): string|bool
     {
         return $this->toXml()->saveXML();
     }
@@ -110,7 +104,7 @@ class JsonArray
             } else {
                 try {
                     $subNode = $doc->createElement($key);
-                } catch (Exception $exception) {
+                } catch (Exception) {
                     $key = $this->getValidTagNameForInvalidKey($key);
                     $subNode = $doc->createElement($key);
                 }

@@ -144,7 +144,7 @@ final class JsonTypeTest extends Unit
 
     public function testCustomFilters()
     {
-        JsonType::addCustomFilter('slug', fn($value): bool => strpos($value, ' ') === false);
+        JsonType::addCustomFilter('slug', fn($value): bool => !str_contains($value, ' '));
         $jsonType = new JsonType(['title' => 'have a test', 'slug' => 'have-a-test']);
         $this->assertTrue($jsonType->matches([
             'slug' => 'string:slug'

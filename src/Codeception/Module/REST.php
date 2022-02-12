@@ -245,7 +245,6 @@ EOF;
      * Checks over the given HTTP header and (optionally)
      * its value, asserting that are there
      *
-     * @param string $name
      * @param $value
      * @part json
      * @part xml
@@ -267,7 +266,6 @@ EOF;
      * Checks over the given HTTP header and (optionally)
      * its value, asserting that are not there
      *
-     * @param string $name
      * @param $value
      * @part json
      * @part xml
@@ -295,7 +293,6 @@ EOF;
      * $I->seeHttpHeaderOnce('Cache-Control');
      * ```
      *
-     * @param string $name
      * @part json
      * @part xml
      */
@@ -313,7 +310,7 @@ EOF;
      * @part json
      * @part xml
      */
-    public function grabHttpHeader(string $name, bool $first = true)
+    public function grabHttpHeader(string $name, bool $first = true): string|array
     {
         return $this->getRunningClient()->getInternalResponse()->getHeader($name, $first);
     }
@@ -408,7 +405,6 @@ EOF;
      * <?php
      * $I->amAWSAuthenticated();
      * ```
-     * @param array $additionalAWSConfig
      * @throws ConfigurationException
      */
     public function amAWSAuthenticated(array $additionalAWSConfig = []): void
@@ -464,7 +460,6 @@ EOF;
      * ]]);
      * ```
      *
-     * @param array|string|JsonSerializable $params
      * @param array $files A list of filenames or "mocks" of $_FILES (each entry being an array with the following
      *                     keys: name, type, error, size, tmp_name (pointing to the real file path). Each key works
      *                     as the "name" attribute of a file input field.
@@ -474,7 +469,7 @@ EOF;
      * @part json
      * @part xml
      */
-    public function sendPost(string $url, $params = [], array $files = [])
+    public function sendPost(string $url, array|string|JsonSerializable $params = [], array $files = [])
     {
         return $this->execute('POST', $url, $params, $files);
     }
@@ -528,11 +523,10 @@ EOF;
      * $response = $I->sendPut('/message/1', ['subject' => 'Read this!']);
      * ```
      *
-     * @param array|string|\JsonSerializable $params
      * @part json
      * @part xml
      */
-    public function sendPut(string $url, $params = [], array $files = [])
+    public function sendPut(string $url, array|string|JsonSerializable $params = [], array $files = [])
     {
         return $this->execute('PUT', $url, $params, $files);
     }
@@ -545,11 +539,10 @@ EOF;
      * $response = $I->sendPatch('/message/1', ['subject' => 'Read this!']);
      * ```
      *
-     * @param array|string|\JsonSerializable $params
      * @part json
      * @part xml
      */
-    public function sendPatch(string $url, $params = [], array $files = [])
+    public function sendPatch(string $url, array|string|JsonSerializable $params = [], array $files = [])
     {
         return $this->execute('PATCH', $url, $params, $files);
     }
@@ -573,11 +566,10 @@ EOF;
     /**
      * Sends a HTTP request.
      *
-     * @param array|string|JsonSerializable $params
      * @part json
      * @part xml
      */
-    public function send(string $method, string $url, $params = [], array $files = [])
+    public function send(string $method, string $url, array|string|JsonSerializable $params = [], array $files = [])
     {
         return $this->execute(strtoupper($method), $url, $params, $files);
     }
@@ -657,7 +649,7 @@ EOF;
             $url = $this->config['url'];
         } elseif (!is_string($url)) {
             throw new ModuleException(__CLASS__, 'URL must be string');
-        } elseif (strpos($url, '://') === false && $this->config['url']) {
+        } elseif (!str_contains($url, '://') && $this->config['url']) {
             $url = rtrim($this->config['url'], '/') . '/' . ltrim($url, '/');
         }
 
@@ -676,7 +668,7 @@ EOF;
         if (is_array($parameters) || $isQueryParamsAwareMethod) {
             if ($isQueryParamsAwareMethod) {
                 if (!empty($parameters)) {
-                    if (strpos($url, '?') !== false) {
+                    if (str_contains($url, '?')) {
                         $url .= '&';
                     } else {
                         $url .= '?';
@@ -980,7 +972,6 @@ EOF;
      * Checks whether last response matches the supplied json schema (https://json-schema.org/)
      * Supply schema as relative file path in your project directory or an absolute path
      *
-     * @param string $schemaFilename
      * @part json
      * @see codecept_absolute_path()
      */
