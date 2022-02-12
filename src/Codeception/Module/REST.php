@@ -101,7 +101,7 @@ class REST extends Module implements DependsOnModule, PartedModule, API, Conflic
     /**
      * @var array<string, string>
      */
-    protected $config = [
+    protected array $config = [
         'url' => '',
         'aws' => ''
     ];
