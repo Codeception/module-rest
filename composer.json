@@ -24,7 +24,7 @@
     "require-dev": {
         "ext-libxml": "*",
         "ext-simplexml": "*",
-        "codeception/lib-innerbrowser": "^2.0 || *@dev",
+        "codeception/lib-innerbrowser": "^3.0",
         "codeception/stub": "^4.0",
         "codeception/util-universalframework": "^1.0"
     },
