@@ -3,11 +3,16 @@
 declare(strict_types=1);
 
 use Codeception\Configuration;
+use Codeception\Exception\ModuleException;
+use Codeception\Lib\Interfaces\API;
+use Codeception\Lib\Interfaces\ConflictsWithModule;
+use Codeception\Lib\ModuleContainer;
 use Codeception\Module\REST;
 use Codeception\Module\UniversalFramework;
 use Codeception\Stub;
 use Codeception\Test\Unit;
 use Codeception\Util\Maybe;
+use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\ExpectationFailedException;
 use Symfony\Component\BrowserKit\Request as SymfonyRequest;
@@ -25,11 +30,11 @@ final class RestTest extends Unit
     {
         $index = Configuration::dataDir() . '/rest/index.php';
 
-        $container = Stub::make(\Codeception\Lib\ModuleContainer::class);
+        $container = Stub::make(ModuleContainer::class);
         $connectionModule = new UniversalFramework($container, ['index' => $index]);
         $connectionModule->_initialize();
 
-        $this->module = Stub::make(\Codeception\Module\REST::class);
+        $this->module = Stub::make(REST::class);
         $this->module->_inject($connectionModule);
         $this->module->_initialize();
         $this->module->_before(Stub::makeEmpty(\Codeception\Test\Test::class));
@@ -44,13 +49,13 @@ final class RestTest extends Unit
 
     public function testConflictsWithAPI()
     {
-        $this->assertInstanceOf(\Codeception\Lib\Interfaces\ConflictsWithModule::class, $this->module);
-        $this->assertSame(\Codeception\Lib\Interfaces\API::class, $this->module->_conflicts());
+        $this->assertInstanceOf(ConflictsWithModule::class, $this->module);
+        $this->assertSame(API::class, $this->module->_conflicts());
     }
 
     private function setStubResponse($response)
     {
-        $connectionModule = Stub::make(\Codeception\Module\UniversalFramework::class, ['_getResponseContent' => $response]);
+        $connectionModule = Stub::make(UniversalFramework::class, ['_getResponseContent' => $response]);
         $this->module->_inject($connectionModule);
         $this->module->_initialize();
         $this->module->_before(Stub::makeEmpty(\Codeception\Test\Test::class));
@@ -104,7 +109,7 @@ final class RestTest extends Unit
 
     public function testSend()
     {
-        $response = $this->module->send('POST','/rest/user/', ['name' => 'john']);
+        $response = $this->module->send('POST', '/rest/user/', ['name' => 'john']);
         $this->module->seeResponseContains('john');
         $this->module->seeResponseContainsJson(['name' => 'john']);
         $this->assertNotEmpty($response);
@@ -577,7 +582,7 @@ final class RestTest extends Unit
 
     public function testAmDigestAuthenticatedThrowsExceptionWithFunctionalModules()
     {
-        $this->expectException(\Codeception\Exception\ModuleException::class);
+        $this->expectException(ModuleException::class);
         $this->expectExceptionMessage('Not supported by functional modules');
         $this->module->amDigestAuthenticated('username', 'password');
     }
@@ -629,7 +634,8 @@ final class RestTest extends Unit
         $this->module->seeResponseIsValidOnJsonSchema(codecept_data_dir($schema));
     }
 
-    public function testSeeResponseIsValidOnJsonSchemachesJsonSchemaString() {
+    public function testSeeResponseIsValidOnJsonSchemachesJsonSchemaString()
+    {
         $this->setStubResponse('{"name": "john", "age": 20}');
         $this->module->seeResponseIsValidOnJsonSchemaString('{"type": "object"}');
 
@@ -663,7 +669,7 @@ final class RestTest extends Unit
                     $server,
                     $content
                 ) use ($expectedFullUrl) {
-                    \PHPUnit\Framework\Assert::assertSame($expectedFullUrl, $uri);
+                    Assert::assertSame($expectedFullUrl, $uri);
                     return '';
                 })
             );
@@ -671,7 +677,7 @@ final class RestTest extends Unit
         $config = ['url' => $configUrl];
 
         /** @var REST */
-        $module = Stub::make(\Codeception\Module\REST::class);
+        $module = Stub::make(REST::class);
         $module->_setConfig($config);
         $module->_inject($connectionModule);
         $module->_initialize();
@@ -694,19 +700,19 @@ final class RestTest extends Unit
     public static function configAndRequestUrls(): array
     {
         return [
-                //$configUrl, $requestUrl, $expectedFullUrl
-                ['v1/', 'healthCheck', 'v1/healthCheck'],
-                ['/v1', '/healthCheck', '/v1/healthCheck'],
-                ['v1', 'healthCheck', 'v1/healthCheck'],
-                ['http://v1/', '/healthCheck', 'http://v1/healthCheck'],
-                ['http://v1', 'healthCheck', 'http://v1/healthCheck'],
-                ['http://v1', 'http://v2/healthCheck', 'http://v2/healthCheck'],
-                ['http://v1', '', 'http://v1'],
-                ['http://v1', '/', 'http://v1/'],
-                ['', 'http://v1', 'http://v1'],
-                ['', 'healthCheck', 'healthCheck'],
-                ['/', 'healthCheck', '/healthCheck'],
-            ];
+            //$configUrl, $requestUrl, $expectedFullUrl
+            ['v1/', 'healthCheck', 'v1/healthCheck'],
+            ['/v1', '/healthCheck', '/v1/healthCheck'],
+            ['v1', 'healthCheck', 'v1/healthCheck'],
+            ['http://v1/', '/healthCheck', 'http://v1/healthCheck'],
+            ['http://v1', 'healthCheck', 'http://v1/healthCheck'],
+            ['http://v1', 'http://v2/healthCheck', 'http://v2/healthCheck'],
+            ['http://v1', '', 'http://v1'],
+            ['http://v1', '/', 'http://v1/'],
+            ['', 'http://v1', 'http://v1'],
+            ['', 'healthCheck', 'healthCheck'],
+            ['/', 'healthCheck', '/healthCheck'],
+        ];
     }
 
     protected function shouldFail()

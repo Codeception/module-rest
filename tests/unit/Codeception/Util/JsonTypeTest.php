@@ -241,11 +241,11 @@ final class JsonTypeTest extends Unit
     public function testRegexFilterWithPrefixedAlternatives()
     {
         $jsonType = new JsonType(['test' => null]);
-        $this->assertTrue($jsonType->matches(['test'    => 'null|string:regex(~^(\d\d@):\d\d$~)']));
+        $this->assertTrue($jsonType->matches(['test' => 'null|string:regex(~^(\d\d@):\d\d$~)']));
         $this->assertNotTrue($jsonType->matches(['test' => 'integer|string:regex(~^(\d\d@):\d\d$~)']));
 
         $jsonType = new JsonType(['test' => 12345]);
-        $this->assertTrue($jsonType->matches(['test'    => 'integer|null|string:regex(~^(\d\d@):\d\d$~)']));
+        $this->assertTrue($jsonType->matches(['test' => 'integer|null|string:regex(~^(\d\d@):\d\d$~)']));
     }
 
     public function testRegexFilterWithPostfixedAlternatives()
@@ -254,11 +254,11 @@ final class JsonTypeTest extends Unit
         // currently produces a false positive
         $this->assertNotTrue($jsonType->matches(['test' => 'string:regex(~^(\d\d@):\d\d$~)|integer']));
         // currently produces a false negative
-        $this->assertTrue($jsonType->matches(['test'    => 'string:regex(~^(\d\d@):\d\d$~)|null']));
+        $this->assertTrue($jsonType->matches(['test' => 'string:regex(~^(\d\d@):\d\d$~)|null']));
 
         $jsonType = new JsonType(['test' => 12345]);
         // currently produces a false negative
-        $this->assertTrue($jsonType->matches(['test'    => 'string:regex(~^(\d\d@):\d\d$~)|integer']));
+        $this->assertTrue($jsonType->matches(['test' => 'string:regex(~^(\d\d@):\d\d$~)|integer']));
     }
 
     public function testRegexFilterWithSpecialDelimiters()

@@ -460,6 +460,7 @@ EOF;
      * ]]);
      * ```
      *
+     * @param array|string|JsonSerializable $params
      * @param array $files A list of filenames or "mocks" of $_FILES (each entry being an array with the following
      *                     keys: name, type, error, size, tmp_name (pointing to the real file path). Each key works
      *                     as the "name" attribute of a file input field.
@@ -469,7 +470,7 @@ EOF;
      * @part json
      * @part xml
      */
-    public function sendPost(string $url, array|string|JsonSerializable $params = [], array $files = [])
+    public function sendPost(string $url, $params = [], array $files = [])
     {
         return $this->execute('POST', $url, $params, $files);
     }
@@ -698,7 +699,7 @@ EOF;
         }
 
         $printedResponse = $this->response;
-        if ($this->isBinaryData((string) $printedResponse)) {
+        if ($this->isBinaryData((string)$printedResponse)) {
             $printedResponse = $this->binaryToDebugString($printedResponse);
         }
 
@@ -991,7 +992,7 @@ EOF;
      * @param string $jsonString the json encoded string
      * @param string $errorFormat optional string for custom sprintf format
      */
-    protected function decodeAndValidateJson(string $jsonString, string $errorFormat="Invalid json: %s. System message: %s.")
+    protected function decodeAndValidateJson(string $jsonString, string $errorFormat = "Invalid json: %s. System message: %s.")
     {
         $json = json_decode($jsonString);
         $errorCode = json_last_error();

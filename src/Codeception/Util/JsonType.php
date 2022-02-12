@@ -144,8 +144,8 @@ class JsonType
                 return ':regex($$' . $count++ . ')';
             }, $type);
 
-            $matchTypes  = preg_split("#(?![^]\(]*\))\|#", $filterType);
-            $matched     = false;
+            $matchTypes = preg_split("#(?![^]\(]*\))\|#", $filterType);
+            $matched    = false;
             $currentType = strtolower(gettype($data[$key]));
 
             if ($currentType === 'double') {
@@ -170,7 +170,7 @@ class JsonType
                         return $regexes[1][$pos];
                     }, $filter);
 
-                    $matched = $matched && $this->matchFilter($filter, (string) $data[$key]);
+                    $matched = $matched && $this->matchFilter($filter, (string)$data[$key]);
                 }
 
                 if ($matched) {
