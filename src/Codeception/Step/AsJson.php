@@ -12,7 +12,7 @@ class AsJson extends Action implements GeneratedStep
         $container->getModule('REST')->haveHttpHeader('Content-Type', 'application/json');
         $resp = parent::run($container);
         $container->getModule('REST')->seeResponseIsJson();
-        return json_decode($resp, true);
+        return json_decode($resp, true, 512, JSON_THROW_ON_ERROR);
     }
 
     public static function getTemplate(Template $template): ?Template
@@ -20,7 +20,7 @@ class AsJson extends Action implements GeneratedStep
         $action = $template->getVar('action');
 
         // should only be applied to send* methods
-        if (strpos($action, 'send') !== 0) return;
+        if (!str_starts_with($action, 'send')) return null;
 
         $conditionalDoc = "* JSON response will be automatically decoded \n     " . $template->getVar('doc');
 

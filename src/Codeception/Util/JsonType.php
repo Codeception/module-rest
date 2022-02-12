@@ -91,10 +91,8 @@ class JsonType
      * Checks data against passed JsonType.
      * If matching fails function returns a string with a message describing failure.
      * On success returns `true`.
-     *
-     * @return string|bool
      */
-    public function matches(array $jsonType)
+    public function matches(array $jsonType): string|bool
     {
         if (array_key_exists(0, $this->jsonArray) && is_array($this->jsonArray[0])) {
             // a list of items
@@ -116,10 +114,7 @@ class JsonType
         return $this->typeComparison($this->jsonArray, $jsonType);
     }
 
-    /**
-     * @return string|bool
-     */
-    protected function typeComparison(array $data, array $jsonType)
+    protected function typeComparison(array $data, array $jsonType): string|bool
     {
         foreach ($jsonType as $key => $type) {
             if (!array_key_exists($key, $data)) {
@@ -149,8 +144,8 @@ class JsonType
                 return ':regex($$' . $count++ . ')';
             }, $type);
 
-            $matchTypes  = preg_split("#(?![^]\(]*\))\|#", $filterType);
-            $matched     = false;
+            $matchTypes = preg_split("#(?![^]\(]*\))\|#", $filterType);
+            $matched    = false;
             $currentType = strtolower(gettype($data[$key]));
 
             if ($currentType === 'double') {
@@ -175,7 +170,7 @@ class JsonType
                         return $regexes[1][$pos];
                     }, $filter);
 
-                    $matched = $matched && $this->matchFilter($filter, (string) $data[$key]);
+                    $matched = $matched && $this->matchFilter($filter, (string)$data[$key]);
                 }
 
                 if ($matched) {
@@ -194,13 +189,13 @@ class JsonType
     protected function matchFilter(string $filter, string $value)
     {
         $filter = trim($filter);
-        if (strpos($filter, '!') === 0) {
+        if (str_starts_with($filter, '!')) {
             return !$this->matchFilter(substr($filter, 1), $value);
         }
 
         // apply custom filters
         foreach (static::$customFilters as $customFilter => $callable) {
-            if (strpos($customFilter, '/') === 0 && preg_match($customFilter, $filter, $matches)) {
+            if (str_starts_with($customFilter, '/') && preg_match($customFilter, $filter, $matches)) {
                 array_shift($matches);
                 return call_user_func_array($callable, array_merge([$value], $matches));
             }
@@ -210,7 +205,7 @@ class JsonType
             }
         }
 
-        if (strpos($filter, '=') === 0) {
+        if (str_starts_with($filter, '=')) {
             return $value === substr($filter, 1);
         }
 

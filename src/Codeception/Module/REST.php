@@ -101,7 +101,7 @@ class REST extends Module implements DependsOnModule, PartedModule, API, Conflic
     /**
      * @var array<string, string>
      */
-    protected $config = [
+    protected array $config = [
         'url' => '',
         'aws' => ''
     ];
@@ -245,7 +245,6 @@ EOF;
      * Checks over the given HTTP header and (optionally)
      * its value, asserting that are there
      *
-     * @param string $name
      * @param $value
      * @part json
      * @part xml
@@ -267,7 +266,6 @@ EOF;
      * Checks over the given HTTP header and (optionally)
      * its value, asserting that are not there
      *
-     * @param string $name
      * @param $value
      * @part json
      * @part xml
@@ -295,7 +293,6 @@ EOF;
      * $I->seeHttpHeaderOnce('Cache-Control');
      * ```
      *
-     * @param string $name
      * @part json
      * @part xml
      */
@@ -313,7 +310,7 @@ EOF;
      * @part json
      * @part xml
      */
-    public function grabHttpHeader(string $name, bool $first = true)
+    public function grabHttpHeader(string $name, bool $first = true): string|array
     {
         return $this->getRunningClient()->getInternalResponse()->getHeader($name, $first);
     }
@@ -408,7 +405,6 @@ EOF;
      * <?php
      * $I->amAWSAuthenticated();
      * ```
-     * @param array $additionalAWSConfig
      * @throws ConfigurationException
      */
     public function amAWSAuthenticated(array $additionalAWSConfig = []): void
@@ -528,7 +524,7 @@ EOF;
      * $response = $I->sendPut('/message/1', ['subject' => 'Read this!']);
      * ```
      *
-     * @param array|string|\JsonSerializable $params
+     * @param array|string|JsonSerializable $params
      * @part json
      * @part xml
      */
@@ -545,7 +541,7 @@ EOF;
      * $response = $I->sendPatch('/message/1', ['subject' => 'Read this!']);
      * ```
      *
-     * @param array|string|\JsonSerializable $params
+     * @param array|string|JsonSerializable $params
      * @part json
      * @part xml
      */
@@ -657,7 +653,7 @@ EOF;
             $url = $this->config['url'];
         } elseif (!is_string($url)) {
             throw new ModuleException(__CLASS__, 'URL must be string');
-        } elseif (strpos($url, '://') === false && $this->config['url']) {
+        } elseif (!str_contains($url, '://') && $this->config['url']) {
             $url = rtrim($this->config['url'], '/') . '/' . ltrim($url, '/');
         }
 
@@ -676,7 +672,7 @@ EOF;
         if (is_array($parameters) || $isQueryParamsAwareMethod) {
             if ($isQueryParamsAwareMethod) {
                 if (!empty($parameters)) {
-                    if (strpos($url, '?') !== false) {
+                    if (str_contains($url, '?')) {
                         $url .= '&';
                     } else {
                         $url .= '?';
@@ -706,7 +702,7 @@ EOF;
         }
 
         $printedResponse = $this->response;
-        if ($this->isBinaryData((string) $printedResponse)) {
+        if ($this->isBinaryData((string)$printedResponse)) {
             $printedResponse = $this->binaryToDebugString($printedResponse);
         }
 
@@ -980,7 +976,6 @@ EOF;
      * Checks whether last response matches the supplied json schema (https://json-schema.org/)
      * Supply schema as relative file path in your project directory or an absolute path
      *
-     * @param string $schemaFilename
      * @part json
      * @see codecept_absolute_path()
      */
@@ -1000,7 +995,7 @@ EOF;
      * @param string $jsonString the json encoded string
      * @param string $errorFormat optional string for custom sprintf format
      */
-    protected function decodeAndValidateJson(string $jsonString, string $errorFormat="Invalid json: %s. System message: %s.")
+    protected function decodeAndValidateJson(string $jsonString, string $errorFormat = "Invalid json: %s. System message: %s.")
     {
         $json = json_decode($jsonString);
         $errorCode = json_last_error();

@@ -1,36 +1,44 @@
 {
-    "name":"codeception/module-rest",
-    "description":"REST module for Codeception",
-    "keywords":["codeception", "rest"],
-    "homepage":"https://codeception.com/",
-    "type":"library",
-    "license":"MIT",
-    "authors":[
+    "name": "codeception/module-rest",
+    "description": "REST module for Codeception",
+    "license": "MIT",
+    "type": "library",
+    "keywords": [
+        "codeception",
+        "rest"
+    ],
+    "authors": [
         {
-            "name":"Gintautas Miselis"
+            "name": "Gintautas Miselis"
         }
     ],
-    "minimum-stability": "dev",
+    "homepage": "https://codeception.com/",
     "require": {
         "php": "^8.0",
         "ext-dom": "*",
         "ext-json": "*",
-        "codeception/codeception": "^5.0.0-alpha1",
+        "codeception/codeception": "dev-5.0-interfaces as 5.0.0",
         "justinrainbow/json-schema": "~5.2.9",
         "softcreatr/jsonpath": "^0.8"
     },
     "require-dev": {
         "ext-libxml": "*",
         "ext-simplexml": "*",
+        "codeception/lib-innerbrowser": "^3.0",
         "codeception/stub": "^4.0",
-        "codeception/util-universalframework": "^1.0",
-        "codeception/lib-innerbrowser": "^2.0 | *@dev"
+        "codeception/util-universalframework": "^1.0"
+    },
+    "conflict": {
+        "codeception/codeception": "<5.0"
     },
     "suggest": {
         "aws/aws-sdk-php": "For using AWS Auth"
     },
-    "autoload":{
-        "classmap": ["src/"]
+    "minimum-stability": "dev",
+    "autoload": {
+        "classmap": [
+            "src/"
+        ]
     },
     "config": {
         "classmap-authoritative": true
