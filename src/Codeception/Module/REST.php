@@ -524,10 +524,11 @@ EOF;
      * $response = $I->sendPut('/message/1', ['subject' => 'Read this!']);
      * ```
      *
+     * @param array|string|JsonSerializable $params
      * @part json
      * @part xml
      */
-    public function sendPut(string $url, array|string|JsonSerializable $params = [], array $files = [])
+    public function sendPut(string $url, $params = [], array $files = [])
     {
         return $this->execute('PUT', $url, $params, $files);
     }
@@ -540,10 +541,11 @@ EOF;
      * $response = $I->sendPatch('/message/1', ['subject' => 'Read this!']);
      * ```
      *
+     * @param array|string|JsonSerializable $params
      * @part json
      * @part xml
      */
-    public function sendPatch(string $url, array|string|JsonSerializable $params = [], array $files = [])
+    public function sendPatch(string $url, $params = [], array $files = [])
     {
         return $this->execute('PATCH', $url, $params, $files);
     }
@@ -567,10 +569,11 @@ EOF;
     /**
      * Sends a HTTP request.
      *
+     * @param array|string|JsonSerializable $params
      * @part json
      * @part xml
      */
-    public function send(string $method, string $url, array|string|JsonSerializable $params = [], array $files = [])
+    public function send(string $method, string $url, $params = [], array $files = [])
     {
         return $this->execute(strtoupper($method), $url, $params, $files);
     }
