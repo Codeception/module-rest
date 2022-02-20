@@ -180,7 +180,7 @@ EOF;
 
     public function _failed(TestInterface $test, $fail)
     {
-        if ($this->response === '' || $this->response === '0') {
+        if ($this->response === null || $this->response === '' || $this->response === '0') {
             return;
         }
 
