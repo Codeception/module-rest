@@ -29,7 +29,7 @@
         "codeception/util-universalframework": "^1.0"
     },
     "conflict": {
-        "codeception/codeception": "<5.0"
+        "codeception/codeception": "<5.0.0-alpha3"
     },
     "suggest": {
         "aws/aws-sdk-php": "For using AWS Auth"
