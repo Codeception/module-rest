@@ -18,6 +18,7 @@
         "ext-dom": "*",
         "ext-json": "*",
         "codeception/codeception": "^5.0.0-alpha2",
+        "codeception/lib-xml": "^1.0",
         "justinrainbow/json-schema": "~5.2.9",
         "softcreatr/jsonpath": "^0.8"
     },
@@ -29,7 +30,7 @@
         "codeception/util-universalframework": "^1.0"
     },
     "conflict": {
-        "codeception/codeception": "<5.0"
+        "codeception/codeception": "<5.0.0-alpha3"
     },
     "suggest": {
         "aws/aws-sdk-php": "For using AWS Auth"
