@@ -180,7 +180,7 @@ EOF;
 
     public function _failed(TestInterface $test, $fail)
     {
-        if ($this->response === '' || $this->response === '0') {
+        if ($this->response === null || $this->response === '' || $this->response === '0') {
             return;
         }
 
@@ -706,7 +706,7 @@ EOF;
         }
 
         $printedResponse = $this->response;
-        if ($this->isBinaryData((string) $printedResponse)) {
+        if ($this->isBinaryData((string)$printedResponse)) {
             $printedResponse = $this->binaryToDebugString($printedResponse);
         }
 
@@ -1000,7 +1000,7 @@ EOF;
      * @param string $jsonString the json encoded string
      * @param string $errorFormat optional string for custom sprintf format
      */
-    protected function decodeAndValidateJson(string $jsonString, string $errorFormat="Invalid json: %s. System message: %s.")
+    protected function decodeAndValidateJson(string $jsonString, string $errorFormat = "Invalid json: %s. System message: %s.")
     {
         $json = json_decode($jsonString);
         $errorCode = json_last_error();
