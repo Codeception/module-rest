@@ -445,7 +445,7 @@ final class RestTest extends Unit
         );
         $this->module->dontSeeResponseJsonMatchesXpath('//user');
     }
-
+ 
     /**
      * @Issue https://github.com/Codeception/Codeception/issues/2775
      */
@@ -564,6 +564,31 @@ final class RestTest extends Unit
     {
         $this->setStubResponse('{"array": {"success": 1}}');
         $this->module->seeResponseJsonMatchesXpath('//array/success');
+    }
+
+
+    public function testSeeResponseJsonXpathEvaluatesToBoolean()
+    {
+        $this->setStubResponse('{"success": 1}');
+        $this->module->seeResponseJsonXpathEvaluatesTo('count(//success) > 0', true);
+    }
+ 
+    public function testSeeResponseJsonXpathEvaluatesToNumber()
+    {
+        $this->setStubResponse('{"success": 1}');
+        $this->module->seeResponseJsonXpathEvaluatesTo('count(//success)', 1);
+    }
+
+    public function testDontSeeResponseJsonXpathEvaluatesToBoolean()
+    {
+        $this->setStubResponse('{"success": 1}');
+        $this->module->dontSeeResponseJsonXpathEvaluatesTo('count(//success) > 0', false);
+    }
+ 
+    public function testDontSeeResponseJsonXpathEvaluatesToNumber()
+    {
+        $this->setStubResponse('{"success": 1}');
+        $this->module->dontSeeResponseJsonXpathEvaluatesTo('count(//success)', 0);
     }
 
     public function testSeeBinaryResponseEquals()

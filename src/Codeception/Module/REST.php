@@ -1101,6 +1101,67 @@ EOF;
     }
 
     /**
+     * Checks if applying xpath to json structure in response matches the expected result.
+     * JSON is not supposed to be checked against XPath, yet it can be converted to xml and used with XPath.
+     * This assertion allows you to check the structure of response json.
+     *     *
+     * ```json
+     *   { "store": {
+     *       "book": [
+     *         { "category": "reference",
+     *           "author": "Nigel Rees",
+     *           "title": "Sayings of the Century",
+     *           "price": 8.95
+     *         },
+     *         { "category": "fiction",
+     *           "author": "Evelyn Waugh",
+     *           "title": "Sword of Honour",
+     *           "price": 12.99
+     *         }
+     *    ],
+     *       "bicycle": {
+     *         "color": "red",
+     *         "price": 19.95
+     *       }
+     *     }
+     *   }
+     * ```
+     *
+     * ```php
+     * <?php
+     * // at least one book in store has author
+     * $I->seeResponseJsonXpathEvaluatesTo('count(//store/book/author) > 0', true);
+     * // count the number of books written by given author is 5
+     * $I->seeResponseJsonMatchesXpath("//author[text() = 'Nigel Rees']", 5);
+     * ```
+     * @part json
+     */
+    public function seeResponseJsonXpathEvaluatesTo(string $xPath, $expected): void
+    {
+        $response = $this->connectionModule->_getResponseContent();
+        $this->assertEquals(
+            $expected,
+            (new JsonArray($response))->evaluateXPath($xPath),
+            "Received JSON did not evualated XPath `{$xPath}` as expected.\nJson Response: \n" . $response
+        );
+    }
+   
+    /**
+     * Opposite to seeResponseJsonXpathEvaluatesTo
+     *
+     * @part json
+     */
+    public function dontSeeResponseJsonXpathEvaluatesTo(string $xPath, $expected): void
+    {
+        $response = $this->connectionModule->_getResponseContent();
+        $this->assertNotEquals(
+            $expected,
+            (new JsonArray($response))->evaluateXPath($xPath),
+            "Received JSON did not evualated XPath `{$xPath}` as expected.\nJson Response: \n" . $response
+        );
+    }
+
+    /**
      * Opposite to seeResponseJsonMatchesXpath
      *
      * @part json
