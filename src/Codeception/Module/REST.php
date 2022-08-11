@@ -310,7 +310,7 @@ EOF;
      * @part json
      * @part xml
      */
-    public function grabHttpHeader(string $name, bool $first = true): string|array
+    public function grabHttpHeader(string $name, bool $first = true): string|array|null
     {
         return $this->getRunningClient()->getInternalResponse()->getHeader($name, $first);
     }
