@@ -6,6 +6,9 @@ jobs:
   tests:
     runs-on: ubuntu-latest
 
+    env:
+      COMPOSER_ROOT_VERSION: 2.99.99
+
     strategy:
       matrix:
         php: [7.4, 8.0]
