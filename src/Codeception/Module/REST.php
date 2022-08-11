@@ -1132,7 +1132,7 @@ EOF;
      * // at least one book in store has author
      * $I->seeResponseJsonXpathEvaluatesTo('count(//store/book/author) > 0', true);
      * // count the number of books written by given author is 5
-     * $I->seeResponseJsonMatchesXpath("//author[text() = 'Nigel Rees']", 5);
+     * $I->seeResponseJsonMatchesXpath("//author[text() = 'Nigel Rees']", 1.0);
      * ```
      * @part json
      */
