@@ -384,6 +384,7 @@ final class RestTest extends Unit
         $this->assertSame('en-US', $this->module->grabHttpHeader('Content-Language'));
         $this->assertSame('no-cache', $this->module->grabHttpHeader('Cache-Control'));
         $this->assertSame(['no-cache', 'no-store'], $this->module->grabHttpHeader('Cache-Control', false));
+        $this->assertSame(null, $this->module->grabHttpHeader('Foo-Bar'));
     }
 
     public function testSeeHeadersOnce()
