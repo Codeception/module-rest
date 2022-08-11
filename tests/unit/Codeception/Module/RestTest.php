@@ -576,7 +576,7 @@ final class RestTest extends Unit
     public function testSeeResponseJsonXpathEvaluatesToNumber()
     {
         $this->setStubResponse('{"success": 1}');
-        $this->module->seeResponseJsonXpathEvaluatesTo('count(//success)', 1);
+        $this->module->seeResponseJsonXpathEvaluatesTo('count(//success)', 1.0);
     }
 
     public function testDontSeeResponseJsonXpathEvaluatesToBoolean()
@@ -588,7 +588,7 @@ final class RestTest extends Unit
     public function testDontSeeResponseJsonXpathEvaluatesToNumber()
     {
         $this->setStubResponse('{"success": 1}');
-        $this->module->dontSeeResponseJsonXpathEvaluatesTo('count(//success)', 0);
+        $this->module->dontSeeResponseJsonXpathEvaluatesTo('count(//success)', 0.0);
     }
 
     public function testSeeBinaryResponseEquals()
