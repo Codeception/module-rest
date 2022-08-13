@@ -1139,7 +1139,7 @@ EOF;
     public function seeResponseJsonXpathEvaluatesTo(string $xPath, $expected): void
     {
         $response = $this->connectionModule->_getResponseContent();
-        $this->assertSame(
+        $this->assertEquals(
             $expected,
             (new JsonArray($response))->evaluateXPath($xPath),
             "Received JSON did not evualated XPath `{$xPath}` as expected.\nJson Response: \n" . $response
@@ -1154,7 +1154,7 @@ EOF;
     public function dontSeeResponseJsonXpathEvaluatesTo(string $xPath, $expected): void
     {
         $response = $this->connectionModule->_getResponseContent();
-        $this->assertNotSame(
+        $this->assertNotEquals(
             $expected,
             (new JsonArray($response))->evaluateXPath($xPath),
             "Received JSON did not evualated XPath `{$xPath}` as expected.\nJson Response: \n" . $response
