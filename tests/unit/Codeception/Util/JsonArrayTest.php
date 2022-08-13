@@ -39,7 +39,7 @@ final class JsonArrayTest extends Unit
     public function testXPathEvaluation()
     {
         $this->assertSame(true, $this->jsonArray->evaluateXPath('count(//ticket/title)>0'));
-        $this->assertSame(1.0 , $this->jsonArray->evaluateXPath('count(//ticket/user/name)'));
+        $this->assertEquals(1.0 , $this->jsonArray->evaluateXPath('count(//ticket/user/name)'));
         $this->assertSame(true, $this->jsonArray->evaluateXPath("count(//user/name[text() = 'Davert']) > 0"));
     }
    
