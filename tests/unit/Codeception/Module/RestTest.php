@@ -445,7 +445,7 @@ final class RestTest extends Unit
         );
         $this->module->dontSeeResponseJsonMatchesXpath('//user');
     }
- 
+
     /**
      * @Issue https://github.com/Codeception/Codeception/issues/2775
      */
