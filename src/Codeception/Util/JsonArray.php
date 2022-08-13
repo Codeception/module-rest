@@ -75,6 +75,12 @@ class JsonArray
         $path = new DOMXPath($this->toXml());
         return $path->query($xPath);
     }
+  
+    public function evaluateXPath(string $xPath): mixed
+    {
+        $path = new DOMXPath($this->toXml());
+        return $path->evaluate($xPath);
+    }
 
     public function filterByJsonPath(string $jsonPath): array
     {
