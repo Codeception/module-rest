@@ -21,7 +21,7 @@ final class JsonArrayTest extends Unit
     public function testXmlConversion()
     {
         $this->assertStringContainsString(
-            '<ticket><title>Bug should be fixed</title><user><name>Davert</name></user><labels></labels></ticket>',
+            '<ticket><title type="string">Bug should be fixed</title><user><name type="string">Davert</name></user><labels type="null"></labels></ticket>',
             $this->jsonArray->toXml()->saveXML()
         );
     }
@@ -32,17 +32,33 @@ final class JsonArrayTest extends Unit
             '[{"user":"Blacknoir","age":27,"tags":["wed-dev","php"]},'
             . '{"user":"John Doe","age":27,"tags":["web-dev","java"]}]'
         );
-        $this->assertStringContainsString('<tags>wed-dev</tags>', $jsonArray->toXml()->saveXML());
+        $this->assertStringContainsString('<tags type="string">wed-dev</tags>', $jsonArray->toXml()->saveXML());
         $this->assertSame(2, $jsonArray->filterByXPath('//user')->length);
     }
 
     public function testXPathEvaluation()
     {
-        $this->assertSame(true, $this->jsonArray->evaluateXPath('count(//ticket/title)>0'));
-        $this->assertEquals(1.0 , $this->jsonArray->evaluateXPath('count(//ticket/user/name)'));
-        $this->assertSame(true, $this->jsonArray->evaluateXPath("count(//user/name[text() = 'Davert']) > 0"));
+        $this->assertTrue($this->jsonArray->evaluateXPath('count(//ticket/title)>0'));
+        $this->assertEquals(1, $this->jsonArray->evaluateXPath('count(//ticket/user/name)'));
+        $this->assertTrue($this->jsonArray->evaluateXPath("count(//user/name[text() = 'Davert']) > 0"));
     }
    
+    public function testXPathTypes()
+    {
+        $jsonArray = new JsonArray(
+            '{"boolean":true, "number": -1.2780E+2, "null": null, "string": "i\'am a sentence"}'
+        );
+        $this->assertEquals(0, $jsonArray->evaluateXPath("count(//*[text() = 'false'])"));
+        $this->assertEquals(1, $jsonArray->evaluateXPath("count(//boolean[text() = 'true'])"));
+        $this->assertEquals(1, $jsonArray->evaluateXPath("count(//boolean[@type = 'boolean'])"));
+        $this->assertEquals(1, $jsonArray->evaluateXPath("count(//number[text() = -127.80])"));
+        $this->assertEquals(1, $jsonArray->evaluateXPath("count(//number[text() = -1.2780E+2])"));
+        $this->assertEquals(1, $jsonArray->evaluateXPath("count(//number[@type = 'number'])"));
+        $this->assertEquals(1, $jsonArray->evaluateXPath("count(//null[@type = 'null'])"));
+        $this->assertEquals(1, $jsonArray->evaluateXPath("count(//null[text() = ''])"));
+        $this->assertEquals(1, $jsonArray->evaluateXPath("count(//string[@type = 'string'])"));
+    }
+      
     public function testXPathLocation()
     {
         $this->assertGreaterThan(0, $this->jsonArray->filterByXPath('//ticket/title')->length);
@@ -83,8 +99,8 @@ final class JsonArrayTest extends Unit
     public function testInvalidXmlTag()
     {
         $jsonArray = new JsonArray('{"a":{"foo/bar":1,"":2},"b":{"foo/bar":1,"":2},"baz":2}');
-        $expectedXml = '<a><invalidTag1>1</invalidTag1><invalidTag2>2</invalidTag2></a>'
-            . '<b><invalidTag1>1</invalidTag1><invalidTag2>2</invalidTag2></b><baz>2</baz>';
+        $expectedXml = '<a><invalidTag1 type="number">1</invalidTag1><invalidTag2 type="number">2</invalidTag2></a>'
+            . '<b><invalidTag1 type="number">1</invalidTag1><invalidTag2 type="number">2</invalidTag2></b><baz type="number">2</baz>';
         $this->assertStringContainsString($expectedXml, $jsonArray->toXml()->saveXML());
     }
 
@@ -92,7 +108,7 @@ final class JsonArrayTest extends Unit
     {
         $jsonArray = new JsonArray('{"success": 1}');
         $expectedXml = '<?xml version="1.0" encoding="UTF-8"?>'
-            . "\n<root><success>1</success></root>\n";
+            . "\n<root><success type=\"number\">1</success></root>\n";
         $this->assertSame($expectedXml, $jsonArray->toXml()->saveXML());
     }
 
@@ -100,7 +116,7 @@ final class JsonArrayTest extends Unit
     {
         $jsonArray = new JsonArray('{"success": 1, "info": "test"}');
         $expectedXml = '<?xml version="1.0" encoding="UTF-8"?>'
-            . "\n<root><success>1</success><info>test</info></root>\n";
+            . "\n<root><success type=\"number\">1</success><info type=\"string\">test</info></root>\n";
         $this->assertSame($expectedXml, $jsonArray->toXml()->saveXML());
     }
 
@@ -108,7 +124,7 @@ final class JsonArrayTest extends Unit
     {
         $jsonArray = new JsonArray('{"array": {"success": 1}}');
         $expectedXml = '<?xml version="1.0" encoding="UTF-8"?>'
-            . "\n<array><success>1</success></array>\n";
+             . "\n<array><success type=\"number\">1</success></array>\n";
         $this->assertSame($expectedXml, $jsonArray->toXml()->saveXML());
     }
 }
