@@ -56,6 +56,7 @@ final class JsonArrayTest extends Unit
         $this->assertEquals(1, $jsonArray->evaluateXPath("count(//number[@type = 'number'])"));
         $this->assertEquals(1, $jsonArray->evaluateXPath("count(//null[@type = 'null'])"));
         $this->assertEquals(1, $jsonArray->evaluateXPath("count(//null[text() = ''])"));
+        $this->assertEquals(1, $jsonArray->evaluateXPath("count(//string[@type = 'string'])"));
     }
    
     public function testXPathLocation()
