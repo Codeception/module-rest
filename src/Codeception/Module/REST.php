@@ -310,7 +310,7 @@ EOF;
      * @part json
      * @part xml
      */
-    public function grabHttpHeader(string $name, bool $first = true): string|array
+    public function grabHttpHeader(string $name, bool $first = true): string|array|null
     {
         return $this->getRunningClient()->getInternalResponse()->getHeader($name, $first);
     }
@@ -1139,7 +1139,7 @@ EOF;
     public function seeResponseJsonXpathEvaluatesTo(string $xPath, $expected): void
     {
         $response = $this->connectionModule->_getResponseContent();
-        $this->assertSame(
+        $this->assertEquals(
             $expected,
             (new JsonArray($response))->evaluateXPath($xPath),
             "Received JSON did not evualated XPath `{$xPath}` as expected.\nJson Response: \n" . $response
@@ -1154,7 +1154,7 @@ EOF;
     public function dontSeeResponseJsonXpathEvaluatesTo(string $xPath, $expected): void
     {
         $response = $this->connectionModule->_getResponseContent();
-        $this->assertNotSame(
+        $this->assertNotEquals(
             $expected,
             (new JsonArray($response))->evaluateXPath($xPath),
             "Received JSON did not evualated XPath `{$xPath}` as expected.\nJson Response: \n" . $response
