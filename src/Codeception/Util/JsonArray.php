@@ -128,16 +128,16 @@ class JsonArray
 
     private function setValue($subNode, $value) {
         switch(gettype($value)) {
-            case "boolean":
-                $subNode->nodeValue = $value?"true":"false";
+            case 'boolean':
+                $subNode->nodeValue = $value?'true':'false';
                 $subNode->setAttribute('type', 'boolean');
                 break;
-            case "integer":
-            case "double":
+            case 'integer':
+            case 'double':
                 $subNode->nodeValue = (string) $value;
                 $subNode->setAttribute('type', 'number');
                 break;
-            case "NULL":
+            case 'NULL':
                 $subNode->nodeValue = '';
                 $subNode->setAttribute('type', 'null');
                 break;
