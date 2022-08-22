@@ -121,8 +121,30 @@ class JsonArray
             if (is_array($value)) {
                 $this->arrayToXml($doc, $subNode, $value);
             } else {
-                $subNode->nodeValue = htmlspecialchars((string)$value);
+                $this->setValue($subNode, $value);
             }
+        }
+    }
+
+    private function setValue($subNode, $value) {
+        switch(gettype($value)) {
+            case 'boolean':
+                $subNode->nodeValue = $value?'true':'false';
+                $subNode->setAttribute('type', 'boolean');
+                break;
+            case 'integer':
+            case 'double':
+                $subNode->nodeValue = (string) $value;
+                $subNode->setAttribute('type', 'number');
+                break;
+            case 'NULL':
+                $subNode->nodeValue = '';
+                $subNode->setAttribute('type', 'null');
+                break;
+            default:
+                $subNode->nodeValue = htmlspecialchars((string) $value);
+                $subNode->setAttribute('type', 'string');
+                break;
         }
     }
 
