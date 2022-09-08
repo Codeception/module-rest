@@ -541,7 +541,7 @@ EOF;
      * $response = $I->sendPatch('/message/1', ['subject' => 'Read this!']);
      * ```
      *
-     * @param array|string|JsonSerializable $params
+     * @param array|string|\JsonSerializable $params
      * @part json
      * @part xml
      */
