@@ -317,12 +317,11 @@ final class RestTest extends Unit
     }
 
     /**
-     * @param array|object $parameters
      * @dataProvider invalidParameterTypes
      */
     public function testThrowsExceptionIfParametersIsOfUnexpectedType($parameters)
     {
-        $this->expectExceptionMessage('POST parameters must be array, string or object implementing JsonSerializable interface');
+        $this->expectException(TypeError::class);
         $this->module->sendPOST('/', $parameters);
     }
 

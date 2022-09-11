@@ -13,26 +13,17 @@ use function json_encode;
 
 class JsonType extends Constraint
 {
-    /**
-     * @var array
-     */
-    protected $jsonType;
-    /**
-     * @var bool
-     */
-    private $match;
-
-    public function __construct(array $jsonType, bool $match = true)
+    public function __construct(
+        protected array $jsonType,
+        private bool $match = true)
     {
-        $this->jsonType = $jsonType;
-        $this->match = $match;
     }
 
     /**
      * Evaluates the constraint for parameter $other. Returns true if the
      * constraint is met, false otherwise.
      *
-     * @param mixed $jsonArray Value or object to evaluate.
+     * @param array|JsonArray $jsonArray Value or object to evaluate.
      */
     protected function matches($jsonArray): bool
     {
