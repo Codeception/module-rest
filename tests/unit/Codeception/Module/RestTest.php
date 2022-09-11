@@ -20,6 +20,7 @@ use Symfony\Component\BrowserKit\Response as SymfonyResponse;
 
 /**
  * Class RestTest
+ *
  * @group appveyor
  */
 final class RestTest extends Unit
@@ -39,12 +40,14 @@ final class RestTest extends Unit
         $this->module->_initialize();
         $this->module->_before(Stub::makeEmpty(\Codeception\Test\Test::class));
 
-        $this->module->client->setServerParameters([
+        $this->module->client->setServerParameters(
+            [
             'SCRIPT_FILENAME' => 'index.php',
             'SCRIPT_NAME' => 'index',
             'SERVER_NAME' => 'localhost',
             'SERVER_PROTOCOL' => 'http'
-        ]);
+            ]
+        );
     }
 
     public function testConflictsWithAPI()
@@ -104,7 +107,6 @@ final class RestTest extends Unit
         $this->module->dontSeeResponseContainsJson(['name' => 'john']);
         $this->assertNotEmpty($response);
         $this->assertStringContainsString('"name":"laura"', $response);
-
     }
 
     public function testSend()
@@ -217,7 +219,9 @@ final class RestTest extends Unit
     {
         $this->module->haveHttpHeader('Content-Type', 'application/json');
         $this->module->sendPOST('/', ['name' => 'john']);
-        /** @var SymfonyRequest $request **/
+        /**
+ * @var SymfonyRequest $request
+**/
         $request = $this->module->client->getRequest();
         $this->assertContains('application/json', $request->getServer());
         $server = $request->getServer();
@@ -230,7 +234,9 @@ final class RestTest extends Unit
     {
         $this->module->haveHttpHeader('Content-Type', 'application/json');
         $this->module->sendPOST('/', new JsonSerializedItem());
-        /** @var SymfonyRequest $request **/
+        /**
+ * @var SymfonyRequest $request
+**/
         $request = $this->module->client->getRequest();
         $this->assertContains('application/json', $request->getServer());
         $this->assertJson($request->getContent());
@@ -243,7 +249,9 @@ final class RestTest extends Unit
     {
         $this->module->haveHttpHeader('Content-Type', 'application/json');
         $this->module->send($method, '/', ['name' => 'john']);
-        /** @var SymfonyRequest $request **/
+        /**
+ * @var SymfonyRequest $request
+**/
         $request = $this->module->client->getRequest();
         $this->assertSame(json_encode(['name' => 'john'], JSON_THROW_ON_ERROR), $request->getContent());
     }
@@ -254,7 +262,9 @@ final class RestTest extends Unit
     public function testRequestBodyIsSentUrlEncodedForThisMethod(string $method)
     {
         $this->module->send($method, '/', ['name' => 'john']);
-        /** @var SymfonyRequest $request **/
+        /**
+ * @var SymfonyRequest $request
+**/
         $request = $this->module->client->getRequest();
         $this->assertSame(http_build_query(['name' => 'john']), $request->getContent());
     }
@@ -279,7 +289,9 @@ final class RestTest extends Unit
     {
         $this->module->haveHttpHeader('Content-Type', 'application/json');
         $this->module->send($method, '/', ['name' => 'john']);
-        /** @var SymfonyRequest $request **/
+        /**
+ * @var SymfonyRequest $request
+**/
         $request = $this->module->client->getRequest();
         $this->assertNull($request->getContent());
         $this->assertContains('john', $request->getParameters());
@@ -292,7 +304,9 @@ final class RestTest extends Unit
     public function testUrlEncodedRequestBodyIsNotSentForThisMethod(string $method)
     {
         $this->module->send($method, '/', ['name' => 'john']);
-        /** @var SymfonyRequest $request **/
+        /**
+ * @var SymfonyRequest $request
+**/
         $request = $this->module->client->getRequest();
         $this->assertNull($request->getContent());
         $this->assertContains('john', $request->getParameters());
@@ -361,17 +375,23 @@ final class RestTest extends Unit
     public function testUrlIsFull()
     {
         $this->module->sendGET('/api/v1/users');
-        /** @var SymfonyRequest $request **/
+        /**
+ * @var SymfonyRequest $request
+**/
         $request = $this->module->client->getRequest();
         $this->assertSame('http://localhost/api/v1/users', $request->getUri());
     }
 
     public function testSeeHeaders()
     {
-        $response = new SymfonyResponse("", 200, [
+        $response = new SymfonyResponse(
+            "",
+            200,
+            [
             'Cache-Control' => ['no-cache', 'no-store'],
             'Content_Language' => 'en-US'
-        ]);
+            ]
+        );
         $this->module->client->mockResponse($response);
         $this->module->sendGET('/');
         $this->module->seeHttpHeader('Cache-Control');
@@ -389,9 +409,13 @@ final class RestTest extends Unit
     public function testSeeHeadersOnce()
     {
         $this->shouldFail();
-        $response = new SymfonyResponse("", 200, [
+        $response = new SymfonyResponse(
+            "",
+            200,
+            [
             'Cache-Control' => ['no-cache', 'no-store'],
-        ]);
+            ]
+        );
         $this->module->client->mockResponse($response);
         $this->module->sendGET('/');
         $this->module->seeHttpHeaderOnce('Cache-Control');
@@ -491,7 +515,9 @@ final class RestTest extends Unit
     {
         $this->module->haveHttpHeader('Content-Type', 'application/resource+json');
         $this->module->sendPOST('/', new JsonSerializedItem());
-        /** @var SymfonyRequest $request **/
+        /**
+ * @var SymfonyRequest $request
+**/
         $request = $this->module->client->getRequest();
         $this->assertContains('application/resource+json', $request->getServer());
         $this->assertJson($request->getContent());
@@ -572,7 +598,7 @@ final class RestTest extends Unit
         $this->setStubResponse('{"success": 1}');
         $this->module->seeResponseJsonXpathEvaluatesTo('count(//success) > 0', true);
     }
- 
+
     public function testSeeResponseJsonXpathEvaluatesToNumber()
     {
         $this->setStubResponse('{"success": 1}');
@@ -584,7 +610,7 @@ final class RestTest extends Unit
         $this->setStubResponse('{"success": 1}');
         $this->module->dontSeeResponseJsonXpathEvaluatesTo('count(//success) > 0', false);
     }
- 
+
     public function testDontSeeResponseJsonXpathEvaluatesToNumber()
     {
         $this->setStubResponse('{"success": 1}');
@@ -687,21 +713,26 @@ final class RestTest extends Unit
             ->expects($this->once())
             ->method('_request')
             ->will(
-                $this->returnCallback(function($method,
-                    $uri,
-                    $parameters,
-                    $files,
-                    $server,
-                    $content
-                ) use ($expectedFullUrl) {
-                    Assert::assertSame($expectedFullUrl, $uri);
-                    return '';
-                })
+                $this->returnCallback(
+                    function (
+                        $method,
+                        $uri,
+                        $parameters,
+                        $files,
+                        $server,
+                        $content
+                    ) use ($expectedFullUrl) {
+                        Assert::assertSame($expectedFullUrl, $uri);
+                        return '';
+                    }
+                )
             );
 
         $config = ['url' => $configUrl];
 
-        /** @var REST */
+        /**
+ * @var REST
+*/
         $module = Stub::make(REST::class);
         $module->_setConfig($config);
         $module->_inject($connectionModule);

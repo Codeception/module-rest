@@ -25,7 +25,9 @@ class AsJson extends Action implements GeneratedStep
         $action = $template->getVar('action');
 
         // should only be applied to send* methods
-        if (!str_starts_with($action, 'send')) return null;
+        if (!str_starts_with($action, 'send')) {
+            return null;
+        }
 
         $conditionalDoc = "* JSON response will be automatically decoded \n     " . $template->getVar('doc');
 

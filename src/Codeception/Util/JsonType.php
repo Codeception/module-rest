@@ -26,6 +26,7 @@ namespace Codeception\Util;
  * ```
  *
  * Class JsonType
+ *
  * @package Codeception\Util
  */
 class JsonType
@@ -134,10 +135,14 @@ class JsonType
             preg_match_all($regexMatcher, $type, $regexes);
 
             // Do the same match as above, but replace the 'any character' + delimiter with a place holder ($${count}).
-            $filterType = preg_replace_callback($regexMatcher, function (): string {
-                static $count = 0;
-                return ':regex($$' . $count++ . ')';
-            }, $type);
+            $filterType = preg_replace_callback(
+                $regexMatcher,
+                function (): string {
+                    static $count = 0;
+                    return ':regex($$' . $count++ . ')';
+                },
+                $type
+            );
 
             $matchTypes = preg_split("#(?![^]\(]*\))\|#", $filterType);
             $matched    = false;
@@ -159,11 +164,15 @@ class JsonType
 
                 foreach ($filters as $filter) {
                     // Fill regex pattern back into the filter.
-                    $filter = preg_replace_callback('#\$\$\d+#', function ($m) use ($regexes) {
-                        $pos = (int)substr($m[0], 2);
+                    $filter = preg_replace_callback(
+                        '#\$\$\d+#',
+                        function ($m) use ($regexes) {
+                            $pos = (int)substr($m[0], 2);
 
-                        return $regexes[1][$pos];
-                    }, $filter);
+                            return $regexes[1][$pos];
+                        },
+                        $filter
+                    );
 
                     $matched = $matched && $this->matchFilter($filter, (string)$data[$key]);
                 }
