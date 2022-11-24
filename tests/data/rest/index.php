@@ -1,6 +1,6 @@
 <?php
 
-include_once __DIR__ . '/server.php';
+require_once __DIR__ . '/server.php';
 
 $GLOBALS['RESTmap'] = [];
 
@@ -25,7 +25,7 @@ $GLOBALS['RESTmap']['GET'] = [
             0
         ],
     ],
-    'foo' => function() {
+    'foo' => function () {
         if (isset($_SERVER['HTTP_FOO'])) {
             return 'foo: "' . $_SERVER['HTTP_FOO'] . '"';
         }
@@ -36,7 +36,7 @@ $GLOBALS['RESTmap']['GET'] = [
 ];
 
 $GLOBALS['RESTmap']['POST'] = [
-    'user' => function() {
+    'user' => function () {
         $name = $_POST['name'];
         return ['name' => $name];
     },
@@ -46,7 +46,7 @@ $GLOBALS['RESTmap']['POST'] = [
 ];
 
 $GLOBALS['RESTmap']['PUT'] = [
-    'user' => function() {
+    'user' => function () {
         $name = $_REQUEST['name'];
         $user = ['name' => 'davert', 'email' => 'davert@mail.ua'];
         $user['name'] = $name;
@@ -55,7 +55,7 @@ $GLOBALS['RESTmap']['PUT'] = [
 ];
 
 $GLOBALS['RESTmap']['DELETE'] = [
-    'user' => function(): void {
+    'user' => function (): void {
         header('error', false, 404);
     }
 ];

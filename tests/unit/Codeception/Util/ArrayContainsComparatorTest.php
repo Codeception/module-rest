@@ -35,11 +35,13 @@ class ArrayContainsComparatorTest extends \Codeception\Test\Unit
      */
     public function testContainsArrayComparesArrayWithMultipleZeroesCorrectly()
     {
-        $comparator = new ArrayContainsComparator([
+        $comparator = new ArrayContainsComparator(
+            [
             'responseCode' => 0,
             'message' => 'OK',
             'data' => [9, 0, 0],
-        ]);
+            ]
+        );
 
         $expectedArray = [
             'responseCode' => 0,
@@ -52,11 +54,13 @@ class ArrayContainsComparatorTest extends \Codeception\Test\Unit
 
     public function testContainsArrayComparesArrayWithMultipleIdenticalSubArraysCorrectly()
     {
-        $comparator = new ArrayContainsComparator([
+        $comparator = new ArrayContainsComparator(
+            [
             'responseCode' => 0,
             'message' => 'OK',
             'data' => [[9], [0], [0]],
-        ]);
+            ]
+        );
 
         $expectedArray = [
             'responseCode' => 0,
@@ -95,13 +99,14 @@ class ArrayContainsComparatorTest extends \Codeception\Test\Unit
     }
 
     /**
-     * @issue https://github.com/Codeception/Codeception/issues/2630
+     * @issue                      https://github.com/Codeception/Codeception/issues/2630
      * @codingStandardsIgnoreStart
      */
     public function testContainsArrayComparesNestedSequentialArraysCorrectlyWhenSecondValueIsTheSameButOrderOfItemsIsDifferent()
     {
         // @codingStandardsIgnoreEnd
-        $comparator = new ArrayContainsComparator([
+        $comparator = new ArrayContainsComparator(
+            [
             [
                 "2015-09-10",
                 "unknown-date-1"
@@ -110,7 +115,8 @@ class ArrayContainsComparatorTest extends \Codeception\Test\Unit
                 "2015-10-10",
                 "unknown-date-1"
             ]
-        ]);
+            ]
+        );
         $expectedArray = [
             ["2015-10-10", "unknown-date-1"],
             ["2015-09-10", "unknown-date-1"],
@@ -123,7 +129,8 @@ class ArrayContainsComparatorTest extends \Codeception\Test\Unit
      */
     public function testContainsArrayComparesNestedSequentialArraysCorrectlyWhenSecondValueIsDifferent()
     {
-        $comparator = new ArrayContainsComparator([
+        $comparator = new ArrayContainsComparator(
+            [
             [
                 "2015-09-10",
                 "unknown-date-1"
@@ -132,7 +139,8 @@ class ArrayContainsComparatorTest extends \Codeception\Test\Unit
                 "2015-10-10",
                 "unknown-date-2"
             ]
-        ]);
+            ]
+        );
         $expectedArray = [
             ["2015-09-10", "unknown-date-1"],
             ["2015-10-10", "unknown-date-2"],
@@ -145,7 +153,8 @@ class ArrayContainsComparatorTest extends \Codeception\Test\Unit
      */
     public function testContainsArrayComparesNestedSequentialArraysCorrectlyWhenJsonHasMoreItemsThanExpectedArray()
     {
-        $comparator = new ArrayContainsComparator([
+        $comparator = new ArrayContainsComparator(
+            [
             [
                 "2015-09-10",
                 "unknown-date-1"
@@ -158,7 +167,8 @@ class ArrayContainsComparatorTest extends \Codeception\Test\Unit
                 "2015-10-10",
                 "unknown-date-2"
             ]
-        ]);
+            ]
+        );
         $expectedArray = [
             ["2015-09-10", "unknown-date-1"],
             ["2015-10-10", "unknown-date-2"],
@@ -171,13 +181,15 @@ class ArrayContainsComparatorTest extends \Codeception\Test\Unit
      */
     public function testContainsMatchesSuperSetOfExpectedAssociativeArrayInsideSequentialArray()
     {
-        $comparator = new ArrayContainsComparator([[
+        $comparator = new ArrayContainsComparator(
+            [[
                 'id' => '1',
                 'title' => 'Game of Thrones',
                 'body' => 'You are so awesome',
                 'created_at' => '2015-12-16 10:42:20',
                 'updated_at' => '2015-12-16 10:42:20',
-            ]]);
+            ]]
+        );
         $expectedArray = [['id' => '1']];
         $this->assertTrue($comparator->containsArray($expectedArray));
     }
@@ -187,7 +199,8 @@ class ArrayContainsComparatorTest extends \Codeception\Test\Unit
      */
     public function testContainsArrayWithUnexpectedLevel()
     {
-        $comparator = new ArrayContainsComparator([
+        $comparator = new ArrayContainsComparator(
+            [
             "level1" => [
                 "level2irrelevant" => [],
                 "level2" => [
@@ -229,7 +242,8 @@ class ArrayContainsComparatorTest extends \Codeception\Test\Unit
                     ]
                 ]
             ]
-        ]);
+            ]
+        );
 
         $expectedArray = [
             'level1' => [
@@ -270,11 +284,13 @@ class ArrayContainsComparatorTest extends \Codeception\Test\Unit
      */
     public function testContainsArrayComparesAssociativeArrayIntersectCorrectlyWhenExpectedArrayKeyIsEmptyArray()
     {
-        $comparator = new ArrayContainsComparator([
+        $comparator = new ArrayContainsComparator(
+            [
             'key' => [
                 'foo' => 'bar',
             ],
-        ]);
+            ]
+        );
         $expectedArray = [
             'key' => [],
         ];

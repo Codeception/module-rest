@@ -22,7 +22,10 @@ use Codeception\TestInterface;
 use Codeception\Util\JsonArray;
 use Codeception\Util\JsonType;
 use Codeception\Util\Soap as XmlUtils;
+use Codeception\Util\XmlBuilder;
 use Codeception\Util\XmlStructure;
+use DOMDocument;
+use DOMNode;
 use Exception;
 use JsonException;
 use JsonSchema\Constraints\Constraint as JsonConstraint;
@@ -89,7 +92,6 @@ use Symfony\Component\HttpKernel\HttpKernelBrowser;
  * ## Conflicts
  *
  * Conflicts with SOAP module
- *
  */
 class REST extends Module implements DependsOnModule, PartedModule, API, ConflictsWithModule
 {
@@ -121,17 +123,13 @@ EOF;
 
     protected int $DEFAULT_SHORTEN_VALUE = 150;
 
-    /**
-     * @var HttpKernelBrowser|AbstractBrowser
-     */
-    public $client;
+    public HttpKernelBrowser|AbstractBrowser|null $client;
 
     public bool $isFunctional = false;
 
     protected ?InnerBrowser $connectionModule = null;
 
-    /** @var array */
-    public $params = [];
+    public array|string|ArrayAccess|JsonSerializable $params = [];
 
     public ?string $response = null;
 
@@ -150,7 +148,7 @@ EOF;
 
     public function _conflicts(): string
     {
-        return \Codeception\Lib\Interfaces\API::class;
+        return API::class;
     }
 
     public function _depends(): array
@@ -202,7 +200,7 @@ EOF;
     }
 
     /**
-     * Sets a HTTP header to be used for all subsequent requests. Use [`deleteHeader`](#deleteHeader) to unset it.
+     * Sets na HTTP header to be used for all subsequent requests. Use [`deleteHeader`](#deleteHeader) to unset it.
      *
      * ```php
      * <?php
@@ -219,7 +217,7 @@ EOF;
     }
 
     /**
-     * Deletes a HTTP header (that was originally added by [haveHttpHeader()](#haveHttpHeader)),
+     * Deletes an HTTP header (that was originally added by [haveHttpHeader()](#haveHttpHeader)),
      * so that subsequent requests will not send it anymore.
      *
      * Example:
@@ -233,8 +231,8 @@ EOF;
      * ```
      *
      * @param string $name the name of the header to delete.
-     * @part json
-     * @part xml
+     * @part  json
+     * @part  xml
      */
     public function deleteHeader(string $name): void
     {
@@ -245,7 +243,6 @@ EOF;
      * Checks over the given HTTP header and (optionally)
      * its value, asserting that are there
      *
-     * @param $value
      * @part json
      * @part xml
      */
@@ -266,7 +263,6 @@ EOF;
      * Checks over the given HTTP header and (optionally)
      * its value, asserting that are not there
      *
-     * @param $value
      * @part json
      * @part xml
      */
@@ -286,7 +282,7 @@ EOF;
     /**
      * Checks that http response header is received only once.
      * HTTP RFC2616 allows multiple response headers with the same name.
-     * You can check that you didn't accidentally sent the same header twice.
+     * You can check that you didn't accidentally send the same header twice.
      *
      * ``` php
      * <?php
@@ -305,10 +301,10 @@ EOF;
     /**
      * Returns the value of the specified header name
      *
-     * @param bool $first Whether to return the first value or all header values
-     * @return string|array The first header value if $first is true, an array of values otherwise
-     * @part json
-     * @part xml
+     * @param  bool $first Whether to return the first value or all header values
+     * @return string|array|null The first header value if $first is true, an array of values otherwise
+     * @part   json
+     * @part   xml
      */
     public function grabHttpHeader(string $name, bool $first = true): string|array|null
     {
@@ -369,8 +365,8 @@ EOF;
      * ```
      *
      * @throws ModuleException
-     * @part json
-     * @part xml
+     * @part   json
+     * @part   xml
      */
     public function amNTLMAuthenticated(string $username, string $password): void
     {
@@ -386,7 +382,7 @@ EOF;
     }
 
     /**
-     * Allows to send REST request using AWS Authorization
+     * Allows sending REST request using AWS Authorization
      *
      * Only works with PhpBrowser
      * Example Config:
@@ -405,6 +401,7 @@ EOF;
      * <?php
      * $I->amAWSAuthenticated();
      * ```
+     *
      * @throws ConfigurationException
      */
     public function amAWSAuthenticated(array $additionalAWSConfig = []): void
@@ -460,18 +457,20 @@ EOF;
      * ]]);
      * ```
      *
-     * @param array|string|JsonSerializable $params
      * @param array $files A list of filenames or "mocks" of $_FILES (each entry being an array with the following
      *                     keys: name, type, error, size, tmp_name (pointing to the real file path). Each key works
      *                     as the "name" attribute of a file input field.
      *
-     * @see https://php.net/manual/en/features.file-upload.post-method.php
-     * @see codecept_data_dir()
+     * @see  https://php.net/manual/en/features.file-upload.post-method.php
+     * @see  codecept_data_dir()
      * @part json
      * @part xml
      */
-    public function sendPost(string $url, $params = [], array $files = [])
-    {
+    public function sendPost(
+        string $url,
+        array|string|ArrayAccess|JsonSerializable $params = [],
+        array $files = []
+    ): ?string {
         return $this->execute('POST', $url, $params, $files);
     }
 
@@ -481,7 +480,7 @@ EOF;
      * @part json
      * @part xml
      */
-    public function sendHead(string $url, array $params = [])
+    public function sendHead(string $url, array $params = []): ?string
     {
         return $this->execute('HEAD', $url, $params);
     }
@@ -511,7 +510,7 @@ EOF;
      * @part json
      * @part xml
      */
-    public function sendGet(string $url, array $params = [])
+    public function sendGet(string $url, array $params = []): ?string
     {
         return $this->execute('GET', $url, $params);
     }
@@ -524,12 +523,14 @@ EOF;
      * $response = $I->sendPut('/message/1', ['subject' => 'Read this!']);
      * ```
      *
-     * @param array|string|JsonSerializable $params
      * @part json
      * @part xml
      */
-    public function sendPut(string $url, $params = [], array $files = [])
-    {
+    public function sendPut(
+        string $url,
+        array|string|ArrayAccess|JsonSerializable $params = [],
+        array $files = []
+    ): ?string {
         return $this->execute('PUT', $url, $params, $files);
     }
 
@@ -541,12 +542,14 @@ EOF;
      * $response = $I->sendPatch('/message/1', ['subject' => 'Read this!']);
      * ```
      *
-     * @param array|string|JsonSerializable $params
      * @part json
      * @part xml
      */
-    public function sendPatch(string $url, $params = [], array $files = [])
-    {
+    public function sendPatch(
+        string $url,
+        array|string|ArrayAccess|JsonSerializable $params = [],
+        array $files = []
+    ): ?string {
         return $this->execute('PATCH', $url, $params, $files);
     }
 
@@ -561,20 +564,26 @@ EOF;
      * @part json
      * @part xml
      */
-    public function sendDelete(string $url, array $params = [], array $files = [])
-    {
+    public function sendDelete(
+        string $url,
+        array|string|ArrayAccess|JsonSerializable $params = [],
+        array $files = []
+    ): ?string {
         return $this->execute('DELETE', $url, $params, $files);
     }
 
     /**
      * Sends a HTTP request.
      *
-     * @param array|string|JsonSerializable $params
      * @part json
      * @part xml
      */
-    public function send(string $method, string $url, $params = [], array $files = [])
-    {
+    public function send(
+        string $method,
+        string $url,
+        array|string|ArrayAccess|JsonSerializable $params = [],
+        array $files = []
+    ): ?string {
         return $this->execute(strtoupper($method), $url, $params, $files);
     }
 
@@ -615,8 +624,8 @@ EOF;
      * @link https://tools.ietf.org/html/rfc2068#section-19.6.2.4
      *
      * @author samva.ua@gmail.com
-     * @part json
-     * @part xml
+     * @part   json
+     * @part   xml
      */
     public function sendLink(string $url, array $linkEntries): void
     {
@@ -627,11 +636,11 @@ EOF;
     /**
      * Sends UNLINK request to given uri.
      *
-     * @param array $linkEntries (entry is array with keys "uri" and "link-param")
-     * @link https://tools.ietf.org/html/rfc2068#section-19.6.2.4
+     * @param  array $linkEntries (entry is array with keys "uri" and "link-param")
+     * @link   https://tools.ietf.org/html/rfc2068#section-19.6.2.4
      * @author samva.ua@gmail.com
-     * @part json
-     * @part xml
+     * @part   json
+     * @part   xml
      */
     public function sendUnlink(string $url, array $linkEntries): void
     {
@@ -640,14 +649,14 @@ EOF;
     }
 
     /**
-     * @param $method
-     * @param $url
-     * @param array|string|object $parameters
-     * @param array $files
      * @throws ModuleException|ExternalUrlException|JsonException
      */
-    protected function execute($method, $url, $parameters = [], $files = [])
-    {
+    protected function execute(
+        string $method,
+        string $url,
+        array|string|ArrayAccess|JsonSerializable $parameters = [],
+        array $files = []
+    ): ?string {
         // allow full url to be requested
         if (!$url) {
             $url = $this->config['url'];
@@ -684,7 +693,8 @@ EOF;
                 $this->debugSection("Request", sprintf('%s %s', $method, $url));
                 $files = [];
             } else {
-                $this->debugSection("Request",
+                $this->debugSection(
+                    "Request",
                     sprintf('%s %s ', $method, $url) . json_encode($parameters, JSON_PRESERVE_ZERO_FRACTION | JSON_THROW_ON_ERROR)
                 );
                 $files = $this->formatFilesArray($files);
@@ -692,6 +702,9 @@ EOF;
 
             $this->response = $this->connectionModule->_request($method, $url, $parameters, $files);
         } else {
+            /**
+             * @var string $parameters
+             */
             $requestData = $parameters;
             if ($this->isBinaryData($requestData)) {
                 $requestData = $this->binaryToDebugString($requestData);
@@ -731,7 +744,7 @@ EOF;
     /**
      * Format a binary string for debug printing
      *
-     * @param string $data the binary data string
+     * @param  string $data the binary data string
      * @return string the debug string
      */
     protected function binaryToDebugString(string $data): string
@@ -739,13 +752,14 @@ EOF;
         return '[binary-data length:' . strlen($data) . ' md5:' . md5($data) . ']';
     }
 
-    protected function encodeApplicationJson(string $method, $parameters)
-    {
+    protected function encodeApplicationJson(
+        string $method,
+        array|string|ArrayAccess|JsonSerializable $parameters,
+    ): array|string {
         if (
             array_key_exists('Content-Type', $this->connectionModule->headers)
             && ($this->connectionModule->headers['Content-Type'] === 'application/json'
-                || preg_match('#^application/.+\+json$#', $this->connectionModule->headers['Content-Type'])
-            )
+            || preg_match('#^application/.+\+json$#', $this->connectionModule->headers['Content-Type']))
         ) {
             if ($parameters instanceof JsonSerializable) {
                 return json_encode($parameters, JSON_PRESERVE_ZERO_FRACTION | JSON_THROW_ON_ERROR);
@@ -807,6 +821,7 @@ EOF;
             } elseif (is_object($value)) {
                 /**
                  * do nothing, probably the user knows what he is doing
+                 *
                  * @issue https://github.com/Codeception/Codeception/issues/3298
                  */
             } else {
@@ -843,7 +858,6 @@ EOF;
 
     /**
      * Extends the function Module::validateConfig for shorten messages
-     *
      */
     protected function validateConfig(): void
     {
@@ -901,15 +915,15 @@ EOF;
      *
      * ``` php
      * <?php
-     * // response: {name: john, email: john@gmail.com}
-     * $I->seeResponseContainsJson(array('name' => 'john'));
+     * // response: {"name": "john", "email": "john@gmail.com"}
+     * $I->seeResponseContainsJson(['name' => 'john']);
      *
-     * // response {user: john, profile: { email: john@gmail.com }}
-     * $I->seeResponseContainsJson(array('email' => 'john@gmail.com'));
+     * // response {"user": "john", "profile": {"email": "john@gmail.com"}}
+     * $I->seeResponseContainsJson(['email' => 'john@gmail.com']);
      *
      * ```
      *
-     * This method recursively checks if one array can be found inside of another.
+     * This method recursively checks if one array can be found inside another.
      *
      * @part json
      */
@@ -977,7 +991,7 @@ EOF;
      * Supply schema as relative file path in your project directory or an absolute path
      *
      * @part json
-     * @see codecept_absolute_path()
+     * @see  codecept_absolute_path()
      */
     public function seeResponseIsValidOnJsonSchema(string $schemaFilename): void
     {
@@ -992,7 +1006,7 @@ EOF;
     /**
      * Converts string to json and asserts that no error occurred while decoding.
      *
-     * @param string $jsonString the json encoded string
+     * @param string $jsonString  the json encoded string
      * @param string $errorFormat optional string for custom sprintf format
      */
     protected function decodeAndValidateJson(string $jsonString, string $errorFormat = "Invalid json: %s. System message: %s.")
@@ -1045,7 +1059,7 @@ EOF;
      *
      * @return array Array of matching items
      * @throws Exception
-     * @part json
+     * @part   json
      */
     public function grabDataFromResponseByJsonPath(string $jsonPath): array
     {
@@ -1088,6 +1102,7 @@ EOF;
      * // at least one item in store has price
      * $I->seeResponseJsonMatchesXpath('/store//price');
      * ```
+     *
      * @part json
      */
     public function seeResponseJsonMatchesXpath(string $xPath): void
@@ -1134,6 +1149,7 @@ EOF;
      * // count the number of books written by given author is 5
      * $I->seeResponseJsonMatchesXpath("//author[text() = 'Nigel Rees']", 1.0);
      * ```
+     *
      * @part json
      */
     public function seeResponseJsonXpathEvaluatesTo(string $xPath, $expected): void
@@ -1145,7 +1161,7 @@ EOF;
             "Received JSON did not evualated XPath `{$xPath}` as expected.\nJson Response: \n" . $response
         );
     }
-   
+
     /**
      * Opposite to seeResponseJsonXpathEvaluatesTo
      *
@@ -1313,13 +1329,13 @@ EOF;
      *
      * ```php
      * <?php
-     * // {'user_id': 1, 'email' => 'davert@codeception.com'}
+     * // {"user_id": 1, "email" => "davert@codeception.com"}
      * $I->seeResponseMatchesJsonType([
      *      'user_id' => 'string:>0:<1000', // multiple filters can be used
      *      'email' => 'string:regex(~\@~)' // we just check that @ char is included
      * ]);
      *
-     * // {'user_id': '1'}
+     * // {"user_id"'": "1"}
      * $I->seeResponseMatchesJsonType([
      *      'user_id' => 'string:>0', // works with strings as well
      * ]);
@@ -1329,7 +1345,7 @@ EOF;
      * See [JsonType reference](https://codeception.com/docs/reference/JsonType).
      *
      * @part json
-     * @see JsonType
+     * @see  JsonType
      */
     public function seeResponseMatchesJsonType(array $jsonType, string $jsonPath = null): void
     {
@@ -1344,9 +1360,9 @@ EOF;
     /**
      * Opposite to `seeResponseMatchesJsonType`.
      *
-     * @part json
+     * @part  json
      * @param array $jsonType JsonType structure
-     * @see seeResponseMatchesJsonType
+     * @see   seeResponseMatchesJsonType
      */
     public function dontSeeResponseMatchesJsonType(array $jsonType, string $jsonPath = null): void
     {
@@ -1486,6 +1502,7 @@ EOF;
      * <?php
      * $I->seeXmlResponseMatchesXpath('//root/user[@id=1]');
      * ```
+     *
      * @part xml
      */
     public function seeXmlResponseMatchesXpath(string $xPath): void
@@ -1501,6 +1518,7 @@ EOF;
      * <?php
      * $I->dontSeeXmlResponseMatchesXpath('//root/user[@id=1]');
      * ```
+     *
      * @part xml
      */
     public function dontSeeXmlResponseMatchesXpath(string $xPath): void
@@ -1513,10 +1531,9 @@ EOF;
      * Finds and returns text contents of element.
      * Element is matched by either CSS or XPath
      *
-     * @param mixed $cssOrXPath
      * @part xml
      */
-    public function grabTextContentFromXmlElement($cssOrXPath): string
+    public function grabTextContentFromXmlElement(string $cssOrXPath): string
     {
         $el = (new XmlStructure($this->connectionModule->_getResponseContent()))->matchElement($cssOrXPath);
         return $el->textContent;
@@ -1542,12 +1559,9 @@ EOF;
      * Checks XML response equals provided XML.
      * Comparison is done by canonicalizing both xml`s.
      *
-     * Parameters can be passed either as DOMDocument, DOMNode, XML string, or array (if no attributes).
-     *
-     * @param mixed $xml
      * @part xml
      */
-    public function seeXmlResponseEquals($xml): void
+    public function seeXmlResponseEquals(DOMDocument|string $xml): void
     {
         Assert::assertXmlStringEqualsXmlString($this->connectionModule->_getResponseContent(), $xml);
     }
@@ -1557,12 +1571,10 @@ EOF;
      * Checks XML response does not equal to provided XML.
      * Comparison is done by canonicalizing both xml`s.
      *
-     * Parameter can be passed either as XmlBuilder, DOMDocument, DOMNode, XML string, or array (if no attributes).
-     *
      * @param mixed $xml
-     * @part xml
+     * @part  xml
      */
-    public function dontSeeXmlResponseEquals($xml): void
+    public function dontSeeXmlResponseEquals(DOMDocument|string $xml): void
     {
         Assert::assertXmlStringNotEqualsXmlString(
             $this->connectionModule->_getResponseContent(),
@@ -1582,10 +1594,9 @@ EOF;
      * $I->seeXmlResponseIncludes("<result>1</result>");
      * ```
      *
-     * @param mixed $xml
      * @part xml
      */
-    public function seeXmlResponseIncludes($xml): void
+    public function seeXmlResponseIncludes(DOMNode|XmlBuilder|array|string $xml): void
     {
         $this->assertStringContainsString(
             XmlUtils::toXml($xml)->C14N(),
@@ -1599,10 +1610,9 @@ EOF;
      * Comparison is done by canonicalizing both xml`s.
      * Parameter can be passed either as XmlBuilder, DOMDocument, DOMNode, XML string, or array (if no attributes).
      *
-     * @param mixed $xml
      * @part xml
      */
-    public function dontSeeXmlResponseIncludes($xml): void
+    public function dontSeeXmlResponseIncludes(DOMNode|XmlBuilder|array|string $xml): void
     {
         $this->assertStringNotContainsString(
             XmlUtils::toXml($xml)->C14N(),
@@ -1640,8 +1650,8 @@ EOF;
      *
      * @param string $hash the hashed data response expected
      * @param string $algo the hash algorithm to use. Default sha1.
-     * @part json
-     * @part xml
+     * @part  json
+     * @part  xml
      */
     public function seeBinaryResponseEquals(string $hash, string $algo = 'sha1'): void
     {
@@ -1660,8 +1670,8 @@ EOF;
      *
      * @param string $hash the hashed data response expected
      * @param string $algo the hash algorithm to use. Default md5.
-     * @part json
-     * @part xml
+     * @part  json
+     * @part  xml
      */
     public function dontSeeBinaryResponseEquals(string $hash, string $algo = 'sha1'): void
     {

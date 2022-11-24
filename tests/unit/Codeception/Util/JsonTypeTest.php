@@ -136,30 +136,50 @@ final class JsonTypeTest extends Unit
     public function testNegativeFilters()
     {
         $jsonType = new JsonType(['name' => 'davert', 'id' => 1]);
-        $this->assertTrue($jsonType->matches([
-            'name' => 'string:!date|string:!empty',
-            'id' => 'integer:!=0',
-        ]));
+        $this->assertTrue(
+            $jsonType->matches(
+                [
+                'name' => 'string:!date|string:!empty',
+                'id' => 'integer:!=0',
+                ]
+            )
+        );
     }
 
     public function testCustomFilters()
     {
         JsonType::addCustomFilter('slug', fn($value): bool => !str_contains($value, ' '));
         $jsonType = new JsonType(['title' => 'have a test', 'slug' => 'have-a-test']);
-        $this->assertTrue($jsonType->matches([
-            'slug' => 'string:slug'
-        ]));
-        $this->assertNotTrue($jsonType->matches([
-            'title' => 'string:slug'
-        ]));
+        $this->assertTrue(
+            $jsonType->matches(
+                [
+                'slug' => 'string:slug'
+                ]
+            )
+        );
+        $this->assertNotTrue(
+            $jsonType->matches(
+                [
+                'title' => 'string:slug'
+                ]
+            )
+        );
 
         JsonType::addCustomFilter('/len\((.*?)\)/', fn($value, $len): bool => strlen($value) == $len);
-        $this->assertTrue($jsonType->matches([
-            'slug' => 'string:len(11)'
-        ]));
-        $this->assertNotTrue($jsonType->matches([
-            'slug' => 'string:len(7)'
-        ]));
+        $this->assertTrue(
+            $jsonType->matches(
+                [
+                'slug' => 'string:len(11)'
+                ]
+            )
+        );
+        $this->assertNotTrue(
+            $jsonType->matches(
+                [
+                'slug' => 'string:len(7)'
+                ]
+            )
+        );
     }
 
     public function testArray()
@@ -171,50 +191,97 @@ final class JsonTypeTest extends Unit
 
     public function testNull()
     {
-        $jsonType = new JsonType(json_decode('{
+        $jsonType = new JsonType(
+            json_decode(
+                '{
             "id": 123456,
             "birthdate": null,
             "firstname": "John",
             "lastname": "Doe"
-        }', true, 512, JSON_THROW_ON_ERROR));
-        $this->assertTrue($jsonType->matches([
-            'birthdate' => 'string|null'
-        ]));
-        $this->assertTrue($jsonType->matches([
-            'birthdate' => 'null'
-        ]));
+        }',
+                true,
+                512,
+                JSON_THROW_ON_ERROR
+            )
+        );
+        $this->assertTrue(
+            $jsonType->matches(
+                [
+                'birthdate' => 'string|null'
+                ]
+            )
+        );
+        $this->assertTrue(
+            $jsonType->matches(
+                [
+                'birthdate' => 'null'
+                ]
+            )
+        );
     }
 
     public function testOR()
     {
-        $jsonType = new JsonType(json_decode('{
+        $jsonType = new JsonType(
+            json_decode(
+                '{
             "type": "DAY"
-        }', true, 512, JSON_THROW_ON_ERROR));
-        $this->assertTrue($jsonType->matches([
-            'type' => 'string:=DAY|string:=WEEK'
-        ]));
-        $jsonType = new JsonType(json_decode('{
+        }',
+                true,
+                512,
+                JSON_THROW_ON_ERROR
+            )
+        );
+        $this->assertTrue(
+            $jsonType->matches(
+                [
+                'type' => 'string:=DAY|string:=WEEK'
+                ]
+            )
+        );
+        $jsonType = new JsonType(
+            json_decode(
+                '{
             "type": "WEEK"
-        }', true, 512, JSON_THROW_ON_ERROR));
-        $this->assertTrue($jsonType->matches([
-            'type' => 'string:=DAY|string:=WEEK'
-        ]));
+        }',
+                true,
+                512,
+                JSON_THROW_ON_ERROR
+            )
+        );
+        $this->assertTrue(
+            $jsonType->matches(
+                [
+                'type' => 'string:=DAY|string:=WEEK'
+                ]
+            )
+        );
     }
 
     public function testCollection()
     {
-        $jsonType = new JsonType([
+        $jsonType = new JsonType(
+            [
             ['id' => 1],
             ['id' => 3],
             ['id' => 5]
-        ]);
-        $this->assertTrue($jsonType->matches([
-            'id' => 'integer'
-        ]));
+            ]
+        );
+        $this->assertTrue(
+            $jsonType->matches(
+                [
+                'id' => 'integer'
+                ]
+            )
+        );
 
-        $this->assertNotTrue($res = $jsonType->matches([
-            'id' => 'integer:<3'
-        ]));
+        $this->assertNotTrue(
+            $res = $jsonType->matches(
+                [
+                'id' => 'integer:<3'
+                ]
+            )
+        );
 
         $this->assertStringContainsString('3` is of type `integer:<3', $res);
         $this->assertStringContainsString('5` is of type `integer:<3', $res);
@@ -225,17 +292,23 @@ final class JsonTypeTest extends Unit
      */
     public function testMatchesArrayReturnedByFetchBoth()
     {
-        $jsonType = new JsonType([
+        $jsonType = new JsonType(
+            [
             '0' => 10,
             'a' => 10,
             '1' => 11,
             'b' => 11,
-        ]);
+            ]
+        );
 
-        $this->assertTrue($jsonType->matches([
-            'a' => 'integer',
-            'b' => 'integer',
-        ]));
+        $this->assertTrue(
+            $jsonType->matches(
+                [
+                'a' => 'integer',
+                'b' => 'integer',
+                ]
+            )
+        );
     }
 
     public function testRegexFilterWithPrefixedAlternatives()
