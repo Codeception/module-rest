@@ -34,7 +34,7 @@ class ArrayContainsComparator
     /**
      * @author nleippe@integr8ted.com
      * @author tiger.seo@gmail.com
-     * @link   https://www.php.net/manual/en/function.array-intersect-assoc.php#39822
+     * @link https://www.php.net/manual/en/function.array-intersect-assoc.php#39822
      */
     private function arrayIntersectRecursive(mixed $arr1, mixed $arr2): bool|array|null
     {

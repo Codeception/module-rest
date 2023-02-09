@@ -15,8 +15,8 @@ class JsonType extends Constraint
 {
     public function __construct(
         protected array $jsonType,
-        private bool $match = true
-    ) {
+        private bool $match = true)
+    {
     }
 
     /**

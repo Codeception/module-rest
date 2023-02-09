@@ -3,14 +3,15 @@
 function RESTServer(): void
 {
     // find the function/method to call
-    $callback = null;
+    $callback = NULL;
     if (preg_match('#rest\/([^\/]+)#i', $_SERVER['REQUEST_URI'], $m) && isset($GLOBALS['RESTmap'][$_SERVER['REQUEST_METHOD']][$m[1]])) {
         $callback = $GLOBALS['RESTmap'][$_SERVER['REQUEST_METHOD']][$m[1]];
     }
 
     if ($callback) {
+
         // get the request data
-        $data = null;
+        $data = NULL;
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $data = $_GET;
         } elseif ($tmp = file_get_contents('php://input')) {
