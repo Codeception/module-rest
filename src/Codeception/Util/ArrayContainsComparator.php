@@ -32,9 +32,11 @@ class ArrayContainsComparator
     }
 
     /**
-     * @author nleippe@integr8ted.com
+     * @return array|bool
      * @author tiger.seo@gmail.com
      * @link https://www.php.net/manual/en/function.array-intersect-assoc.php#39822
+     *
+     * @author nleippe@integr8ted.com
      */
     private function arrayIntersectRecursive(mixed $arr1, mixed $arr2): bool|array|null
     {
@@ -86,6 +88,9 @@ class ArrayContainsComparator
         return $ret;
     }
 
+    /**
+     * @return array|bool|null
+     */
     private function associativeArrayIntersect(array $arr1, array $arr2): bool|array|null
     {
         $commonKeys = array_intersect(array_keys($arr1), array_keys($arr2));

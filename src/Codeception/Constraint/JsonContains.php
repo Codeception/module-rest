@@ -16,8 +16,14 @@ use function is_array;
 
 class JsonContains extends Constraint
 {
-    public function __construct(protected array $expected)
+    /**
+     * @var array
+     */
+    protected $expected;
+
+    public function __construct(array $expected)
     {
+        $this->expected = $expected;
     }
 
     /**

@@ -30,7 +30,10 @@ namespace Codeception\Util;
  */
 class JsonType
 {
-    protected array $jsonArray;
+    /**
+     * @var array|JsonArray
+     */
+    protected $jsonArray;
 
     protected static array $customFilters = [];
 
@@ -38,8 +41,10 @@ class JsonType
      * Creates instance of JsonType
      * Pass an array or `\Codeception\Util\JsonArray` with data.
      * If non-associative array is passed - the very first element of it will be used for matching.
+     *
+     * @param $jsonArray array|JsonArray
      */
-    public function __construct(array|JsonArray $jsonArray)
+    public function __construct($jsonArray)
     {
         if ($jsonArray instanceof JsonArray) {
             $jsonArray = $jsonArray->toArray();
@@ -116,8 +121,8 @@ class JsonType
                 return sprintf("Key `%s` doesn't exist in ", $key) . json_encode($data, JSON_THROW_ON_ERROR);
             }
 
-            if (is_array($type)) {
-                $message = $this->typeComparison($data[$key], $type);
+            if (is_array($jsonType[$key])) {
+                $message = $this->typeComparison($data[$key], $jsonType[$key]);
 
                 if (is_string($message)) {
                     return $message;
@@ -129,11 +134,11 @@ class JsonType
             $regexMatcher = '/:regex\((((\()|(\{)|(\[)|(<)|(.)).*?(?(3)\)|(?(4)\}|(?(5)\]|(?(6)>|\7)))))\)/';
             $regexes = [];
 
-            // Match the string ':regex(' and any characters until an ending regex delimiter followed by character ')'
+            // Match the string ':regex(' and any characters until a ending regex delimiter followed by character ')'
             // Place the 'any character' + delimiter matches in to an array.
             preg_match_all($regexMatcher, $type, $regexes);
 
-            // Do the same match as above, but replace the 'any character' + delimiter with a place holder ($${count}).
+            // Do the same match as above, but replace the the 'any character' + delimiter with a place holder ($${count}).
             $filterType = preg_replace_callback($regexMatcher, function (): string {
                 static $count = 0;
                 return ':regex($$' . $count++ . ')';
