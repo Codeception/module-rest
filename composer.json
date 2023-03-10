@@ -17,7 +17,7 @@
         "ext-json": "*",
         "codeception/codeception": "^4.1",
         "justinrainbow/json-schema": "~5.2.9",
-        "softcreatr/jsonpath": "^0.5 | ^0.7"
+        "softcreatr/jsonpath": "^0.5 | ^0.7 | ^0.8"
     },
     "require-dev": {
         "codeception/stub": "^4.0",
