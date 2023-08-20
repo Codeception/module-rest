@@ -23,7 +23,6 @@ use Codeception\Util\JsonArray;
 use Codeception\Util\JsonType;
 use Codeception\Util\Soap as XmlUtils;
 use Codeception\Util\XmlStructure;
-use Exception;
 use JsonException;
 use JsonSchema\Constraints\Constraint as JsonConstraint;
 use JsonSchema\Validator as JsonSchemaValidator;
@@ -368,7 +367,7 @@ EOF;
      * $I->amNTLMAuthenticated('jon_snow', 'targaryen');
      * ```
      *
-     * @throws ModuleException
+     * @throws \Codeception\Exception\ModuleException
      * @part json
      * @part xml
      */
@@ -405,7 +404,7 @@ EOF;
      * <?php
      * $I->amAWSAuthenticated();
      * ```
-     * @throws ConfigurationException
+     * @throws \Codeception\Exception\ConfigurationException
      */
     public function amAWSAuthenticated(array $additionalAWSConfig = []): void
     {
@@ -460,7 +459,7 @@ EOF;
      * ]]);
      * ```
      *
-     * @param array|string|JsonSerializable $params
+     * @param array|string|\JsonSerializable $params
      * @param array $files A list of filenames or "mocks" of $_FILES (each entry being an array with the following
      *                     keys: name, type, error, size, tmp_name (pointing to the real file path). Each key works
      *                     as the "name" attribute of a file input field.
@@ -524,7 +523,7 @@ EOF;
      * $response = $I->sendPut('/message/1', ['subject' => 'Read this!']);
      * ```
      *
-     * @param array|string|JsonSerializable $params
+     * @param array|string|\JsonSerializable $params
      * @part json
      * @part xml
      */
@@ -541,7 +540,7 @@ EOF;
      * $response = $I->sendPatch('/message/1', ['subject' => 'Read this!']);
      * ```
      *
-     * @param array|string|JsonSerializable $params
+     * @param array|string|\JsonSerializable $params
      * @part json
      * @part xml
      */
@@ -569,7 +568,7 @@ EOF;
     /**
      * Sends a HTTP request.
      *
-     * @param array|string|JsonSerializable $params
+     * @param array|string|\JsonSerializable $params
      * @part json
      * @part xml
      */
@@ -1044,7 +1043,7 @@ EOF;
      * ```
      *
      * @return array Array of matching items
-     * @throws Exception
+     * @throws \Exception
      * @part json
      */
     public function grabDataFromResponseByJsonPath(string $jsonPath): array
