@@ -7,7 +7,7 @@ use Codeception\Util\Template;
 
 class AsJson extends Action implements GeneratedStep
 {
-    public function run(ModuleContainer $container = null)
+    public function run(?ModuleContainer $container = null)
     {
         $container->getModule('REST')->haveHttpHeader('Content-Type', 'application/json');
         $resp = parent::run($container);
