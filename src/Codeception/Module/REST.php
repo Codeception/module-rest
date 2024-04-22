@@ -933,10 +933,10 @@ EOF;
      *
      * // response {"name": "john", "age": 20}
      * $schema = [
-     *  "properties" => [
-     *      "age" => [
-     *          "type" => "integer",
-     *          "minimum" => 18
+     *  'properties' => [
+     *      'age' => [
+     *          'type' => 'integer',
+     *          'minimum' => 18
      *      ]
      *  ]
      * ];
@@ -1578,7 +1578,7 @@ EOF;
      *
      * ``` php
      * <?php
-     * $I->seeXmlResponseIncludes("<result>1</result>");
+     * $I->seeXmlResponseIncludes('<result>1</result>');
      * ```
      *
      * @param mixed $xml
@@ -1619,14 +1619,14 @@ EOF;
      *
      * ```php
      * <?php
-     * $I->seeBinaryResponseEquals("df589122eac0f6a7bd8795436e692e3675cadc3b");
+     * $I->seeBinaryResponseEquals('df589122eac0f6a7bd8795436e692e3675cadc3b');
      * ```
      *
      * Example: Using sha1 for a file contents
      *
      * ```php
      * <?php
-     * $fileData = file_get_contents("test_file.jpg");
+     * $fileData = file_get_contents('test_file.jpg');
      * $I->seeBinaryResponseEquals(md5($fileData));
      * ```
      * Example: Using sha256 hash
@@ -1634,7 +1634,7 @@ EOF;
      * ```php
      * <?php
      * $fileData = '/9j/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/yQALCAABAAEBAREA/8wABgAQEAX/2gAIAQEAAD8A0s8g/9k='; // very small jpeg
-     * $I->seeBinaryResponseEquals(hash("sha256", base64_decode($fileData)), 'sha256');
+     * $I->seeBinaryResponseEquals(hash('sha256', base64_decode($fileData)), 'sha256');
      * ```
      *
      * @param string $hash the hashed data response expected
@@ -1653,7 +1653,7 @@ EOF;
      *
      * ```php
      * <?php
-     * $I->dontSeeBinaryResponseEquals("8c90748342f19b195b9c6b4eff742ded");
+     * $I->dontSeeBinaryResponseEquals('8c90748342f19b195b9c6b4eff742ded');
      * ```
      * Opposite to `seeBinaryResponseEquals`
      *
