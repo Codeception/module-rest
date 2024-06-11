@@ -9,6 +9,7 @@ class AsJson extends Action implements GeneratedStep
 {
     public function run(ModuleContainer $container = null)
     {
+        $container->getModule('REST')->haveHttpHeader('Accept', 'application/json');
         $container->getModule('REST')->haveHttpHeader('Content-Type', 'application/json');
         $resp = parent::run($container);
         $container->getModule('REST')->seeResponseIsJson();
