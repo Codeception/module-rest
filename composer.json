@@ -19,8 +19,8 @@
         "ext-json": "*",
         "codeception/codeception": "^5.0.8",
         "codeception/lib-xml": "^1.0",
-        "justinrainbow/json-schema": "~5.2.9",
-        "softcreatr/jsonpath": "^0.8"
+        "justinrainbow/json-schema": "^5.2.9",
+        "softcreatr/jsonpath": "^0.8 || ^0.9"
     },
     "require-dev": {
         "ext-libxml": "*",
