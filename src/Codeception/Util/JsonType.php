@@ -170,7 +170,7 @@ class JsonType
                         return $regexes[1][$pos];
                     }, $filter);
 
-                    $matched = $matched && $this->matchFilter($filter, (string)$data[$key]);
+                    $matched = $matched && $this->matchFilter($filter, $data[$key]);
                 }
 
                 if ($matched) {
@@ -186,7 +186,7 @@ class JsonType
         return true;
     }
 
-    protected function matchFilter(string $filter, string $value)
+    protected function matchFilter(string $filter, mixed $value)
     {
         $filter = trim($filter);
         if (str_starts_with($filter, '!')) {
@@ -206,7 +206,7 @@ class JsonType
         }
 
         if (str_starts_with($filter, '=')) {
-            return $value === substr($filter, 1);
+            return (string) $value === substr($filter, 1);
         }
 
         if ($filter === 'url') {
@@ -232,7 +232,7 @@ class JsonType
         }
 
         if (preg_match('#^regex\((.*?)\)$#', $filter, $matches)) {
-            return preg_match($matches[1], $value);
+            return preg_match($matches[1], (string) $value);
         }
 
         if (preg_match('#^>=(-?[\d\.]+)$#', $filter, $matches)) {
