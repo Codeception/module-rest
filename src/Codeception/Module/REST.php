@@ -197,8 +197,8 @@ EOF;
      * $I->haveHttpHeader('X-Requested-With', 'Codeception');
      * $I->sendGET('test-headers.php');
      * // ...
-     * $I->unsetHttpHeader('X-Requested-With');
-     * $I->sendPOST('some-other-page.php');
+     * $I->deleteHeader('X-Requested-With');
+     * $I->sendPost('some-other-page.php');
      * ?>
      * ```
      *
