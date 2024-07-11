@@ -1330,7 +1330,7 @@ EOF;
      * @part json
      * @see JsonType
      */
-    public function seeResponseMatchesJsonType(array $jsonType, string $jsonPath = null): void
+    public function seeResponseMatchesJsonType(array $jsonType, ?string $jsonPath = null): void
     {
         $jsonArray = new JsonArray($this->connectionModule->_getResponseContent());
         if ($jsonPath) {
@@ -1347,7 +1347,7 @@ EOF;
      * @param array $jsonType JsonType structure
      * @see seeResponseMatchesJsonType
      */
-    public function dontSeeResponseMatchesJsonType(array $jsonType, string $jsonPath = null): void
+    public function dontSeeResponseMatchesJsonType(array $jsonType, ?string $jsonPath = null): void
     {
         $jsonArray = new JsonArray($this->connectionModule->_getResponseContent());
         if ($jsonPath) {
