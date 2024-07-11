@@ -199,14 +199,13 @@ EOF;
      * // ...
      * $I->deleteHeader('X-Requested-With');
      * $I->sendPost('some-other-page.php');
-     * ?>
      * ```
      *
      * @param string $name the name of the header to unset.
      * @part json
      * @part xml
      */
-    public function unsetHttpHeader($name)
+    public function deleteHeader(string $name): void
     {
         $this->connectionModule->deleteHeader($name);
     }
