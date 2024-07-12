@@ -170,6 +170,7 @@ final class JsonTypeTest extends Unit
         $jsonType = new JsonType($this->data);
         $this->assertTrue($jsonType->matches($this->types));
         $this->assertTrue($jsonType->matches(['empty_array' => 'array:empty']));
+        $this->assertTrue($jsonType->matches(['empty_array' => 'Array:empty']));
     }
 
     public function testNull()
