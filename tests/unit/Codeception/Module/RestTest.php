@@ -500,9 +500,10 @@ final class RestTest extends Unit
 
     public function testJsonTypeMatches()
     {
-        $this->setStubResponse('{"xxx": "yyy", "user_id": 1}');
-        $this->module->seeResponseMatchesJsonType(['xxx' => 'string', 'user_id' => 'integer:<10']);
-        $this->module->dontSeeResponseMatchesJsonType(['xxx' => 'integer', 'user_id' => 'integer:<10']);
+        $this->setStubResponse('{"xxx": "yyy", "user_id": 1, "empty_array": [], "non_empty_array": ["foo"]}');
+        $this->module->seeResponseMatchesJsonType(['xxx' => 'string', 'user_id' => 'integer:<10', 'empty_array' => 'array:empty', 'non_empty_array' => 'array:!empty']);
+        $this->module->dontSeeResponseMatchesJsonType(['xxx' => 'integer', 'user_id' => 'integer:<10', 'empty_array' => 'array:empty', 'non_empty_array' => 'array:!empty']);
+        $this->module->dontSeeResponseMatchesJsonType(['xxx' => 'string', 'user_id' => 'integer:<10', 'empty_array' => 'array:!empty', 'non_empty_array' => 'array:!empty']);
     }
 
     public function testJsonTypeMatchesWithJsonPath()

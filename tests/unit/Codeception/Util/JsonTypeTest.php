@@ -137,10 +137,11 @@ final class JsonTypeTest extends Unit
 
     public function testNegativeFilters()
     {
-        $jsonType = new JsonType(['name' => 'davert', 'id' => 1]);
+        $jsonType = new JsonType(['name' => 'davert', 'id' => 1, 'data' => ['foo']]);
         $this->assertTrue($jsonType->matches([
             'name' => 'string:!date|string:!empty',
             'id' => 'integer:!=0',
+            'data' => 'array:!empty',
         ]));
     }
 

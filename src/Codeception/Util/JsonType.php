@@ -14,10 +14,11 @@ namespace Codeception\Util;
  *
  * ```php
  * <?php
- * $jsonType = new JsonType(['name' => 'davert', 'id' => 1]);
+ * $jsonType = new JsonType(['name' => 'davert', 'id' => 1, 'data' => []]);
  * $jsonType->matches([
  *   'name' => 'string:!empty',
  *   'id' => 'integer:>0|string:>0',
+ *   'data' => 'array:empty',
  * ]); // => true
  *
  * $jsonType->matches([
