@@ -15,7 +15,8 @@ final class JsonTypeTest extends Unit
         'name' => 'string|null', // http://codeception.com/docs/modules/REST#seeResponseMatchesJsonType
         'user' => [
             'url' => 'String:url'
-        ]
+        ],
+        'empty_array' => 'array',
     ];
 
     protected array $data = [
@@ -23,7 +24,8 @@ final class JsonTypeTest extends Unit
         'retweeted' => false,
         'in_reply_to_screen_name' => null,
         'name' => null,
-        'user' => ['url' => 'http://davert.com']
+        'user' => ['url' => 'http://davert.com'],
+        'empty_array' => [],
     ];
 
     protected function _after()
@@ -135,10 +137,11 @@ final class JsonTypeTest extends Unit
 
     public function testNegativeFilters()
     {
-        $jsonType = new JsonType(['name' => 'davert', 'id' => 1]);
+        $jsonType = new JsonType(['name' => 'davert', 'id' => 1, 'data' => ['foo']]);
         $this->assertTrue($jsonType->matches([
             'name' => 'string:!date|string:!empty',
             'id' => 'integer:!=0',
+            'data' => 'array:!empty',
         ]));
     }
 
@@ -167,6 +170,8 @@ final class JsonTypeTest extends Unit
         $this->types['user'] = 'array';
         $jsonType = new JsonType($this->data);
         $this->assertTrue($jsonType->matches($this->types));
+        $this->assertTrue($jsonType->matches(['empty_array' => 'array:empty']));
+        $this->assertTrue($jsonType->matches(['empty_array' => 'Array:empty']));
     }
 
     public function testNull()

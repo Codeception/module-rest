@@ -1301,6 +1301,7 @@ EOF;
      *
      * Here is the list of possible filters:
      *
+     * * `array:empty` - check that value is an empty array
      * * `integer:>{val}` - checks that integer is greater than {val} (works with float and string types too).
      * * `integer:<{val}` - checks that integer is lower than {val} (works with float and string types too).
      * * `string:url` - checks that value is valid url.
