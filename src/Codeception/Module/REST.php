@@ -201,7 +201,7 @@ EOF;
     }
 
     /**
-     * Sets a HTTP header to be used for all subsequent requests. Use [`deleteHeader`](#deleteHeader) to unset it.
+     * Sets a HTTP header to be used for all subsequent requests. Use [`unsetHttpHeader`](#unsetHttpHeader) to unset it.
      *
      * ```php
      * <?php
@@ -218,7 +218,7 @@ EOF;
     }
 
     /**
-     * Deletes a HTTP header (that was originally added by [haveHttpHeader()](#haveHttpHeader)),
+     * Unsets a HTTP header (that was originally added by [haveHttpHeader()](#haveHttpHeader)),
      * so that subsequent requests will not send it anymore.
      *
      * Example:
@@ -227,17 +227,25 @@ EOF;
      * $I->haveHttpHeader('X-Requested-With', 'Codeception');
      * $I->sendGet('test-headers.php');
      * // ...
-     * $I->deleteHeader('X-Requested-With');
+     * $I->unsetHttpHeader('X-Requested-With');
      * $I->sendPost('some-other-page.php');
      * ```
      *
-     * @param string $name the name of the header to delete.
+     * @param string $name the name of the header to unset.
      * @part json
      * @part xml
      */
-    public function deleteHeader(string $name): void
+    public function unsetHttpHeader(string $name): void
     {
         $this->connectionModule->deleteHeader($name);
+    }
+    
+    /**
+     * @deprecated Use [unsetHttpHeader](#unsetHttpHeader) instead
+     */
+    public function deleteHeader(string $name): void
+    {
+        $this->unsetHttpHeader($name);
     }
 
     /**
