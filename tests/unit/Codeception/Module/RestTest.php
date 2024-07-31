@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Composer\InstalledVersions;
 use Codeception\Configuration;
 use Codeception\Exception\ModuleException;
 use Codeception\Lib\Interfaces\API;
@@ -715,10 +716,16 @@ final class RestTest extends Unit
 
     public static function schemaAndResponse(): array
     {
+        if (version_compare(InstalledVersions::getVersion('justinrainbow/json-schema'), '6', '>=')) {
+            $errorInvalidBasicSchema = 'Must have a minimum value greater than or equal to 0';
+        } else {
+            $errorInvalidBasicSchema = 'Must have a minimum value of 0';
+        }
+
         return [
             //schema, responsefile, valid
             ['schemas/basic-schema.json', 'responses/valid-basic-schema.json', true, ""],
-            ['schemas/basic-schema.json', 'responses/invalid-basic-schema.json', false, "Must have a minimum value of 0"],
+            ['schemas/basic-schema.json', 'responses/invalid-basic-schema.json', false, $errorInvalidBasicSchema],
             ['schemas/complex-schema.json', 'responses/valid-complex-schema.json', true, ""],
             ['schemas/complex-schema.json', 'responses/invalid-complex-schema.json', false, "String value found, but a boolean is required"]
         ];
