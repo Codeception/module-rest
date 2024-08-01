@@ -967,15 +967,19 @@ EOF;
         $validator->validate($responseObject, $schemaObject, JsonConstraint::CHECK_MODE_VALIDATE_SCHEMA);
 
         $outcome = $validator->isValid();
-        $error = '';
+        $message = '';
         if (!$outcome) {
-            $errors = $validator->getErrors();
-            $error = array_shift($errors)["message"];
+            foreach ($validator->getErrors() as $error) {
+                if ($message !== '') {
+                    $message .= ', ';
+                }
+                $message .= sprintf("[Property: '%s'] %s", $error['property'], $error['message']);
+            }
         }
 
         Assert::assertTrue(
             $outcome,
-            $error
+            $message
         );
     }
 
