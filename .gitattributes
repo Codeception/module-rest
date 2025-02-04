@@ -4,3 +4,4 @@
 /.gitignore      export-ignore
 /*.md            export-ignore
 /*.yml           export-ignore
+/.github         export-ignore
