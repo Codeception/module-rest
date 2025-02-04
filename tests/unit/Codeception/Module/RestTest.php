@@ -575,7 +575,7 @@ final class RestTest extends Unit
         $this->setStubResponse('{"success": 1}');
         $this->module->seeResponseJsonXpathEvaluatesTo('count(//success) > 0', true);
     }
- 
+
     public function testSeeResponseJsonXpathEvaluatesToNumber()
     {
         $this->setStubResponse('{"success": 1}');
@@ -587,7 +587,7 @@ final class RestTest extends Unit
         $this->setStubResponse('{"success": 1}');
         $this->module->dontSeeResponseJsonXpathEvaluatesTo('count(//success) > 0', false);
     }
- 
+
     public function testDontSeeResponseJsonXpathEvaluatesToNumber()
     {
         $this->setStubResponse('{"success": 1}');
@@ -649,7 +649,7 @@ final class RestTest extends Unit
      * @dataProvider schemaAndResponse
      */
 
-    public function testSeeResponseIsValidOnJsonSchemachesJsonSchema(string $schema, string $response, bool $outcome, string $error)
+    public function testSeeResponseIsValidOnJsonSchemaMatchesJsonSchema(string $schema, string $response, bool $outcome, string $error)
     {
         $response = file_get_contents(codecept_data_dir($response));
         $this->setStubResponse($response);
@@ -662,7 +662,7 @@ final class RestTest extends Unit
         $this->module->seeResponseIsValidOnJsonSchema(codecept_data_dir($schema));
     }
 
-    public function testSeeResponseIsValidOnJsonSchemachesJsonSchemaString()
+    public function testSeeResponseIsValidOnJsonSchemaMatchesJsonSchemaString()
     {
         $this->setStubResponse('{"name": "john", "age": 20}');
         $this->module->seeResponseIsValidOnJsonSchemaString('{"type": "object"}');
@@ -676,6 +676,14 @@ final class RestTest extends Unit
             ]
         ];
         $this->module->seeResponseIsValidOnJsonSchemaString(json_encode($schema, JSON_THROW_ON_ERROR));
+    }
+
+    public function testSeeResponseIsInvalidOnJsonSchemaMatchesJsonSchemaString()
+    {
+        $this->setStubResponse('{"name": null, "age": 20}');
+        $this->expectExceptionMessage("[Property: 'name'] NULL value found, but a string is required");
+        $this->shouldFail();
+        $this->module->seeResponseIsValidOnJsonSchemaString('{"type": "object", "properties": {"name": {"type": "string"}, "age": {"type": "integer"}}}');
     }
 
     /**
