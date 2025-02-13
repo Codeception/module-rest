@@ -515,6 +515,21 @@ final class RestTest extends Unit
         $this->module->dontSeeResponseMatchesJsonType(['id' => 'integer'], '$.users[0]');
     }
 
+    public function testJsonTypeMatchesWithJsonPathAndPotentiallyEmptyArrays()
+    {
+        // Passes when all users have non-empty roles.
+        $this->setStubResponse('{"users": [{"id": 1, "roles": [{"name": "admin"}]}]}');
+        $this->module->seeResponseMatchesJsonType(['name' => 'string'], '$.users.*.roles.*');
+
+        // Passes when at least one user has non-empty roles.
+        $this->setStubResponse('{"users": [{"id": 1, "roles": [{"name": "admin"}]}, {"id": 2, "roles": []}]}');
+        $this->module->seeResponseMatchesJsonType(['name' => 'string'], '$.users.*.roles.*');
+
+        // Fails when all users have empty roles.
+        $this->setStubResponse('{"users": [{"id": 1, "roles": []}]}');
+        $this->module->seeResponseMatchesJsonType(['name' => 'string'], '$.users.*.roles.*');
+    }
+
     public function testMatchJsonTypeFailsWithNiceMessage()
     {
         $this->setStubResponse('{"xxx": "yyy", "user_id": 1}');
