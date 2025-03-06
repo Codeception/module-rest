@@ -697,18 +697,16 @@ final class RestTest extends Unit
         $connectionModule
             ->expects($this->once())
             ->method('_request')
-            ->will(
-                $this->returnCallback(function($method,
-                    $uri,
-                    $parameters,
-                    $files,
-                    $server,
-                    $content
-                ) use ($expectedFullUrl) {
-                    Assert::assertSame($expectedFullUrl, $uri);
-                    return '';
-                })
-            );
+            ->willReturnCallback(function($method,
+                $uri,
+                $parameters,
+                $files,
+                $server,
+                $content
+            ) use ($expectedFullUrl) {
+                Assert::assertSame($expectedFullUrl, $uri);
+                return '';
+            });
 
         $config = ['url' => $configUrl];
 
