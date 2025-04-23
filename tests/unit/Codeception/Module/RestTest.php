@@ -368,6 +368,18 @@ final class RestTest extends Unit
         $this->assertSame('http://localhost/api/v1/users', $request->getUri());
     }
 
+    public function testGrabHttpHeaders()
+    {
+        $headers = [
+            'Cache-Control' => ['no-cache', 'no-store'],
+            'Content_Language' => 'en-US'
+        ];
+        $response = new SymfonyResponse("", 200, $headers);
+        $this->module->client->mockResponse($response);
+        $this->module->sendGET('/');
+        $this->assertSame($headers, $this->module->grabHttpHeaders());
+    }
+
     public function testSeeHeaders()
     {
         $response = new SymfonyResponse("", 200, [
