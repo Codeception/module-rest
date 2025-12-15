@@ -27,7 +27,7 @@
         "ext-simplexml": "*",
         "codeception/lib-innerbrowser": "^3.0 | ^4.0",
         "codeception/stub": "^4.0",
-        "codeception/util-universalframework": "^1.0"
+        "codeception/util-universalframework": "^2.0"
     },
     "suggest": {
         "aws/aws-sdk-php": "For using AWS Auth"
