@@ -692,7 +692,7 @@ EOF;
                 $files = [];
             } else {
                 $this->debugSection("Request",
-                    sprintf('%s %s ', $method, $url) . json_encode($parameters, JSON_PRESERVE_ZERO_FRACTION | JSON_THROW_ON_ERROR)
+                    sprintf('%s %s ', $method, $url) . json_encode($parameters, JSON_PRESERVE_ZERO_FRACTION | JSON_INVALID_UTF8_SUBSTITUTE | JSON_PARTIAL_OUTPUT_ON_ERROR)
                 );
                 $files = $this->formatFilesArray($files);
             }

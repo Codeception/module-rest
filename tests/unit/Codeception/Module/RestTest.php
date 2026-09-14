@@ -237,6 +237,22 @@ final class RestTest extends Unit
         $this->assertJson($request->getContent());
     }
 
+    public function testMalformedUtf8ArrayBodyDoesNotThrowDuringLogging()
+    {
+        // Intentionally badly-encoded payload (Windows-1250 bytes in a UTF-8 context).
+        // Building the request debug log must not throw a JsonException, and the request
+        // must still be dispatched with the raw bytes intact.
+        $invalidData = ['name' => iconv('utf-8', 'Windows-1250', 'michał')];
+
+        $this->module->sendPOST('/', $invalidData);
+
+        /** @var SymfonyRequest $request */
+        $request = $this->module->client->getRequest();
+        $this->assertSame('POST', $request->getMethod());
+        $this->assertSame(http_build_query($invalidData), $request->getContent());
+    }
+
+
     /**
      * @dataProvider requestBodyAwareMethods
      */
