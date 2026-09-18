@@ -201,6 +201,23 @@ EOF;
     }
 
     /**
+     * Returns all HTTP headers from the last response.
+     *
+     * ```php
+     * <?php
+     * $I->sendGet('/message/1');
+     * $headers = $I->grabHttpHeaders();
+     * ```
+     *
+     * @part json
+     * @part xml
+     */
+    public function grabHttpHeaders(): array
+    {
+        return $this->getRunningClient()->getInternalResponse()->getHeaders();
+    }
+
+    /**
      * Sets a HTTP header to be used for all subsequent requests. Use [`unsetHttpHeader`](#unsetHttpHeader) to unset it.
      *
      * ```php
