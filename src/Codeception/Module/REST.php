@@ -28,6 +28,9 @@ use JsonSchema\Constraints\Constraint as JsonConstraint;
 use JsonSchema\Validator as JsonSchemaValidator;
 use JsonSerializable;
 use PHPUnit\Framework\Assert;
+use SoftCreatR\JsonPayloadContract\Contract;
+use SoftCreatR\JsonPayloadContract\Result;
+use SoftCreatR\JsonPayloadContract\Violation;
 use Symfony\Component\BrowserKit\AbstractBrowser;
 use Symfony\Component\HttpKernel\HttpKernelBrowser;
 
@@ -1061,6 +1064,92 @@ EOF;
     public function grabDataFromResponseByJsonPath(string $jsonPath): array
     {
         return (new JsonArray($this->connectionModule->_getResponseContent()))->filterByJsonPath($jsonPath);
+    }
+
+    /**
+     * Checks whether the last JSON response satisfies a JSON Payload Contract.
+     *
+     * This assertion validates and normalizes the response in one pass. Contract
+     * violations include the output field, stable violation code, message, and
+     * selector when available.
+     *
+     * JSON Payload Contract is an optional integration and requires PHP 8.3 or
+     * newer. Install it with:
+     *
+     * ``` shell
+     * composer require --dev softcreatr/json-payload-contract
+     * ```
+     *
+     * Example:
+     *
+     * ``` php
+     * <?php
+     * use SoftCreatR\JsonPayloadContract\Contract;
+     * use SoftCreatR\JsonPayloadContract\Field;
+     *
+     * $contract = Contract::define([
+     *     'id' => Field::required('$.data.user.id')
+     *         ->fallback('$.user.id')
+     *         ->integer(),
+     *     'email' => Field::required('$.data.user.email')
+     *         ->fallback('$.user.email')
+     *         ->string()
+     *         ->email(),
+     * ]);
+     *
+     * $I->seeResponseMatchesJsonPayloadContract($contract);
+     * ```
+     *
+     * @part json
+     */
+    public function seeResponseMatchesJsonPayloadContract(Contract $contract): void
+    {
+        $result = $contract->extractJson($this->connectionModule->_getResponseContent());
+
+        Assert::assertTrue($result->isValid(), $this->formatJsonPayloadContractViolations($result));
+    }
+
+    /**
+     * Returns normalized data from the last JSON response using a JSON Payload Contract.
+     *
+     * The action throws an extraction exception containing every contract
+     * violation when the response is malformed or does not satisfy the contract.
+     *
+     * Example:
+     *
+     * ``` php
+     * <?php
+     * $user = $I->grabDataFromResponseByJsonPayloadContract($contract);
+     * $I->sendPost('/users', $user);
+     * ```
+     *
+     * @part json
+     * @return array<string, mixed> Normalized contract output
+     * @throws \SoftCreatR\JsonPayloadContract\Exception\ExtractionException
+     */
+    public function grabDataFromResponseByJsonPayloadContract(Contract $contract): array
+    {
+        return $contract->applyJson($this->connectionModule->_getResponseContent());
+    }
+
+    private function formatJsonPayloadContractViolations(Result $result): string
+    {
+        $violations = array_map(
+            static function (Violation $violation): string {
+                $selector = $violation->selector === null ? '' : sprintf(' (selector: %s)', $violation->selector);
+
+                return sprintf(
+                    '- %s [%s]: %s%s',
+                    $violation->field,
+                    $violation->code->value,
+                    $violation->message,
+                    $selector
+                );
+            },
+            $result->violations()
+        );
+
+        return "Response does not satisfy the JSON payload contract:\n" . implode("\n", $violations);
     }
 
     /**

@@ -16,6 +16,9 @@ use Codeception\Util\Maybe;
 use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\ExpectationFailedException;
+use SoftCreatR\JsonPayloadContract\Contract;
+use SoftCreatR\JsonPayloadContract\Exception\ExtractionException;
+use SoftCreatR\JsonPayloadContract\Field;
 use Symfony\Component\BrowserKit\Request as SymfonyRequest;
 use Symfony\Component\BrowserKit\Response as SymfonyResponse;
 
@@ -130,6 +133,77 @@ final class RestTest extends Unit
         $this->assertSame([], $this->module->grabDataFromResponseByJsonPath('$.address.street'));
     }
 
+    public function testSeeResponseMatchesJsonPayloadContract()
+    {
+        $this->requireJsonPayloadContract();
+        $this->setStubResponse('{"data":{"user":{"id":42,"email":"john@example.com"}}}');
+
+        $contract = Contract::define([
+            'id' => Field::required('$.data.user.id')->integer(),
+            'email' => Field::required('$.data.user.email')->string()->email(),
+        ]);
+
+        $this->module->seeResponseMatchesJsonPayloadContract($contract);
+    }
+
+    public function testSeeResponseMatchesJsonPayloadContractReportsAllViolations()
+    {
+        $this->requireJsonPayloadContract();
+        $this->setStubResponse('{"data":{"user":{"id":"42","email":"invalid"}}}');
+
+        $contract = Contract::define([
+            'id' => Field::required('$.data.user.id')->integer(),
+            'email' => Field::required('$.data.user.email')->string()->email(),
+            'name' => Field::required('$.data.user.name')->string(),
+        ]);
+
+        $this->expectException(ExpectationFailedException::class);
+        $this->expectExceptionMessage(
+            "Response does not satisfy the JSON payload contract:\n"
+            . '- id [unexpected_type]: Expected integer, got string. (selector: $.data.user.id)' . "\n"
+            . '- email [invalid_email]: The value must be a valid email address. (selector: $.data.user.email)' . "\n"
+            . '- name [missing_required]: The required field did not match any value.'
+        );
+
+        $this->module->seeResponseMatchesJsonPayloadContract($contract);
+    }
+
+    public function testGrabDataFromResponseByJsonPayloadContractNormalizesFallbackData()
+    {
+        $this->requireJsonPayloadContract();
+        $this->setStubResponse('{"user":{"id":"42","roles":["admin","billing"]}}');
+
+        $contract = Contract::define([
+            'id' => Field::required('$.data.user.id')
+                ->fallback('$.user.id')
+                ->integer()
+                ->coerce(),
+            'roles' => Field::many('$.data.user.roles[*]')
+                ->fallback('$.user.roles[*]')
+                ->string(),
+        ]);
+
+        $this->assertSame(
+            ['id' => 42, 'roles' => ['admin', 'billing']],
+            $this->module->grabDataFromResponseByJsonPayloadContract($contract)
+        );
+    }
+
+    public function testGrabDataFromResponseByJsonPayloadContractRejectsInvalidJson()
+    {
+        $this->requireJsonPayloadContract();
+        $this->setStubResponse('{invalid');
+
+        $contract = Contract::define([
+            'id' => Field::required('$.id')->integer(),
+        ]);
+
+        $this->expectException(ExtractionException::class);
+        $this->expectExceptionMessage('Payload does not satisfy the contract: $: Syntax error');
+
+        $this->module->grabDataFromResponseByJsonPayloadContract($contract);
+    }
+
     public function testValidJson()
     {
         $this->setStubResponse('{"xxx": "yyy"}');
@@ -137,6 +211,13 @@ final class RestTest extends Unit
         $this->setStubResponse('{"xxx": "yyy", "zzz": ["a","b"]}');
         $this->module->seeResponseIsJson();
         $this->module->seeResponseEquals('{"xxx": "yyy", "zzz": ["a","b"]}');
+    }
+
+    private function requireJsonPayloadContract(): void
+    {
+        if (!class_exists(Contract::class)) {
+            $this->markTestSkipped('JSON Payload Contract requires PHP 8.3 or newer.');
+        }
     }
 
     public function testInvalidJson()
