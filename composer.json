@@ -30,7 +30,8 @@
         "codeception/util-universalframework": "^2.0"
     },
     "suggest": {
-        "aws/aws-sdk-php": "For using AWS Auth"
+        "aws/aws-sdk-php": "For using AWS Auth",
+        "softcreatr/json-payload-contract": "For validating and normalizing JSON responses against payload contracts"
     },
     "minimum-stability": "RC",
     "autoload": {
